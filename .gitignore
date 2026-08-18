@@ -1,0 +1,29 @@
+# Go
+/bin/
+*.test
+*.out
+
+# 로컬에 내려받은 Gutenberg 원본 HTML — 절대 커밋하지 말 것.
+# 재현은 `make fetch-corpus` (internal/parse/testdata/corpus.json 기준)
+/.cache/
+
+# 환경변수
+.env
+.env.*
+!.env.example
+
+# 웹
+/web/node_modules/
+/web/.output/
+/web/.nitro/
+/web/.tanstack/
+/web/dist/
+
+# 생성 코드는 커밋합니다 (sqlc, oapi-codegen, orval).
+# 손으로 고치지 말고 `make generate`로 재생성할 것.
+
+# OS / 에디터
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
