@@ -15,8 +15,12 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/ARCHITECTURE.md` | 시스템 구조, 데이터 모델, 핵심 불변식 |
 | `docs/DECISIONS.md` | 설계 결정 이력 (ADR) |
 | `docs/CONVENTIONS.md` | 코딩 규약 |
+| `docs/SPIKE_PARSER.md` | **현재 진행 중인 작업 — 파서 검증 스파이크 명세** |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
+
+**현재 진행 중인 작업은 `docs/SPIKE_PARSER.md`입니다.** 파서 검증 스파이크가 끝나기 전에는
+DB·API·웹 코드를 작성하지 마세요. 스파이크 결과가 스키마 설계를 바꿀 수 있습니다 (ADR-011).
 
 ## 기술 스택
 
