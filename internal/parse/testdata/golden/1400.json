@@ -1,0 +1,427 @@
+{
+  "gutenberg_id": 1400,
+  "title": "Great Expectations",
+  "source_sha256": "b19b9b388e80340e0439eafbe4241caa9e7c419a5a2430a1a5108731e09aa654",
+  "strategy": "section-chapter",
+  "confidence": 0.9818,
+  "coverage": 0.9943,
+  "chapter_count": 59,
+  "paragraph_count": 3833,
+  "total_chars": 984015,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "Chapter I.",
+      "paragraph_count": 45,
+      "chars": 9496,
+      "text_sha256": "03a6eef7d39c257eab3e5c2c4361a1c21bb75facf4dbd684a8f540128957a17d"
+    },
+    {
+      "idx": 1,
+      "title": "Chapter II.",
+      "paragraph_count": 64,
+      "chars": 18114,
+      "text_sha256": "b7adf0f5f42ebc7b8ff5623a83002a2d7e6100ddd194ab546212140dc599b9cb"
+    },
+    {
+      "idx": 2,
+      "title": "Chapter III.",
+      "paragraph_count": 46,
+      "chars": 10043,
+      "text_sha256": "09a3b18b5eea191c4f87c15ea9da7ed4eef296add6a6c8755b9f52330b8ed6cb"
+    },
+    {
+      "idx": 3,
+      "title": "Chapter IV.",
+      "paragraph_count": 55,
+      "chars": 18453,
+      "text_sha256": "e3bf31331215bf036ff22801090fbf4e26aee82536155d49a0b91510f07025b4"
+    },
+    {
+      "idx": 4,
+      "title": "Chapter V.",
+      "paragraph_count": 73,
+      "chars": 22224,
+      "text_sha256": "be3c50afc561940e54fc27bef6be80f50aa48ded42b1b0dee2640d2c96acd27e"
+    },
+    {
+      "idx": 5,
+      "title": "Chapter VI.",
+      "paragraph_count": 5,
+      "chars": 4099,
+      "text_sha256": "c1752c3dfd210099d11fe9f9b6e8ab21ded9c6e57640cc28d3a38e4d2f2e29dd"
+    },
+    {
+      "idx": 6,
+      "title": "Chapter VII.",
+      "paragraph_count": 92,
+      "chars": 21151,
+      "text_sha256": "c099f3584552e22dbfb8e857f0c7f8281f5d21fde70c8464e56c300fdd83f6c1"
+    },
+    {
+      "idx": 7,
+      "title": "Chapter VIII.",
+      "paragraph_count": 105,
+      "chars": 24917,
+      "text_sha256": "35c10db1f69f25a5a6d4ede3deb10795ddee3cb78a9a97d8335e2e38d5bb3593"
+    },
+    {
+      "idx": 8,
+      "title": "Chapter IX.",
+      "paragraph_count": 73,
+      "chars": 14090,
+      "text_sha256": "77e2fa73e189cd41522acd469593e42944149c7a4249ef9ac253a240a0a20dd1"
+    },
+    {
+      "idx": 9,
+      "title": "Chapter X.",
+      "paragraph_count": 56,
+      "chars": 13440,
+      "text_sha256": "1d04d6f65eed3afbb890e6eb290b436a9289b7204e592aec46adf4b3ad5a4fcd"
+    },
+    {
+      "idx": 10,
+      "title": "Chapter XI.",
+      "paragraph_count": 128,
+      "chars": 28389,
+      "text_sha256": "113a1d0280c80816385c958adb5289cdb4e2a27862f40a4b9eaf8fd4c746056f"
+    },
+    {
+      "idx": 11,
+      "title": "Chapter XII.",
+      "paragraph_count": 26,
+      "chars": 12049,
+      "text_sha256": "52ffce380f90eade594ba8eb52e044e2bdb55e85ebf374ee89444044cd222a61"
+    },
+    {
+      "idx": 12,
+      "title": "Chapter XIII.",
+      "paragraph_count": 68,
+      "chars": 15380,
+      "text_sha256": "cbc85486aa4078cdd50c298340c1355c068cd6fe2817793151519cad383b4bec"
+    },
+    {
+      "idx": 13,
+      "title": "Chapter XIV.",
+      "paragraph_count": 8,
+      "chars": 4275,
+      "text_sha256": "5258029d3439d740206522fc024788e7b0177b90517a5c29b4e2f670882bf36d"
+    },
+    {
+      "idx": 14,
+      "title": "Chapter XV.",
+      "paragraph_count": 93,
+      "chars": 22777,
+      "text_sha256": "0d6c06467e79c392ed3c2671548363fd7a04e155570960f6f4118e8764e68184"
+    },
+    {
+      "idx": 15,
+      "title": "Chapter XVI.",
+      "paragraph_count": 17,
+      "chars": 10487,
+      "text_sha256": "0272d7e185dd47e8728d258baf5865a8bb40993ec3aa1dc6cd4f47a7bb809265"
+    },
+    {
+      "idx": 16,
+      "title": "Chapter XVII.",
+      "paragraph_count": 75,
+      "chars": 17548,
+      "text_sha256": "993f0d0692f0b282345c6fe9f978de8ca519c16eab542a20b98dfafbabcd5a01"
+    },
+    {
+      "idx": 17,
+      "title": "Chapter XVIII.",
+      "paragraph_count": 133,
+      "chars": 26920,
+      "text_sha256": "0c61f35ea19dedcc08334a28c74c4eb2e432945c3d081bcaddd927f0fc298010"
+    },
+    {
+      "idx": 18,
+      "title": "Chapter XIX.",
+      "paragraph_count": 110,
+      "chars": 30280,
+      "text_sha256": "ceae935237c28516bb254bb7a2ac3ec3276ce7353a0f70ede0914ab5e3de9ce7"
+    },
+    {
+      "idx": 19,
+      "title": "Chapter XX.",
+      "paragraph_count": 73,
+      "chars": 16828,
+      "text_sha256": "1ce32906379a06c01c5cf006abab8b056a961cbe2104f24f1c7648372caead69"
+    },
+    {
+      "idx": 20,
+      "title": "Chapter XXI.",
+      "paragraph_count": 43,
+      "chars": 9378,
+      "text_sha256": "6892cb93109b4c0ead0d6c4e14fe4e4be2ffa8220f725ab98ae38b88d8e8d7fa"
+    },
+    {
+      "idx": 21,
+      "title": "Chapter XXII.",
+      "paragraph_count": 109,
+      "chars": 26703,
+      "text_sha256": "18d3bef48ab88441b7358e8f0978d255109f5e3520621cae1a0b2312e13b8c78"
+    },
+    {
+      "idx": 22,
+      "title": "Chapter XXIII.",
+      "paragraph_count": 49,
+      "chars": 17563,
+      "text_sha256": "a2fc7df6cbcede85486e9344e5776338577e34be0e57ec5ddf81187cfc81e040"
+    },
+    {
+      "idx": 23,
+      "title": "Chapter XXIV.",
+      "paragraph_count": 51,
+      "chars": 12471,
+      "text_sha256": "572e8ca262a9b29180f3d2fd5d06c12cc461bf80f7247a0d217cc051ed3406d7"
+    },
+    {
+      "idx": 24,
+      "title": "Chapter XXV.",
+      "paragraph_count": 54,
+      "chars": 15740,
+      "text_sha256": "528b98dc15782fd2716de54c576524297eb41e9cdcb2f818d804f3675da2e350"
+    },
+    {
+      "idx": 25,
+      "title": "Chapter XXVI.",
+      "paragraph_count": 54,
+      "chars": 15198,
+      "text_sha256": "0c89864469114c16cafe4c5008a537f8956a43d5faf444e3d0777b8ed294ea1c"
+    },
+    {
+      "idx": 26,
+      "title": "Chapter XXVII.",
+      "paragraph_count": 65,
+      "chars": 16085,
+      "text_sha256": "d236b79b057f4a85bbd3915f16a8cf9ee1d8d8322503473f7b1cc4d242b07588"
+    },
+    {
+      "idx": 27,
+      "title": "Chapter XXVIII.",
+      "paragraph_count": 40,
+      "chars": 13074,
+      "text_sha256": "2b6164d2455a144386a42c0c0822c7b425251e4d713f6fa9f3273253a66f30ad"
+    },
+    {
+      "idx": 28,
+      "title": "Chapter XXIX.",
+      "paragraph_count": 119,
+      "chars": 25868,
+      "text_sha256": "6ac078b245777af775f5e90b85b3daf8b663d25ff8be374aae121fd65745b4b3"
+    },
+    {
+      "idx": 29,
+      "title": "Chapter XXX.",
+      "paragraph_count": 70,
+      "chars": 18092,
+      "text_sha256": "efca406b3f86c3fc42425cf02da077090801ee079f483badddc4a5d76c15969c"
+    },
+    {
+      "idx": 30,
+      "title": "Chapter XXXI.",
+      "paragraph_count": 35,
+      "chars": 11825,
+      "text_sha256": "3b91ceb66c4dd8662284629559c09c913a27e85f3afea9c25fa28be9e3bb3a7c"
+    },
+    {
+      "idx": 31,
+      "title": "Chapter XXXII.",
+      "paragraph_count": 46,
+      "chars": 11981,
+      "text_sha256": "5bc2412aefcc2a4093195c0546b866c3628e9244417a32c4845846b4602c7c29"
+    },
+    {
+      "idx": 32,
+      "title": "Chapter XXXIII.",
+      "paragraph_count": 64,
+      "chars": 14361,
+      "text_sha256": "29ecfd2e6b44e1d499e249620826b9be6663d9f4031715df3bf07d450a9c8830"
+    },
+    {
+      "idx": 33,
+      "title": "Chapter XXXIV.",
+      "paragraph_count": 30,
+      "chars": 12825,
+      "text_sha256": "185b020b1fa9a86366c1d1be95c60443e68b35aada8cdb9c7cd851f9bc7ee111"
+    },
+    {
+      "idx": 34,
+      "title": "Chapter XXXV.",
+      "paragraph_count": 61,
+      "chars": 16152,
+      "text_sha256": "e3a81dca9d92b5f879563c4e19bf0c0910f00ada6d103b1a53f645a8364a687e"
+    },
+    {
+      "idx": 35,
+      "title": "Chapter XXXVI.",
+      "paragraph_count": 75,
+      "chars": 13601,
+      "text_sha256": "5b0a07c5a18541b0538e5b60dbfc19edea69994af56e7e97420acef10434054d"
+    },
+    {
+      "idx": 36,
+      "title": "Chapter XXXVII.",
+      "paragraph_count": 36,
+      "chars": 15404,
+      "text_sha256": "8f93bd246cfbdc3fc240c8cbae9db7564f9f70353bc6d5ef679a65e804fb3e3b"
+    },
+    {
+      "idx": 37,
+      "title": "Chapter XXXVIII.",
+      "paragraph_count": 109,
+      "chars": 26193,
+      "text_sha256": "0d6e6965e6bc33a263f74a32f9cdba61a2f22f209f80d05153eaec0de2cb19bc"
+    },
+    {
+      "idx": 38,
+      "title": "Chapter XXXIX.",
+      "paragraph_count": 103,
+      "chars": 24899,
+      "text_sha256": "75359be177bcc863600ca7b1df0bb47cb27db62d01e10bb779e090aa781d4ca4"
+    },
+    {
+      "idx": 39,
+      "title": "Chapter XL.",
+      "paragraph_count": 117,
+      "chars": 27415,
+      "text_sha256": "3e9ca9980bc3e92ff5810dd582de330181c02b4208399874a801919af57cfdab"
+    },
+    {
+      "idx": 40,
+      "title": "Chapter XLI.",
+      "paragraph_count": 53,
+      "chars": 11387,
+      "text_sha256": "1e4a2011bf7b38c2e3d5f9b61247051371b1fdf54ad59f5757b8630cf7051a0b"
+    },
+    {
+      "idx": 41,
+      "title": "Chapter XLII.",
+      "paragraph_count": 46,
+      "chars": 15221,
+      "text_sha256": "e6bbf272946cf8df9487c734c2cc6dd9453ed4d21afd640581ebf99d4a9f52e8"
+    },
+    {
+      "idx": 42,
+      "title": "Chapter XLIII.",
+      "paragraph_count": 58,
+      "chars": 10347,
+      "text_sha256": "9e76f216d41b306f04f973856d8dfec9c864af8a85916c26dd347f13e9135259"
+    },
+    {
+      "idx": 43,
+      "title": "Chapter XLIV.",
+      "paragraph_count": 77,
+      "chars": 15049,
+      "text_sha256": "a8567f6c797926920839fd1398638f59caa8ed673b25312ae4a0a90179eb7bef"
+    },
+    {
+      "idx": 44,
+      "title": "Chapter XLV.",
+      "paragraph_count": 55,
+      "chars": 15807,
+      "text_sha256": "e5718d21c8a29be8b288db7c8f139ea5d2b3a9038f770e740bed140a3e032b5e"
+    },
+    {
+      "idx": 45,
+      "title": "Chapter XLVI.",
+      "paragraph_count": 44,
+      "chars": 16144,
+      "text_sha256": "49e73dace37ffd2ec33ab3b9bf6722db8f760655e4579606fcb2214b72b9ace7"
+    },
+    {
+      "idx": 46,
+      "title": "Chapter XLVII.",
+      "paragraph_count": 40,
+      "chars": 13632,
+      "text_sha256": "424e82e5b4c46f8e02eaaff37333f32c574896f928e39653730351ae661fa86e"
+    },
+    {
+      "idx": 47,
+      "title": "Chapter XLVIII.",
+      "paragraph_count": 64,
+      "chars": 14443,
+      "text_sha256": "b6c5102db4ab97aeb4aaacb3a1ef063d24d26b480197d5dd55468cdfa449faad"
+    },
+    {
+      "idx": 48,
+      "title": "Chapter XLIX.",
+      "paragraph_count": 82,
+      "chars": 18626,
+      "text_sha256": "6f3fa435485adcb6fa40e7732988df84f5c20eb78b96acf7c67d2581744be9d1"
+    },
+    {
+      "idx": 49,
+      "title": "Chapter L.",
+      "paragraph_count": 48,
+      "chars": 7923,
+      "text_sha256": "a7247e1c8c057a11ebdf453f9b15c96ea9d12b24d6ea549f1c8dfd0719214b7f"
+    },
+    {
+      "idx": 50,
+      "title": "Chapter LI.",
+      "paragraph_count": 66,
+      "chars": 16097,
+      "text_sha256": "5c882359a54aca5f0394b0bd1e5fc72a1348889484224529cd6d90ba74b2b257"
+    },
+    {
+      "idx": 51,
+      "title": "Chapter LII.",
+      "paragraph_count": 42,
+      "chars": 10870,
+      "text_sha256": "9d22d37e960260e13e8b31c35b09abd4f968a9c7eead0ab5a74381f089d95194"
+    },
+    {
+      "idx": 52,
+      "title": "Chapter LIII.",
+      "paragraph_count": 84,
+      "chars": 27056,
+      "text_sha256": "ca894c3e049ce23e8e6e982513b43094089c736dd5b21f0316a05bb861ab08e5"
+    },
+    {
+      "idx": 53,
+      "title": "Chapter LIV.",
+      "paragraph_count": 82,
+      "chars": 30017,
+      "text_sha256": "7638a1ee4f07d23b454283011bfb9cfeb20502107e26856c57e716071917034b"
+    },
+    {
+      "idx": 54,
+      "title": "Chapter LV.",
+      "paragraph_count": 64,
+      "chars": 15261,
+      "text_sha256": "e4d10dacb437ca62bc06a746d0ccf64452bdda69736b3ed8c52f79466806590a"
+    },
+    {
+      "idx": 55,
+      "title": "Chapter LVI.",
+      "paragraph_count": 35,
+      "chars": 11553,
+      "text_sha256": "d5aa4c0720579491a14ada8150c9bdef1e6b35d4007455bdf9bd62a0a6a231e9"
+    },
+    {
+      "idx": 56,
+      "title": "Chapter LVII.",
+      "paragraph_count": 108,
+      "chars": 25166,
+      "text_sha256": "fee6e860630029499b9e4edc791ae2b012034145086b2f4efd4d0e4988ce92d7"
+    },
+    {
+      "idx": 57,
+      "title": "Chapter LVIII.",
+      "paragraph_count": 64,
+      "chars": 16070,
+      "text_sha256": "93c59bbe8c6ae04d5e31bc3b3f0b1f0d6a921a8ee0d8d7612e7a5aab919f703e"
+    },
+    {
+      "idx": 58,
+      "title": "Chapter LIX.",
+      "paragraph_count": 46,
+      "chars": 7558,
+      "text_sha256": "6064b88800432f5dc950a8dae83780ffdca257f21af1186f7e793736e0dd2a06"
+    }
+  ]
+}

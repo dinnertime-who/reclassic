@@ -1,0 +1,35 @@
+{
+  "gutenberg_id": 5200,
+  "title": "Metamorphosis",
+  "source_sha256": "dc4c08fb6744bbe7590e2a115a9d1df2b178104733b1a0c284401d81a6ae0780",
+  "strategy": "section-chapter",
+  "confidence": 0.9994,
+  "coverage": 0.9986,
+  "chapter_count": 3,
+  "paragraph_count": 97,
+  "total_chars": 118203,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "I",
+      "paragraph_count": 30,
+      "chars": 37949,
+      "text_sha256": "3259e634a3e16c4b2f47107dcba7fabd37a70fab21eec4038edbbc8c9997bc2c"
+    },
+    {
+      "idx": 1,
+      "title": "II",
+      "paragraph_count": 29,
+      "chars": 40086,
+      "text_sha256": "12dd1b67c8942698e51b8c9b6766e02be9aad569fa93b23c72c4ea5cea5bc822"
+    },
+    {
+      "idx": 2,
+      "title": "III",
+      "paragraph_count": 38,
+      "chars": 40168,
+      "text_sha256": "2cbc269528505e016e0d64d73a00a9cce45c995ca84e506de0ba87293dbdeb77"
+    }
+  ]
+}

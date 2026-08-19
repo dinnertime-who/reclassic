@@ -1,0 +1,266 @@
+{
+  "gutenberg_id": 1232,
+  "title": "The Prince",
+  "source_sha256": "7b7999c10241d1e4e8d6353687e6ba130ba8b192759ddd0b592207c1d773bc36",
+  "strategy": "section-chapter",
+  "confidence": 0.9862,
+  "coverage": 0.9816,
+  "chapter_count": 36,
+  "paragraph_count": 326,
+  "total_chars": 276758,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "",
+      "paragraph_count": 1,
+      "chars": 277,
+      "text_sha256": "e4a997289ab6797d11495135192153da6a6838ce9d4d298dedae5c6c198869b4"
+    },
+    {
+      "idx": 1,
+      "title": "INTRODUCTION",
+      "paragraph_count": 2,
+      "chars": 1118,
+      "text_sha256": "456b46759ac1c79b52493e211a522fc794c3b2bfebd2add65f26c5b745a4a47a"
+    },
+    {
+      "idx": 2,
+      "title": "YOUTH - Æt. 1-25-1469-94",
+      "paragraph_count": 2,
+      "chars": 2248,
+      "text_sha256": "63656305045cd514270f90b0ef8b5423e7ede6ee21bc9b2f4910d8caf040bd5f"
+    },
+    {
+      "idx": 3,
+      "title": "OFFICE - Æt. 25-43-1494-1512",
+      "paragraph_count": 8,
+      "chars": 5830,
+      "text_sha256": "0f938d003aceeb4cfd3e26db3c9b31569bcb469f1bce2b9f39db425f1a16120e"
+    },
+    {
+      "idx": 4,
+      "title": "LITERATURE AND DEATH - Æt. 43-58-1512-27",
+      "paragraph_count": 9,
+      "chars": 5647,
+      "text_sha256": "e6a0676648b50a2953b931f90796bac12f220ae43d8324beefb132c751f2b936"
+    },
+    {
+      "idx": 5,
+      "title": "THE MAN AND HIS WORKS",
+      "paragraph_count": 11,
+      "chars": 7513,
+      "text_sha256": "bd4b981ed438876adfc5db1695ebad18e869401e5e7aedaa38f886287b3b26dd"
+    },
+    {
+      "idx": 6,
+      "title": "DEDICATION",
+      "paragraph_count": 6,
+      "chars": 2510,
+      "text_sha256": "b3756a2f21e04b5e4d8a621b8f95645308d891455733c9e8f667717efd9ce234"
+    },
+    {
+      "idx": 7,
+      "title": "THE PRINCE",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 8,
+      "title": "CHAPTER I. HOW MANY KINDS OF PRINCIPALITIES THERE ARE, AND BY WHAT MEANS THEY ARE ACQUIRED",
+      "paragraph_count": 4,
+      "chars": 647,
+      "text_sha256": "7e35cecf4b848977b50d2764bc500d684451f25bd82b4832bc72725c18d91161"
+    },
+    {
+      "idx": 9,
+      "title": "CHAPTER II. CONCERNING HEREDITARY PRINCIPALITIES",
+      "paragraph_count": 3,
+      "chars": 1417,
+      "text_sha256": "a72b3b65912b6f6f3615f22df5dafe531ef2feb2cbf377507e614998f0f8d3b0"
+    },
+    {
+      "idx": 10,
+      "title": "CHAPTER III. CONCERNING MIXED PRINCIPALITIES",
+      "paragraph_count": 24,
+      "chars": 17065,
+      "text_sha256": "a34a9a4240a83866cc3f27aa9f6d2681d18e3548340a40c8b26e1843722c0c87"
+    },
+    {
+      "idx": 11,
+      "title": "CHAPTER IV. WHY THE KINGDOM OF DARIUS, CONQUERED BY ALEXANDER, DID NOT REBEL AGAINST THE SUCCESSORS OF ALEXANDER AT HIS DEATH",
+      "paragraph_count": 7,
+      "chars": 5286,
+      "text_sha256": "bcb58253e09274921c4832e30d898f50a2d73883b5d460ec8a570c325e641e4a"
+    },
+    {
+      "idx": 12,
+      "title": "CHAPTER V. CONCERNING THE WAY TO GOVERN CITIES OR PRINCIPALITIES WHICH LIVED UNDER THEIR OWN LAWS BEFORE THEY WERE ANNEXED",
+      "paragraph_count": 3,
+      "chars": 2414,
+      "text_sha256": "e532e2fde67809e2df972e3cde00499eadcc82c4a331062b074c595d35e87166"
+    },
+    {
+      "idx": 13,
+      "title": "CHAPTER VI. CONCERNING NEW PRINCIPALITIES WHICH ARE ACQUIRED BY ONE'S OWN ARMS AND ABILITY",
+      "paragraph_count": 9,
+      "chars": 6752,
+      "text_sha256": "248a2ed7d5e61820dc3898d009e45ab40fdf48667dff936b672690c63ef0934c"
+    },
+    {
+      "idx": 14,
+      "title": "CHAPTER VII. CONCERNING NEW PRINCIPALITIES WHICH ARE ACQUIRED EITHER BY THE ARMS OF OTHERS OR BY GOOD FORTUNE",
+      "paragraph_count": 19,
+      "chars": 15206,
+      "text_sha256": "dc123584955c5481782d932dc7f03823860176984f6dbe8559a41c219e339ebd"
+    },
+    {
+      "idx": 15,
+      "title": "CHAPTER VIII. CONCERNING THOSE WHO HAVE OBTAINED A PRINCIPALITY BY WICKEDNESS",
+      "paragraph_count": 10,
+      "chars": 8812,
+      "text_sha256": "39a6a031d388b393b3b4d9b61ad8071641beeb877886f48db089e38db7abf28f"
+    },
+    {
+      "idx": 16,
+      "title": "CHAPTER IX. CONCERNING A CIVIL PRINCIPALITY",
+      "paragraph_count": 9,
+      "chars": 7200,
+      "text_sha256": "d77c6bf5825e5119b8faf6863c914169b6d84f5479864dd95eb2a0b4b2917206"
+    },
+    {
+      "idx": 17,
+      "title": "CHAPTER X. CONCERNING THE WAY IN WHICH THE STRENGTH OF ALL PRINCIPALITIES OUGHT TO BE MEASURED",
+      "paragraph_count": 4,
+      "chars": 3848,
+      "text_sha256": "fdbf5d3617e1fa6935a4a707ebfd040f46f160df70859163e0f112e90fc586cc"
+    },
+    {
+      "idx": 18,
+      "title": "CHAPTER XI. CONCERNING ECCLESIASTICAL PRINCIPALITIES",
+      "paragraph_count": 7,
+      "chars": 5042,
+      "text_sha256": "b24dd21953e7e2c79fbf028f31a3dd479e1357aab13c750da131ec0ae1a0afd2"
+    },
+    {
+      "idx": 19,
+      "title": "CHAPTER XII. HOW MANY KINDS OF SOLDIERY THERE ARE, AND CONCERNING MERCENARIES",
+      "paragraph_count": 17,
+      "chars": 11166,
+      "text_sha256": "d39f0dcef70764e906777b62ce6bf4b8d526c983206c75ccdd3002a1024fcb8e"
+    },
+    {
+      "idx": 20,
+      "title": "CHAPTER XIII. CONCERNING AUXILIARIES, MIXED SOLDIERY, AND ONE'S OWN",
+      "paragraph_count": 16,
+      "chars": 7881,
+      "text_sha256": "666d2779a5e418b07f6421bfc9113f9cc5494448642fa452f90e6dca8caba853"
+    },
+    {
+      "idx": 21,
+      "title": "CHAPTER XIV. THAT WHICH CONCERNS A PRINCE ON THE SUBJECT OF THE ART OF WAR",
+      "paragraph_count": 5,
+      "chars": 4840,
+      "text_sha256": "11f889658ee0f2b0b50e934d4fe681d8f0543b876b212d2f9d705a72b3f7c791"
+    },
+    {
+      "idx": 22,
+      "title": "CHAPTER XV. CONCERNING THINGS FOR WHICH MEN, AND ESPECIALLY PRINCES, ARE PRAISED OR BLAMED",
+      "paragraph_count": 2,
+      "chars": 2856,
+      "text_sha256": "05a517cabf5d730bc931a036bd6bc374bcff07efdbb0df34828c433067efb7e1"
+    },
+    {
+      "idx": 23,
+      "title": "CHAPTER XVI. CONCERNING LIBERALITY AND MEANNESS",
+      "paragraph_count": 5,
+      "chars": 4458,
+      "text_sha256": "f29fc23624a8ad9eaf6f2e8c93c52fdf655c85808a451f16f45ce91c84cc8702"
+    },
+    {
+      "idx": 24,
+      "title": "CHAPTER XVII. CONCERNING CRUELTY AND CLEMENCY, AND WHETHER IT IS BETTER TO BE LOVED THAN FEARED",
+      "paragraph_count": 10,
+      "chars": 6059,
+      "text_sha256": "a423faa782d0e9b4cec93405aee59b7fe20513a5a7fb82d5a3512ba3b986ab6c"
+    },
+    {
+      "idx": 25,
+      "title": "CHAPTER XVIII.[1] CONCERNING THE WAY IN WHICH PRINCES SHOULD KEEP FAITH",
+      "paragraph_count": 12,
+      "chars": 7087,
+      "text_sha256": "27a4c2e09664b25d16634e0eff6ad8d9a62d268bf14e943ff64b17c29a31e26b"
+    },
+    {
+      "idx": 26,
+      "title": "CHAPTER XIX. THAT ONE SHOULD AVOID BEING DESPISED AND HATED",
+      "paragraph_count": 24,
+      "chars": 20159,
+      "text_sha256": "cd55a6949308a0af6b0f41844109353aa60e4604fe49f4f4be77271db4695e95"
+    },
+    {
+      "idx": 27,
+      "title": "CHAPTER XX. ARE FORTRESSES, AND MANY OTHER THINGS TO WHICH PRINCES OFTEN RESORT, ADVANTAGEOUS OR HURTFUL?",
+      "paragraph_count": 7,
+      "chars": 8996,
+      "text_sha256": "d440a00e543bd807590736ff3adaaa7417889e4685b7fe774ce326930921e1ae"
+    },
+    {
+      "idx": 28,
+      "title": "CHAPTER XXI. HOW A PRINCE SHOULD CONDUCT HIMSELF SO AS TO GAIN RENOWN",
+      "paragraph_count": 9,
+      "chars": 8241,
+      "text_sha256": "8256b9315ae52ab9e0638a064b12d96c46a6c97bd2502b95eeb3967bf9bc6f5c"
+    },
+    {
+      "idx": 29,
+      "title": "CHAPTER XXII. CONCERNING THE SECRETARIES OF PRINCES",
+      "paragraph_count": 4,
+      "chars": 2453,
+      "text_sha256": "77ee16f9773ac14106e281122f254df82085806da3f2b62629852a8f0902a46b"
+    },
+    {
+      "idx": 30,
+      "title": "CHAPTER XXIII. HOW FLATTERERS SHOULD BE AVOIDED",
+      "paragraph_count": 7,
+      "chars": 3993,
+      "text_sha256": "26e0dd465d5bc23013de73964e790ec6e7564b6e326d047aab6921bd017b928c"
+    },
+    {
+      "idx": 31,
+      "title": "CHAPTER XXIV. WHY THE PRINCES OF ITALY HAVE LOST THEIR STATES",
+      "paragraph_count": 4,
+      "chars": 2822,
+      "text_sha256": "b87708333b657b338de14a3df100f38f0b7e54e7b405a9b4ac42da3921f7d6ba"
+    },
+    {
+      "idx": 32,
+      "title": "CHAPTER XXV. WHAT FORTUNE CAN EFFECT IN HUMAN AFFAIRS AND HOW TO WITHSTAND HER",
+      "paragraph_count": 9,
+      "chars": 6608,
+      "text_sha256": "5c62f7fe7d30b262e913dc2fc5dd46413bd7769e234b473db6eb7fc3e803ef97"
+    },
+    {
+      "idx": 33,
+      "title": "CHAPTER XXVI. AN EXHORTATION TO LIBERATE ITALY FROM THE BARBARIANS",
+      "paragraph_count": 13,
+      "chars": 7910,
+      "text_sha256": "f1336ede60f0f7b4326a21e68c4b77d7fb88b48124c7eaa84b42ac772a71f4a8"
+    },
+    {
+      "idx": 34,
+      "title": "DESCRIPTION OF THE METHODS ADOPTED BY THE DUKE VALENTINO WHEN MURDERING VITELLOZZO VITELLI, OLIVEROTTO DA FERMO, THE SIGNOR PAGOLO, AND THE DUKE DI GRAVINA ORSINI",
+      "paragraph_count": 19,
+      "chars": 13877,
+      "text_sha256": "dddde73012ea95be4d43d40d1b1b3de9b5b2553760c39816f2ab7694882c7b17"
+    },
+    {
+      "idx": 35,
+      "title": "THE LIFE OF CASTRUCCIO CASTRACANI OF LUCCA",
+      "paragraph_count": 25,
+      "chars": 58520,
+      "text_sha256": "67f49163c8dadc4a587bd48eef37624a73f3b44a22359a0ba3f1232d18ac5dc7"
+    }
+  ]
+}

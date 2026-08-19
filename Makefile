@@ -83,7 +83,17 @@ fetch-corpus: ## 검증용 Gutenberg 도서를 .cache/ 로 내려받기 (커밋 
 .PHONY: parsecheck
 parsecheck: ## 파서 검증 리포트 생성
 	$(call need,$(GO),brew install go)
-	$(GO) run ./cmd/parsecheck report -corpus=$(CORPUS) -cache=$(CACHE)
+	$(GO) run ./cmd/parsecheck report -corpus=$(CORPUS) -cache=$(CACHE) -out=.cache/report.html
+
+.PHONY: golden
+golden: ## golden 스냅샷 비교 (GOLDEN_UPDATE=1 이면 갱신)
+	$(call need,$(GO),brew install go)
+	@test -f $(CORPUS) || { echo "✗ $(CORPUS) 없음."; exit 1; }
+	@if [ "$(GOLDEN_UPDATE)" = "1" ]; then \
+		$(GO) run ./cmd/parsecheck golden -corpus=$(CORPUS) -cache=$(CACHE) -update; \
+	else \
+		$(GO) run ./cmd/parsecheck golden -corpus=$(CORPUS) -cache=$(CACHE); \
+	fi
 
 .PHONY: clean
 clean: ## 빌드 산출물 삭제 (.cache는 남김)

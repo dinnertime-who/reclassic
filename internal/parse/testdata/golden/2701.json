@@ -1,0 +1,1029 @@
+{
+  "gutenberg_id": 2701,
+  "title": "Moby Dick",
+  "source_sha256": "914fa3004b150287f57eb6f317a3fd0a51bd86165eab32d3d63ecde48f798aad",
+  "strategy": "heading-split",
+  "confidence": 0.9877,
+  "coverage": 0.9855,
+  "chapter_count": 145,
+  "paragraph_count": 2487,
+  "total_chars": 1196575,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "MOBY-DICK;or, THE WHALE.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "By Herman Melville",
+      "paragraph_count": 1,
+      "chars": 346,
+      "text_sha256": "4993e430c4a028b3c5cd05f2fc84fdb2cae991118bb226a6d429ac46a168ed85"
+    },
+    {
+      "idx": 2,
+      "title": "ETYMOLOGY.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 3,
+      "title": "(Supplied by a Late Consumptive Usher to a Grammar School.)",
+      "paragraph_count": 4,
+      "chars": 862,
+      "text_sha256": "4d0f84ed58f0b0c492141d4a2511e944c099426b7a9013034c81bb29aac09f09"
+    },
+    {
+      "idx": 4,
+      "title": "EXTRACTS. (Supplied by a Sub-Sub-Librarian).",
+      "paragraph_count": 2,
+      "chars": 1719,
+      "text_sha256": "3403d19af4db14e02dad60bd740cf0e1955282a55999063af10f0a3447ef9958"
+    },
+    {
+      "idx": 5,
+      "title": "EXTRACTS.",
+      "paragraph_count": 68,
+      "chars": 14698,
+      "text_sha256": "2e7eef9391536c0e0785c7ad5d07f86e3fbb730b99fdd95d76694c060a547420"
+    },
+    {
+      "idx": 6,
+      "title": "CHAPTER 1. Loomings.",
+      "paragraph_count": 15,
+      "chars": 12155,
+      "text_sha256": "05ba1e906757b660a4fa54dd597f324593e265c3af171955716cbfac12f16814"
+    },
+    {
+      "idx": 7,
+      "title": "CHAPTER 2. The Carpet-Bag.",
+      "paragraph_count": 12,
+      "chars": 7889,
+      "text_sha256": "5aeb2e9c6746fd097e0913b7cf28879612cbe52634e6168b5fd510a7b2360580"
+    },
+    {
+      "idx": 8,
+      "title": "CHAPTER 3. The Spouter-Inn.",
+      "paragraph_count": 74,
+      "chars": 31815,
+      "text_sha256": "82c56ccfde93c7e569f2bbcf917320ee91c754498bc02e03181bcce6b028485a"
+    },
+    {
+      "idx": 9,
+      "title": "CHAPTER 4. The Counterpane.",
+      "paragraph_count": 7,
+      "chars": 9085,
+      "text_sha256": "f1a95b6e7c58dbcfcacc7194faf6f440c7aeb56418fc93beac2378dc687e1f09"
+    },
+    {
+      "idx": 10,
+      "title": "CHAPTER 5. Breakfast.",
+      "paragraph_count": 9,
+      "chars": 4154,
+      "text_sha256": "80fa05b13735689e5a9a26b41130d1fb7211f88635c383fb338d3519b1f18969"
+    },
+    {
+      "idx": 11,
+      "title": "CHAPTER 6. The Street.",
+      "paragraph_count": 9,
+      "chars": 4777,
+      "text_sha256": "b08b20ea297aea7ab18cf0beb0ff890fb2164b8a881995bc0a994737c8f71e82"
+    },
+    {
+      "idx": 12,
+      "title": "CHAPTER 7. The Chapel.",
+      "paragraph_count": 10,
+      "chars": 5329,
+      "text_sha256": "be7e55682996a1364fc12aed39a0aa3797a26e838fb27685588306b94030a77b"
+    },
+    {
+      "idx": 13,
+      "title": "CHAPTER 8. The Pulpit.",
+      "paragraph_count": 7,
+      "chars": 5375,
+      "text_sha256": "46ed865b2fb9e01e7c7c55cddb7de2532ddfbdba40385124b2f9f9376be17c9a"
+    },
+    {
+      "idx": 14,
+      "title": "CHAPTER 9. The Sermon.",
+      "paragraph_count": 22,
+      "chars": 18937,
+      "text_sha256": "3479bac13015aa2f08d445d97169d39f62d602f169331142c9da4943aca90e91"
+    },
+    {
+      "idx": 15,
+      "title": "CHAPTER 10. A Bosom Friend.",
+      "paragraph_count": 10,
+      "chars": 8658,
+      "text_sha256": "59e17ec378f204c6b09610f6ce76298e833728144816d7498b7309967a1b2a82"
+    },
+    {
+      "idx": 16,
+      "title": "CHAPTER 11. Nightgown.",
+      "paragraph_count": 4,
+      "chars": 3919,
+      "text_sha256": "1b213542fd530c0ef3779c59c4fb23f4303fa0bad3ff0820fdbd89b47fe2cbb4"
+    },
+    {
+      "idx": 17,
+      "title": "CHAPTER 12. Biographical.",
+      "paragraph_count": 8,
+      "chars": 4846,
+      "text_sha256": "b5d556f26e0219b2d952d31c2ea658a68bad969a690ff5c69baf4fe7930bfdd1"
+    },
+    {
+      "idx": 18,
+      "title": "CHAPTER 13. Wheelbarrow.",
+      "paragraph_count": 15,
+      "chars": 9641,
+      "text_sha256": "0b2f895685a51456ed2361c2bcbf830cb1575a2841765aecba11b13bc39805e0"
+    },
+    {
+      "idx": 19,
+      "title": "CHAPTER 14. Nantucket.",
+      "paragraph_count": 5,
+      "chars": 4308,
+      "text_sha256": "d9aa249d760edcdc9c5fb69653e954ae5d4ee0b415c998b1225f8af3dabc704e"
+    },
+    {
+      "idx": 20,
+      "title": "CHAPTER 15. Chowder.",
+      "paragraph_count": 16,
+      "chars": 6546,
+      "text_sha256": "ca3be74477e8dd0b041a65b49a1169866955be34d11751c8477a081bb5b0656f"
+    },
+    {
+      "idx": 21,
+      "title": "CHAPTER 16. The Ship.",
+      "paragraph_count": 82,
+      "chars": 30319,
+      "text_sha256": "5f0309d21f32e7cfc16461b9df42005432f09e80fad1d08502d8590064444353"
+    },
+    {
+      "idx": 22,
+      "title": "CHAPTER 17. The Ramadan.",
+      "paragraph_count": 30,
+      "chars": 12562,
+      "text_sha256": "e1fb04bf714680ef40900c1473074f274c5a9271bba8119acf2ff39650f29ef9"
+    },
+    {
+      "idx": 23,
+      "title": "CHAPTER 18. His Mark.",
+      "paragraph_count": 27,
+      "chars": 7629,
+      "text_sha256": "6ec7eef638ff8a98aea398856ddbee44922c9cee71244a3e29a8e0ed9eecc7bd"
+    },
+    {
+      "idx": 24,
+      "title": "CHAPTER 19. The Prophet.",
+      "paragraph_count": 35,
+      "chars": 6473,
+      "text_sha256": "d3c2285d20013f86425df7838db56610c5fdc4a9d5a4ab67159366af71b45672"
+    },
+    {
+      "idx": 25,
+      "title": "CHAPTER 20. All Astir.",
+      "paragraph_count": 8,
+      "chars": 5123,
+      "text_sha256": "e78ddaa45ff2806ae7e2330eaa0354170baccb3c3e54fc189fa0f1886e1e8578"
+    },
+    {
+      "idx": 26,
+      "title": "CHAPTER 21. Going Aboard.",
+      "paragraph_count": 38,
+      "chars": 6057,
+      "text_sha256": "632fce6f413d9669809d0ece8a74adaafa76d6360e956f0e79f423a7b2d9be32"
+    },
+    {
+      "idx": 27,
+      "title": "CHAPTER 22. Merry Christmas.",
+      "paragraph_count": 21,
+      "chars": 8958,
+      "text_sha256": "6b4470239e0bd998afdf4dc7262f3a4cb521eec491b358a60f188d455fc5782d"
+    },
+    {
+      "idx": 28,
+      "title": "CHAPTER 23. The Lee Shore.",
+      "paragraph_count": 4,
+      "chars": 2141,
+      "text_sha256": "c2918cd1d54ff1d1527d210ea3555a3e866350c44df3779f21564e5774d1544c"
+    },
+    {
+      "idx": 29,
+      "title": "CHAPTER 24. The Advocate.",
+      "paragraph_count": 23,
+      "chars": 9635,
+      "text_sha256": "4fd77cfd74237136bc779e91ca1348f866d51847ddb4ffd48a88eacae9875def"
+    },
+    {
+      "idx": 30,
+      "title": "CHAPTER 25. Postscript.",
+      "paragraph_count": 4,
+      "chars": 1586,
+      "text_sha256": "01576e7e6698640b21d8742d375a2895e770a0a59d8380dc3eab01cbf6630d8e"
+    },
+    {
+      "idx": 31,
+      "title": "CHAPTER 26. Knights and Squires.",
+      "paragraph_count": 6,
+      "chars": 6987,
+      "text_sha256": "710b22d679be31e7438ae4aaf6f115862a2a59518c913c50cfcb036ba3dce28e"
+    },
+    {
+      "idx": 32,
+      "title": "CHAPTER 27. Knights and Squires.",
+      "paragraph_count": 9,
+      "chars": 9468,
+      "text_sha256": "29579e36585f9105d3754e2da495a69d8b06db510e77ef32a2bd3e5c75f6e77d"
+    },
+    {
+      "idx": 33,
+      "title": "CHAPTER 28. Ahab.",
+      "paragraph_count": 7,
+      "chars": 8050,
+      "text_sha256": "f3410ffeff586c0928149434103147204a5f8744ca2cf51c10d70bd7fa27a61a"
+    },
+    {
+      "idx": 34,
+      "title": "CHAPTER 29. Enter Ahab; to Him, Stubb.",
+      "paragraph_count": 10,
+      "chars": 6504,
+      "text_sha256": "5b093a5cf646f3b4f1cddb56701e613db41179b0749217fbf75a27b94792a41b"
+    },
+    {
+      "idx": 35,
+      "title": "CHAPTER 30. The Pipe.",
+      "paragraph_count": 4,
+      "chars": 1571,
+      "text_sha256": "c3c1ccc0895c2306119bc1b994979c4089be6e9098e2b2e9bf8088dede89ef37"
+    },
+    {
+      "idx": 36,
+      "title": "CHAPTER 31. Queen Mab.",
+      "paragraph_count": 7,
+      "chars": 4408,
+      "text_sha256": "eab7a7452402386dd7a53fe05d4c056b653fc36b48965d0b0a74264403f9d4fb"
+    },
+    {
+      "idx": 37,
+      "title": "CHAPTER 32. Cetology.",
+      "paragraph_count": 47,
+      "chars": 29765,
+      "text_sha256": "0a95f474e26a5faedb0899c8fcbddf60c4419876b325a1a6cca850e412c0be5b"
+    },
+    {
+      "idx": 38,
+      "title": "CHAPTER 33. The Specksnyder.",
+      "paragraph_count": 7,
+      "chars": 5778,
+      "text_sha256": "4086519b148db90afe7ae7fb3b5b270feb0f1a9365ca13e0ae4660716323c699"
+    },
+    {
+      "idx": 39,
+      "title": "CHAPTER 34. The Cabin-Table.",
+      "paragraph_count": 11,
+      "chars": 12646,
+      "text_sha256": "8fe202dc2192b0fe6a647770badacaf41f629f2bb6aee9c9d3b23ed5e819c305"
+    },
+    {
+      "idx": 40,
+      "title": "CHAPTER 35. The Mast-Head.",
+      "paragraph_count": 12,
+      "chars": 14592,
+      "text_sha256": "7bbe47616aa56b422b5c452db43f8ffb75589ce201b309eef6dec5ef0730f67f"
+    },
+    {
+      "idx": 41,
+      "title": "CHAPTER 36. The Quarter-Deck.",
+      "paragraph_count": 51,
+      "chars": 15736,
+      "text_sha256": "f1158dbb4e3bc0ba8c5926201ada0139287598dad0bc0efad815cdb8ddc56671"
+    },
+    {
+      "idx": 42,
+      "title": "CHAPTER 37. Sunset.",
+      "paragraph_count": 5,
+      "chars": 2741,
+      "text_sha256": "2d03cb26d334f2e7c13da96af069536c82b12224301b10bec44ad18a82bb88aa"
+    },
+    {
+      "idx": 43,
+      "title": "CHAPTER 38. Dusk.",
+      "paragraph_count": 4,
+      "chars": 2065,
+      "text_sha256": "d2c84f7c26ba329db1b670a4f37e62292f78e61526cedd145cc6e316447aacea"
+    },
+    {
+      "idx": 44,
+      "title": "CHAPTER 39. First Night-Watch.",
+      "paragraph_count": 4,
+      "chars": 1248,
+      "text_sha256": "94a4e103289482b43330d61e7ef54cdea43cfd448e35d7577c35558e0aa965a3"
+    },
+    {
+      "idx": 45,
+      "title": "CHAPTER 40. Midnight, Forecastle.",
+      "paragraph_count": 49,
+      "chars": 8259,
+      "text_sha256": "aad630b46d1d806ef0b5edcb4eab1fd879a09dc4e42e89f00677f95720819cc6"
+    },
+    {
+      "idx": 46,
+      "title": "CHAPTER 41. Moby Dick.",
+      "paragraph_count": 24,
+      "chars": 21902,
+      "text_sha256": "d47f2b66b68fc0c0f2ae8c5415349a37851af3eb635b74367f6f832cdcd13bc2"
+    },
+    {
+      "idx": 47,
+      "title": "CHAPTER 42. The Whiteness of the Whale.",
+      "paragraph_count": 31,
+      "chars": 21048,
+      "text_sha256": "76d661e48ea0553a466d0dac6c01984b355e4c6b408b75065e7f4a11515181d2"
+    },
+    {
+      "idx": 48,
+      "title": "CHAPTER 43. Hark!",
+      "paragraph_count": 13,
+      "chars": 1686,
+      "text_sha256": "04d2a5ee9c40f671444545eb763b3c0333e684ee0ee84dc101b7a82b65434d77"
+    },
+    {
+      "idx": 49,
+      "title": "CHAPTER 44. The Chart.",
+      "paragraph_count": 11,
+      "chars": 11173,
+      "text_sha256": "04cfa523412810b8f4e6ebb0598fb753a59095129180b52f6a0da8de9e54d4ac"
+    },
+    {
+      "idx": 50,
+      "title": "CHAPTER 45. The Affidavit.",
+      "paragraph_count": 25,
+      "chars": 20059,
+      "text_sha256": "9d2175b524e110370669e6edc656e310b3836f09a89f516cb1fb4da29cd9fb88"
+    },
+    {
+      "idx": 51,
+      "title": "CHAPTER 46. Surmises.",
+      "paragraph_count": 6,
+      "chars": 5957,
+      "text_sha256": "0186801080c4d3ba69609bf4bd0ccba8c934346566b2f31bd6edc81d44d6c750"
+    },
+    {
+      "idx": 52,
+      "title": "CHAPTER 47. The Mat-Maker.",
+      "paragraph_count": 14,
+      "chars": 5309,
+      "text_sha256": "c85a5afe2da272aecc68ffcdad942a537628c933b5bfa8f2312e508aed17ffc1"
+    },
+    {
+      "idx": 53,
+      "title": "CHAPTER 48. The First Lowering.",
+      "paragraph_count": 51,
+      "chars": 22335,
+      "text_sha256": "ba7e318f5b7655abc847b084a38d06f892f645c4ab91fad61fc9d1299870cead"
+    },
+    {
+      "idx": 54,
+      "title": "CHAPTER 49. The Hyena.",
+      "paragraph_count": 9,
+      "chars": 4645,
+      "text_sha256": "dd317912214f350b7fdfe544c6cc5d1abdc34ac0e536805c85028d34493d69c9"
+    },
+    {
+      "idx": 55,
+      "title": "CHAPTER 50. Ahab's Boat and Crew. Fedallah.",
+      "paragraph_count": 8,
+      "chars": 5684,
+      "text_sha256": "4ff19e97812d4a2e3ddf27446347507c1388c60ffcc91779e3aef33bbf8ed54f"
+    },
+    {
+      "idx": 56,
+      "title": "CHAPTER 51. The Spirit-Spout.",
+      "paragraph_count": 12,
+      "chars": 8635,
+      "text_sha256": "c501d22d1011235532e0ed6f24a05d8c64f1de5114b637ff0c7717356ebdcd82"
+    },
+    {
+      "idx": 57,
+      "title": "CHAPTER 52. The Albatross.",
+      "paragraph_count": 8,
+      "chars": 4010,
+      "text_sha256": "e8f5240327ab7b2575e9014de8d751f29f5e3b4d9b39b1baf66d921b6db38e4f"
+    },
+    {
+      "idx": 58,
+      "title": "CHAPTER 53. The Gam.",
+      "paragraph_count": 9,
+      "chars": 9328,
+      "text_sha256": "9092a64abdba2aaa7e5e082ed38a9a9e60d7a75a1991d9e6d7eea0648f68eae6"
+    },
+    {
+      "idx": 59,
+      "title": "CHAPTER 54. The Town-Ho's Story.",
+      "paragraph_count": 112,
+      "chars": 44729,
+      "text_sha256": "20a15a87c253c408d86e156329c686cef111760fe0d7f7c5048c29cc877c25d0"
+    },
+    {
+      "idx": 60,
+      "title": "CHAPTER 55. Of the Monstrous Pictures of Whales.",
+      "paragraph_count": 14,
+      "chars": 10862,
+      "text_sha256": "afd5b30eb297eb00f4e9043e24f288509bdd29b39e64733b203cc90328fe732b"
+    },
+    {
+      "idx": 61,
+      "title": "CHAPTER 56. Of the Less Erroneous Pictures of Whales, and the True Pictures of Whaling Scenes.",
+      "paragraph_count": 8,
+      "chars": 7471,
+      "text_sha256": "578743b4ea2dcf180dfa0c8da3fe3afc79c8bfa9f01b774bf8146d658bf8762e"
+    },
+    {
+      "idx": 62,
+      "title": "CHAPTER 57. Of Whales in Paint; in Teeth; in Wood; in Sheet-Iron; in Stone; in Mountains; in Stars.",
+      "paragraph_count": 11,
+      "chars": 5451,
+      "text_sha256": "cb210c6efdebe123c572fffb68753fdaec787e19fb65b6f80fa80422a56c19bd"
+    },
+    {
+      "idx": 63,
+      "title": "CHAPTER 58. Brit.",
+      "paragraph_count": 12,
+      "chars": 5725,
+      "text_sha256": "16cc7aaab163378daeb83c93bb6648bbbbdbd3199b9cd8e0b4bda72bbe9e154a"
+    },
+    {
+      "idx": 64,
+      "title": "CHAPTER 59. Squid.",
+      "paragraph_count": 13,
+      "chars": 5306,
+      "text_sha256": "2b39280a936a033da0de87befe0492c2e129655d5cce2461b6aaf96197be0e86"
+    },
+    {
+      "idx": 65,
+      "title": "CHAPTER 60. The Line.",
+      "paragraph_count": 10,
+      "chars": 8176,
+      "text_sha256": "f0a727046e3de23d7d3aee3c43effba815f34a8015d5d34ce115f247c601371f"
+    },
+    {
+      "idx": 66,
+      "title": "CHAPTER 61. Stubb Kills a Whale.",
+      "paragraph_count": 24,
+      "chars": 11030,
+      "text_sha256": "64a57918627c9708cb748107a805e99c2145947ca2bec2d50d9f5c1e4fe85e0f"
+    },
+    {
+      "idx": 67,
+      "title": "CHAPTER 62. The Dart.",
+      "paragraph_count": 5,
+      "chars": 3117,
+      "text_sha256": "af06f1eb94b33e3829d8d5d8c9e17f52ee843c2c0eab96605334313d751c02de"
+    },
+    {
+      "idx": 68,
+      "title": "CHAPTER 63. The Crotch.",
+      "paragraph_count": 5,
+      "chars": 2799,
+      "text_sha256": "af8e25b2772efe34f098f868d38fc5c7d5d13115531aab9dd7aa9106edb5ffc3"
+    },
+    {
+      "idx": 69,
+      "title": "CHAPTER 64. Stubb's Supper.",
+      "paragraph_count": 59,
+      "chars": 16386,
+      "text_sha256": "09431517f975052d1ec48f8490722bb3b395e600175433ffe89ff1461aa3a942"
+    },
+    {
+      "idx": 70,
+      "title": "CHAPTER 65. The Whale as a Dish.",
+      "paragraph_count": 7,
+      "chars": 5441,
+      "text_sha256": "03db66c61d3875c5859165c17c6682a919236f7ad1cdfa69bd915d6214ee1481"
+    },
+    {
+      "idx": 71,
+      "title": "CHAPTER 66. The Shark Massacre.",
+      "paragraph_count": 5,
+      "chars": 3582,
+      "text_sha256": "2f7bda30e7ec524b8929ef55bae7768968efa8e8ae7b1c0ec0649da24d448317"
+    },
+    {
+      "idx": 72,
+      "title": "CHAPTER 67. Cutting In.",
+      "paragraph_count": 3,
+      "chars": 4171,
+      "text_sha256": "519b96eca96bf7db9a047263bf7cede4500106f814aa1261fb0a3ad8f738465c"
+    },
+    {
+      "idx": 73,
+      "title": "CHAPTER 68. The Blanket.",
+      "paragraph_count": 8,
+      "chars": 6738,
+      "text_sha256": "de13b2322a0b10130c94b3d55d5646fd3e8467483104cce6ca9263b6c4cde861"
+    },
+    {
+      "idx": 74,
+      "title": "CHAPTER 69. The Funeral.",
+      "paragraph_count": 6,
+      "chars": 2478,
+      "text_sha256": "13808bffd24cc24147103b7caba61998d4649bad1ccfc551870d7a9b39ce195b"
+    },
+    {
+      "idx": 75,
+      "title": "CHAPTER 70. The Sphynx.",
+      "paragraph_count": 11,
+      "chars": 5001,
+      "text_sha256": "a2a4c2ecf161b507e77dd6878cb99b840937dfbebb246e187ff25f284ea41ccc"
+    },
+    {
+      "idx": 76,
+      "title": "CHAPTER 71. The Jeroboam's Story.",
+      "paragraph_count": 29,
+      "chars": 13095,
+      "text_sha256": "342ffb08fee23f3307b7e03b7b7b89e1f2022ec2a75b8850a5aef980af50946f"
+    },
+    {
+      "idx": 77,
+      "title": "CHAPTER 72. The Monkey-Rope.",
+      "paragraph_count": 20,
+      "chars": 9241,
+      "text_sha256": "770e64c6b810841ab7ab5c5fa634a73725f7f428bb6a16f5d11b6d82011a1781"
+    },
+    {
+      "idx": 78,
+      "title": "CHAPTER 73. Stubb and Flask kill a Right Whale; and Then Have a Talk over Him.",
+      "paragraph_count": 42,
+      "chars": 11469,
+      "text_sha256": "57b8412ea0d714fda74c5c139a60306772b00a3d323ad9842d7730ca8b881b5e"
+    },
+    {
+      "idx": 79,
+      "title": "CHAPTER 74. The Sperm Whale's Head-Contrasted View.",
+      "paragraph_count": 14,
+      "chars": 9015,
+      "text_sha256": "395661b9f1f7fd80b9c4bca54f60c8521bbc4b0bf72c10107d59366bf6b7e0ac"
+    },
+    {
+      "idx": 80,
+      "title": "CHAPTER 75. The Right Whale's Head-Contrasted View.",
+      "paragraph_count": 11,
+      "chars": 6746,
+      "text_sha256": "ffa83b915facd0f68a54f093f03863b971fd3edff7dde331c125cb72fd830779"
+    },
+    {
+      "idx": 81,
+      "title": "CHAPTER 76. The Battering-Ram.",
+      "paragraph_count": 4,
+      "chars": 5022,
+      "text_sha256": "2347c8d259423788e7c4e85dc08bb00a0b82f3c059712cad5c5fc08ae2866f60"
+    },
+    {
+      "idx": 82,
+      "title": "CHAPTER 77. The Great Heidelburgh Tun.",
+      "paragraph_count": 8,
+      "chars": 3750,
+      "text_sha256": "257f2819a8e32cf58f758988b45f71006bd1f415d352a8f782c0a733cfd2e001"
+    },
+    {
+      "idx": 83,
+      "title": "CHAPTER 78. Cistern and Buckets.",
+      "paragraph_count": 15,
+      "chars": 9234,
+      "text_sha256": "0ff29c20d8604e67968dd3147dd3afb258dc08fa07ca32c944fde99a1db2bad5"
+    },
+    {
+      "idx": 84,
+      "title": "CHAPTER 79. The Prairie.",
+      "paragraph_count": 6,
+      "chars": 5347,
+      "text_sha256": "3189c8a0bf2931fba83386852b3c8ed06d5ba010d22cd0fb49560597faa8fb91"
+    },
+    {
+      "idx": 85,
+      "title": "CHAPTER 80. The Nut.",
+      "paragraph_count": 7,
+      "chars": 5122,
+      "text_sha256": "56dd5a6217bc22e3fb13c1a13187b534516cce5da5c5cbab44f8fc9f393d2f17"
+    },
+    {
+      "idx": 86,
+      "title": "CHAPTER 81. The Pequod Meets The Virgin.",
+      "paragraph_count": 48,
+      "chars": 24297,
+      "text_sha256": "0a760e814fdc077fe8db197a5af48b37f4f946813b21f2d816595e249d6b3322"
+    },
+    {
+      "idx": 87,
+      "title": "CHAPTER 82. The Honor and Glory of Whaling.",
+      "paragraph_count": 9,
+      "chars": 6447,
+      "text_sha256": "b5e3756e64dfda88b0168107ea4ee0b6c546895c8d9d3f08ecef0a5626a79003"
+    },
+    {
+      "idx": 88,
+      "title": "CHAPTER 83. Jonah Historically Regarded.",
+      "paragraph_count": 5,
+      "chars": 4484,
+      "text_sha256": "f646ffa92fdd917dc85d8a45cd3c74eb9ad31e3a4b182a7d31323937280369eb"
+    },
+    {
+      "idx": 89,
+      "title": "CHAPTER 84. Pitchpoling.",
+      "paragraph_count": 8,
+      "chars": 4649,
+      "text_sha256": "7b562410d59a0f34b06cc338f7931f3444f113cbd602dc5fd069c090f187355b"
+    },
+    {
+      "idx": 90,
+      "title": "CHAPTER 85. The Fountain.",
+      "paragraph_count": 12,
+      "chars": 11420,
+      "text_sha256": "861a78bf9e561ae045675b4a41433474423bc12764cd5deff5174b95ea3f2672"
+    },
+    {
+      "idx": 91,
+      "title": "CHAPTER 86. The Tail.",
+      "paragraph_count": 15,
+      "chars": 10384,
+      "text_sha256": "2771f71fcdcf4499fb2c822d5c87be40d3fed977073782cb87a9ddf28c42dbe5"
+    },
+    {
+      "idx": 92,
+      "title": "CHAPTER 87. The Grand Armada.",
+      "paragraph_count": 35,
+      "chars": 27603,
+      "text_sha256": "0649c4327fa5913aa178c3dc1007c2dfe91b82fed96b4a5dda0200824b0256d4"
+    },
+    {
+      "idx": 93,
+      "title": "CHAPTER 88. Schools and Schoolmasters.",
+      "paragraph_count": 11,
+      "chars": 7055,
+      "text_sha256": "0c578610a30be32d22ae9c82251f332a9c4670dadca1df717cd15cb75a241c6a"
+    },
+    {
+      "idx": 94,
+      "title": "CHAPTER 89. Fast-Fish and Loose-Fish.",
+      "paragraph_count": 17,
+      "chars": 8115,
+      "text_sha256": "4123e97fb9e4d4223d1e9d423284920a9406c5df0a4a176428c13662349e2cf9"
+    },
+    {
+      "idx": 95,
+      "title": "CHAPTER 90. Heads or Tails.",
+      "paragraph_count": 21,
+      "chars": 5835,
+      "text_sha256": "dfc86706ea34fca7c7e4084a277e9ec911df3ac07c8052cc8476092561703ba6"
+    },
+    {
+      "idx": 96,
+      "title": "CHAPTER 91. The Pequod Meets The Rose-Bud.",
+      "paragraph_count": 50,
+      "chars": 13958,
+      "text_sha256": "8d6051a5d1b1a6b1541aafbb423d2582cef845777c74aa593b69a3df22ac18bf"
+    },
+    {
+      "idx": 97,
+      "title": "CHAPTER 92. Ambergris.",
+      "paragraph_count": 7,
+      "chars": 5486,
+      "text_sha256": "b9191dfa4cdd4224c99dbb9ac0b117c72f7b79cbc751c22dd51578101348f664"
+    },
+    {
+      "idx": 98,
+      "title": "CHAPTER 93. The Castaway.",
+      "paragraph_count": 14,
+      "chars": 9207,
+      "text_sha256": "45c992032f0fa8d7f4789ec51c61887f30872cf11a7e5ce8ee6fe005d09881d4"
+    },
+    {
+      "idx": 99,
+      "title": "CHAPTER 94. A Squeeze of the Hand.",
+      "paragraph_count": 13,
+      "chars": 7252,
+      "text_sha256": "8bf48bfd667a7b35b95842d278a659901a774334d8ce3b2a26535354f5b9f5ff"
+    },
+    {
+      "idx": 100,
+      "title": "CHAPTER 95. The Cassock.",
+      "paragraph_count": 4,
+      "chars": 2791,
+      "text_sha256": "dba40af28e30c4fdd03f1f3f821e6f68145bcfc13e3e9b01b35239135adfb29d"
+    },
+    {
+      "idx": 101,
+      "title": "CHAPTER 96. The Try-Works.",
+      "paragraph_count": 12,
+      "chars": 10210,
+      "text_sha256": "21d624f257553cba8ef89dec19414b309d76e22ffcd47dbb2a451209076581a9"
+    },
+    {
+      "idx": 102,
+      "title": "CHAPTER 97. The Lamp.",
+      "paragraph_count": 3,
+      "chars": 1325,
+      "text_sha256": "fbec97cbd3370404dddfe69aca860093bc52d81b5df5ae7171f2b2045e6a1766"
+    },
+    {
+      "idx": 103,
+      "title": "CHAPTER 98. Stowing Down and Clearing Up.",
+      "paragraph_count": 8,
+      "chars": 5764,
+      "text_sha256": "4702a63345a951f7f25847d57d88a08c26f5cd42774f9dc1e620beb685a676b3"
+    },
+    {
+      "idx": 104,
+      "title": "CHAPTER 99. The Doubloon.",
+      "paragraph_count": 22,
+      "chars": 13292,
+      "text_sha256": "1e684f6537651cd89bbb71e299825092dfcec4b82ddc68080705a9f91f43ac90"
+    },
+    {
+      "idx": 105,
+      "title": "CHAPTER 100. Leg and Arm.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 106,
+      "title": "The Pequod, of Nantucket, Meets the Samuel Enderby, of London.",
+      "paragraph_count": 42,
+      "chars": 14731,
+      "text_sha256": "74db19d5dc5c57193ed31ccf7a925fa253ac3c3b3974adc03e4c9a88427814af"
+    },
+    {
+      "idx": 107,
+      "title": "CHAPTER 101. The Decanter.",
+      "paragraph_count": 13,
+      "chars": 9874,
+      "text_sha256": "a68f0d57a25e680254a11d75ccd7a68725e39d57f0ccc4ebc1deaffac8cd5220"
+    },
+    {
+      "idx": 108,
+      "title": "CHAPTER 102. A Bower in the Arsacides.",
+      "paragraph_count": 14,
+      "chars": 9018,
+      "text_sha256": "08e4638d477e48ab04e5dbd277f2f45b7ed645ea96b2bcbfddf9abb01473cda0"
+    },
+    {
+      "idx": 109,
+      "title": "CHAPTER 103. Measurement of The Whale's Skeleton.",
+      "paragraph_count": 11,
+      "chars": 5137,
+      "text_sha256": "b385a9a17d6fd5b38ec27a283d83e9a0a81466277e749633e0ce773652508a2a"
+    },
+    {
+      "idx": 110,
+      "title": "CHAPTER 104. The Fossil Whale.",
+      "paragraph_count": 11,
+      "chars": 8329,
+      "text_sha256": "58d99fbabc4fd160004db30da44f977ef96b5d86b8e278348617b203632abe79"
+    },
+    {
+      "idx": 111,
+      "title": "CHAPTER 105. Does the Whale's Magnitude Diminish?-Will He Perish?",
+      "paragraph_count": 15,
+      "chars": 8985,
+      "text_sha256": "5ff2c644393ba72cd3cd289384e56ef9bd87b4144f5be9dd0d70792bef06364f"
+    },
+    {
+      "idx": 112,
+      "title": "CHAPTER 106. Ahab's Leg.",
+      "paragraph_count": 6,
+      "chars": 5422,
+      "text_sha256": "1fbefd924d05b1dd95b1a1420f3991c6f38f9b44b0570b497a435e6390c07820"
+    },
+    {
+      "idx": 113,
+      "title": "CHAPTER 107. The Carpenter.",
+      "paragraph_count": 6,
+      "chars": 6192,
+      "text_sha256": "55274cba2e9571b97b5b36cb6a9594674b323f2b063aab1bee0ec68f75074ea8"
+    },
+    {
+      "idx": 114,
+      "title": "CHAPTER 108. Ahab and the Carpenter.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 115,
+      "title": "The Deck-First Night Watch.",
+      "paragraph_count": 36,
+      "chars": 8428,
+      "text_sha256": "2f14710079126edfe513f77a1220142f33b9fa600a21e9f271eef73b81341153"
+    },
+    {
+      "idx": 116,
+      "title": "CHAPTER 109. Ahab and Starbuck in the Cabin.",
+      "paragraph_count": 20,
+      "chars": 5030,
+      "text_sha256": "92774953a942bc988471f3e4441cd99e6ed7b3bb2b04b0a0d50198cce69508a8"
+    },
+    {
+      "idx": 117,
+      "title": "CHAPTER 110. Queequeg in His Coffin.",
+      "paragraph_count": 19,
+      "chars": 12497,
+      "text_sha256": "6b6222a291fb12f97cc73d498e832fb026b0e18a79cfcbd62872f9acc81f2919"
+    },
+    {
+      "idx": 118,
+      "title": "CHAPTER 111. The Pacific.",
+      "paragraph_count": 4,
+      "chars": 2475,
+      "text_sha256": "451578d1c9fa56214b4b14fb9c774564e8a7c633bdf270f58e1db4562b1bd928"
+    },
+    {
+      "idx": 119,
+      "title": "CHAPTER 112. The Blacksmith.",
+      "paragraph_count": 8,
+      "chars": 5512,
+      "text_sha256": "7a51c1684923f2bcae59920ce72589da6bc0c783412a57b98ade377df45e66b2"
+    },
+    {
+      "idx": 120,
+      "title": "CHAPTER 113. The Forge.",
+      "paragraph_count": 28,
+      "chars": 6791,
+      "text_sha256": "3634fe2ad7eb8cb9ab0a1c2fea0e8c3c7ca44fa5c19fc9a3c7023e7b76302f71"
+    },
+    {
+      "idx": 121,
+      "title": "CHAPTER 114. The Gilder.",
+      "paragraph_count": 10,
+      "chars": 3728,
+      "text_sha256": "de8991825c1c08d80979b1cb5a05e06d3bc32ab94a84c8d360db59a9aa2e76e4"
+    },
+    {
+      "idx": 122,
+      "title": "CHAPTER 115. The Pequod Meets The Bachelor.",
+      "paragraph_count": 14,
+      "chars": 5094,
+      "text_sha256": "156c40f66de77db6abb729e9a43e59ef37d4c711a5a45ff1efc0eff69613406b"
+    },
+    {
+      "idx": 123,
+      "title": "CHAPTER 116. The Dying Whale.",
+      "paragraph_count": 7,
+      "chars": 2954,
+      "text_sha256": "9edd9fb1406b1b033e663d27c03c0c057706367146e4e808d82378e123583880"
+    },
+    {
+      "idx": 124,
+      "title": "CHAPTER 117. The Whale Watch.",
+      "paragraph_count": 15,
+      "chars": 2486,
+      "text_sha256": "4a97e6269fa5ebb8e33861de06681be4e1ee5290f7cde7ded9474d9f9c73b156"
+    },
+    {
+      "idx": 125,
+      "title": "CHAPTER 118. The Quadrant.",
+      "paragraph_count": 8,
+      "chars": 5010,
+      "text_sha256": "ec8e29b1a7d0a71f039d40cf0d8d21b94242c98bb0d5a82693c46cbbb6ef12c2"
+    },
+    {
+      "idx": 126,
+      "title": "CHAPTER 119. The Candles.",
+      "paragraph_count": 37,
+      "chars": 13456,
+      "text_sha256": "4ab647f3dfef247b45e594b4a37b9c7d99825961c7c24511857a8b07054d787b"
+    },
+    {
+      "idx": 127,
+      "title": "CHAPTER 120. The Deck Towards the End of the First Night Watch.",
+      "paragraph_count": 7,
+      "chars": 958,
+      "text_sha256": "78387c68a59b38510afd443f891d3489a8d7c461a7adf022f13fbd81880aee3a"
+    },
+    {
+      "idx": 128,
+      "title": "CHAPTER 121. Midnight.-The Forecastle Bulwarks.",
+      "paragraph_count": 5,
+      "chars": 3384,
+      "text_sha256": "c277ab0ac5f18df21839f89c284f13ded78034e6f0d5de52a5fe0757f3bb2961"
+    },
+    {
+      "idx": 129,
+      "title": "CHAPTER 122. Midnight Aloft.-Thunder and Lightning.",
+      "paragraph_count": 2,
+      "chars": 240,
+      "text_sha256": "f7540494f83c5294ee9d5e42d5a851cf9c9673be3289dd556f4e01d23c2390e3"
+    },
+    {
+      "idx": 130,
+      "title": "CHAPTER 123. The Musket.",
+      "paragraph_count": 13,
+      "chars": 6757,
+      "text_sha256": "02908fa7e407744ad27f48155401d6b0a7e1c9eb41bd366d5f13b346350462af"
+    },
+    {
+      "idx": 131,
+      "title": "CHAPTER 124. The Needle.",
+      "paragraph_count": 21,
+      "chars": 6904,
+      "text_sha256": "6be551efaa8d335afc0ca040e36aec488e2beb8d05dafbe7b64e63a72a8c3afa"
+    },
+    {
+      "idx": 132,
+      "title": "CHAPTER 125. The Log and Line.",
+      "paragraph_count": 29,
+      "chars": 6083,
+      "text_sha256": "d504aaf691511ce1446d2c19076c9ef5c9d9bb7d649a29663bb96687f0bbabac"
+    },
+    {
+      "idx": 133,
+      "title": "CHAPTER 126. The Life-Buoy.",
+      "paragraph_count": 19,
+      "chars": 7457,
+      "text_sha256": "e8e3e13693da350b8696cef198d3c4dbac1d80d41b330d9bc2714c8c8f823ba5"
+    },
+    {
+      "idx": 134,
+      "title": "CHAPTER 127. The Deck.",
+      "paragraph_count": 23,
+      "chars": 3868,
+      "text_sha256": "c7f5a0294518aa55ea6957ed9a308604853ffb80c4777fd31c1b8ad2e99c764a"
+    },
+    {
+      "idx": 135,
+      "title": "CHAPTER 128. The Pequod Meets The Rachel.",
+      "paragraph_count": 19,
+      "chars": 7778,
+      "text_sha256": "e8f8ba512bac6a0731aba39047ead1c9ddd47e1bb4fd89f2c2e74eb952b7360f"
+    },
+    {
+      "idx": 136,
+      "title": "CHAPTER 129. The Cabin.",
+      "paragraph_count": 10,
+      "chars": 2998,
+      "text_sha256": "659cd1ad7e4a8a9dff3eecd85017225e6ba6b36cd321255f5ce8bb6af2642363"
+    },
+    {
+      "idx": 137,
+      "title": "CHAPTER 130. The Hat.",
+      "paragraph_count": 15,
+      "chars": 9567,
+      "text_sha256": "f43a6ed8f5619534befaa957d73e87a2e70f44ffeeccaf8efe0b5384729a7932"
+    },
+    {
+      "idx": 138,
+      "title": "CHAPTER 131. The Pequod Meets The Delight.",
+      "paragraph_count": 12,
+      "chars": 2417,
+      "text_sha256": "0a249f444a1f726ae944cb4418d31d961ada8ec5cf6b083df8d465475d1d0c43"
+    },
+    {
+      "idx": 139,
+      "title": "CHAPTER 132. The Symphony.",
+      "paragraph_count": 19,
+      "chars": 8726,
+      "text_sha256": "74d41c36fb17eadf7ddbac68d3a93e6c3c2ac7ee6f6fb739276da27e23026c64"
+    },
+    {
+      "idx": 140,
+      "title": "CHAPTER 133. The Chase-First Day.",
+      "paragraph_count": 51,
+      "chars": 20240,
+      "text_sha256": "ffce44a85c4939c1c4b49f1158c55508bc2e95c93994816a5e51f0804077d28e"
+    },
+    {
+      "idx": 141,
+      "title": "CHAPTER 134. The Chase-Second Day.",
+      "paragraph_count": 47,
+      "chars": 18474,
+      "text_sha256": "e38fb7757d532f866f8eb1791c08d8138717eabd772a4028ce5eed873d524c1d"
+    },
+    {
+      "idx": 142,
+      "title": "CHAPTER 135. The Chase.-Third Day.",
+      "paragraph_count": 62,
+      "chars": 24920,
+      "text_sha256": "3a753e96c4bca107fb31004e21973615941e09e0fe842949210242dba54516d5"
+    },
+    {
+      "idx": 143,
+      "title": "Epilogue",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 144,
+      "title": "\"AND I ONLY AM ESCAPED ALONE TO TELL THEE\" Job.",
+      "paragraph_count": 2,
+      "chars": 1446,
+      "text_sha256": "fc062ae8fe28a159492b4808c5beada77550a12eb0c71fc18dded486c264b407"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "gutenberg_id": 2542,
+  "title": "A Doll's House",
+  "source_sha256": "e8385715154db8da8d44b2ec690038701273b6340c42404bc3a2d421d53b08d4",
+  "strategy": "section-chapter",
+  "confidence": 0.9757,
+  "coverage": 0.9885,
+  "chapter_count": 4,
+  "paragraph_count": 1310,
+  "total_chars": 138478,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "A DOLL'S HOUSE",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "ACT I",
+      "paragraph_count": 491,
+      "chars": 54703,
+      "text_sha256": "00120fbcd15dc7bcc19e0676e8b7fc1ff43ef8178cc124074c66f43cf14d4892"
+    },
+    {
+      "idx": 2,
+      "title": "ACT II",
+      "paragraph_count": 434,
+      "chars": 41416,
+      "text_sha256": "4ec8bebe4b5ba975c16dd018174fd62c199082e002f0cc866ce38cad3fe882c9"
+    },
+    {
+      "idx": 3,
+      "title": "ACT III",
+      "paragraph_count": 385,
+      "chars": 42359,
+      "text_sha256": "1f810a174c17bd7767bc460d3f5b90fa34eaaa5dbd8927ecacae61ac37122233"
+    }
+  ]
+}

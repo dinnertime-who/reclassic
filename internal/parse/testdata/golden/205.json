@@ -1,0 +1,294 @@
+{
+  "gutenberg_id": 205,
+  "title": "Walden",
+  "source_sha256": "c38ab1617e85370da799b380297bd5eef8c108f8bd067c1feffe4e72ea494670",
+  "strategy": "anchor-toc",
+  "confidence": 0.9965,
+  "coverage": 0.9935,
+  "chapter_count": 40,
+  "paragraph_count": 534,
+  "total_chars": 627500,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "WALDEN",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "WALDEN",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 2,
+      "title": "Economy",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 3,
+      "title": "Economy",
+      "paragraph_count": 127,
+      "chars": 137834,
+      "text_sha256": "3c9308b7fe1ff1172a5d532e907b11113224ee92f83a75c823a9cbfb9521eaf5"
+    },
+    {
+      "idx": 4,
+      "title": "Where I Lived, and What I Lived For",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 5,
+      "title": "Where I Lived, and What I Lived For",
+      "paragraph_count": 26,
+      "chars": 32542,
+      "text_sha256": "ae14a243344710cef3b51141bb060e2297f46cd6e91b257d28e396b701f4f760"
+    },
+    {
+      "idx": 6,
+      "title": "Reading",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 7,
+      "title": "Reading",
+      "paragraph_count": 12,
+      "chars": 20988,
+      "text_sha256": "0289283fe55085a0d8fd51ec97ab24c7920a4a7b34149b1981c977bf59390c58"
+    },
+    {
+      "idx": 8,
+      "title": "Sounds",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 9,
+      "title": "Sounds",
+      "paragraph_count": 27,
+      "chars": 31593,
+      "text_sha256": "a9ff406563f104eb12335cc6d78c0fdc12df95a599ace33c52bab5e72ed16a05"
+    },
+    {
+      "idx": 10,
+      "title": "Solitude",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 11,
+      "title": "Solitude",
+      "paragraph_count": 19,
+      "chars": 18354,
+      "text_sha256": "ab295ac11574d37f484034810131b97e2ad831c7d0d71db4f63f637d97c7a231"
+    },
+    {
+      "idx": 12,
+      "title": "Visitors",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 13,
+      "title": "Visitors",
+      "paragraph_count": 27,
+      "chars": 25723,
+      "text_sha256": "1b54775d78cd726194ee4e51d510f6c94f1ac555caa423934e12772b02b5dd30"
+    },
+    {
+      "idx": 14,
+      "title": "The Bean-Field",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 15,
+      "title": "The Bean-Field",
+      "paragraph_count": 19,
+      "chars": 20721,
+      "text_sha256": "9bedf7ca4ea009d0413eac4d92097b841f91d9099b008b2517f6206aea8edd1e"
+    },
+    {
+      "idx": 16,
+      "title": "The Village",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 17,
+      "title": "The Village",
+      "paragraph_count": 5,
+      "chars": 10836,
+      "text_sha256": "571f67a27918bd075fbcf3690899f0d90f151d12aa2448bb9d20ca4311f72f8a"
+    },
+    {
+      "idx": 18,
+      "title": "The Ponds",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 19,
+      "title": "The Ponds",
+      "paragraph_count": 35,
+      "chars": 49422,
+      "text_sha256": "359c05afe897586c9b8d67f8ee9f9ff8ce1cca337bac6f59fb01d0c37a6136f4"
+    },
+    {
+      "idx": 20,
+      "title": "Baker Farm",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 21,
+      "title": "Baker Farm",
+      "paragraph_count": 14,
+      "chars": 13898,
+      "text_sha256": "667563c9c8d64142508320b725c59ac39b5fb29a72260fca99d41f84bfe54451"
+    },
+    {
+      "idx": 22,
+      "title": "Higher Laws",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 23,
+      "title": "Higher Laws",
+      "paragraph_count": 18,
+      "chars": 22940,
+      "text_sha256": "9047609c81da01aaf1febb1263804cc55f0f9c648a116c722cb2d8dc8f609c83"
+    },
+    {
+      "idx": 24,
+      "title": "Brute Neighbors",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 25,
+      "title": "Brute Neighbors",
+      "paragraph_count": 18,
+      "chars": 25649,
+      "text_sha256": "d45852d615a29681b05d3bbb4fca53cfa72844a1f9e6c36b3f7d5a17ca16d734"
+    },
+    {
+      "idx": 26,
+      "title": "House-Warming",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 27,
+      "title": "House-Warming",
+      "paragraph_count": 21,
+      "chars": 30774,
+      "text_sha256": "12d5d4ac80fe2a8606cfa18225f159edd6304fbbcae4a427c03020eb8b542455"
+    },
+    {
+      "idx": 28,
+      "title": "Former Inhabitants and Winter Visitors",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 29,
+      "title": "Former Inhabitants and Winter Visitors",
+      "paragraph_count": 26,
+      "chars": 25911,
+      "text_sha256": "b7d9491e8c220efd38690017af5003f7bfc78ef5385c3e2a0a831664fcd786df"
+    },
+    {
+      "idx": 30,
+      "title": "Winter Animals",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 31,
+      "title": "Winter Animals",
+      "paragraph_count": 15,
+      "chars": 19675,
+      "text_sha256": "0dcf0b4ea92d4e06bb4d0fecf4cab8e5c37603e2855f8b46bff758fa3b7af496"
+    },
+    {
+      "idx": 32,
+      "title": "The Pond in Winter",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 33,
+      "title": "The Pond in Winter",
+      "paragraph_count": 23,
+      "chars": 28186,
+      "text_sha256": "37dd761134fded6a76b7b007e82cdaf53baaab9cfd07ba64c96cf39d6a7ebf1b"
+    },
+    {
+      "idx": 34,
+      "title": "Spring",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 35,
+      "title": "Spring",
+      "paragraph_count": 28,
+      "chars": 36415,
+      "text_sha256": "64634e8de09abf7420b0470d2dc1249dd7b48d5f99b88a935b947d803e66f47e"
+    },
+    {
+      "idx": 36,
+      "title": "Conclusion",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 37,
+      "title": "Conclusion",
+      "paragraph_count": 23,
+      "chars": 25115,
+      "text_sha256": "ceb400f14b9a8384881516ddfa41347c0236dddc3c31226801b0f2378143db26"
+    },
+    {
+      "idx": 38,
+      "title": "ON THE DUTY OF CIVIL DISOBEDIENCE",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 39,
+      "title": "ON THE DUTY OF CIVIL DISOBEDIENCE",
+      "paragraph_count": 51,
+      "chars": 50924,
+      "text_sha256": "0947faf55ff2f102732c5ccdadd59069ca7c06e295a9869fff29a50db3b562a8"
+    }
+  ]
+}

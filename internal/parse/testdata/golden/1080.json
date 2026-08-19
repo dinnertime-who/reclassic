@@ -1,0 +1,42 @@
+{
+  "gutenberg_id": 1080,
+  "title": "A Modest Proposal",
+  "source_sha256": "06181876b40f82c9446f3dc4707360bab40bcbe0ecaf50f93347affe15628373",
+  "strategy": "heading-split",
+  "confidence": 0.9947,
+  "coverage": 0.9883,
+  "chapter_count": 4,
+  "paragraph_count": 33,
+  "total_chars": 19228,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "A Modest Proposal",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "For preventing the children of poor people in Ireland, from being a burden on their parents or country, and for making them beneficial to the publick.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 2,
+      "title": "by Dr. Jonathan Swift",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 3,
+      "title": "1729",
+      "paragraph_count": 33,
+      "chars": 19228,
+      "text_sha256": "329280bc26dc09b7c9ef2457f7678c75b0b6bf1ae25f39dc0a570947259f5002"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "gutenberg_id": 174,
+  "title": "The Picture of Dorian Gray",
+  "source_sha256": "5739c99c901460d83c4b0e5675ae48fa07f23208129778be9bb695e24e552fce",
+  "strategy": "section-chapter",
+  "confidence": 0.9822,
+  "coverage": 0.9951,
+  "chapter_count": 21,
+  "paragraph_count": 1498,
+  "total_chars": 425466,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "THE PREFACE",
+      "paragraph_count": 8,
+      "chars": 2053,
+      "text_sha256": "73be580f49f91a0502394ad429d5013ffebff5c2a6f22ec99c3196dbbbfa9994"
+    },
+    {
+      "idx": 1,
+      "title": "CHAPTER I.",
+      "paragraph_count": 81,
+      "chars": 26534,
+      "text_sha256": "5c9836a5faabad677e6638d54ea558cf55106700d8e3d522e099203398b66d11"
+    },
+    {
+      "idx": 2,
+      "title": "CHAPTER II.",
+      "paragraph_count": 136,
+      "chars": 29960,
+      "text_sha256": "642e7dca6800cd4bf0319d1f1f21c87b23fb69ad51613c4bb86ba0db73ed4dc3"
+    },
+    {
+      "idx": 3,
+      "title": "CHAPTER III.",
+      "paragraph_count": 99,
+      "chars": 24501,
+      "text_sha256": "9ac5db42af71cf487e71611d0146e0a9c9966b3b45577627d4fe911d0cd7c88e"
+    },
+    {
+      "idx": 4,
+      "title": "CHAPTER IV.",
+      "paragraph_count": 107,
+      "chars": 29894,
+      "text_sha256": "f856665d9b64c33b2d85beae98924a281eb242c0062b9efd2f64ccc6bc65a25c"
+    },
+    {
+      "idx": 5,
+      "title": "CHAPTER V.",
+      "paragraph_count": 99,
+      "chars": 23280,
+      "text_sha256": "abdb11f659b644b24a28652670577baa13ea969f3da168598abf56a7a00af0b6"
+    },
+    {
+      "idx": 6,
+      "title": "CHAPTER VI.",
+      "paragraph_count": 58,
+      "chars": 15295,
+      "text_sha256": "578f487040c4d600be7247b853f3d47120a856c33cb64aeca1fa1c11d02fe028"
+    },
+    {
+      "idx": 7,
+      "title": "CHAPTER VII.",
+      "paragraph_count": 59,
+      "chars": 23843,
+      "text_sha256": "06ff8c60ede280fbb287fce3f2f7dc0fd2417ebf10a48b2ef5c10902780a3a68"
+    },
+    {
+      "idx": 8,
+      "title": "CHAPTER VIII.",
+      "paragraph_count": 78,
+      "chars": 28236,
+      "text_sha256": "c59373bfe2b151a5ff7786989e57242c410a746d2c89d373912b8ab828945577"
+    },
+    {
+      "idx": 9,
+      "title": "CHAPTER IX.",
+      "paragraph_count": 65,
+      "chars": 20403,
+      "text_sha256": "131b042ecac230d0c240b38b21e471d5636585630b67efa0513cce435dffd28a"
+    },
+    {
+      "idx": 10,
+      "title": "CHAPTER X.",
+      "paragraph_count": 49,
+      "chars": 17422,
+      "text_sha256": "a655642bae497e1af5fe87d76f8699ff43feb634f45cbfb8c5806c70b5a13d6d"
+    },
+    {
+      "idx": 11,
+      "title": "CHAPTER XI.",
+      "paragraph_count": 36,
+      "chars": 41740,
+      "text_sha256": "162cdf6537d55f295aa1518b435764e2357a1ca42719b072fa033ac94e6b8790"
+    },
+    {
+      "idx": 12,
+      "title": "CHAPTER XII.",
+      "paragraph_count": 38,
+      "chars": 14422,
+      "text_sha256": "ac15ab45631c450e85c59d6d217161aad48e09e4f3e3f6e4717ea27c3932f1cd"
+    },
+    {
+      "idx": 13,
+      "title": "CHAPTER XIII.",
+      "paragraph_count": 56,
+      "chars": 13288,
+      "text_sha256": "9f52ce14f7aba16725231bc6981c159672d4a3422dbdf1d9e2a7e2729093494b"
+    },
+    {
+      "idx": 14,
+      "title": "CHAPTER XIV.",
+      "paragraph_count": 92,
+      "chars": 24248,
+      "text_sha256": "95298ddab11ff078371b65400624c9e769f844fd7cbb0c63de7fd8b8fef9b990"
+    },
+    {
+      "idx": 15,
+      "title": "CHAPTER XV.",
+      "paragraph_count": 82,
+      "chars": 17214,
+      "text_sha256": "c1f3572cebb95a88d70a9a3b1d21d36ef0913355abbf76ce960403708e1d3439"
+    },
+    {
+      "idx": 16,
+      "title": "CHAPTER XVI.",
+      "paragraph_count": 72,
+      "chars": 16618,
+      "text_sha256": "38fa7011091072493c0054ad5e6d48772eef883098327a235c8a03dd74112496"
+    },
+    {
+      "idx": 17,
+      "title": "CHAPTER XVII.",
+      "paragraph_count": 115,
+      "chars": 9907,
+      "text_sha256": "4d9a4a0d2cc15fae9edd411161d6153ae044ccf09fb5888b83d4c0edda276231"
+    },
+    {
+      "idx": 18,
+      "title": "CHAPTER XVIII.",
+      "paragraph_count": 94,
+      "chars": 17560,
+      "text_sha256": "5f36c126af909230378cada0b051c82152470d5525059495e7a01188864ccaf1"
+    },
+    {
+      "idx": 19,
+      "title": "CHAPTER XIX.",
+      "paragraph_count": 54,
+      "chars": 18931,
+      "text_sha256": "8e2af59096c0838617eda613fa14dfc7d157db991b36e6f50d3b40f7421152b9"
+    },
+    {
+      "idx": 20,
+      "title": "CHAPTER XX.",
+      "paragraph_count": 20,
+      "chars": 10117,
+      "text_sha256": "05fbf75b7c77d2601c9743fa28266d756424a303e7d95f4039fedd66a8480c72"
+    }
+  ]
+}

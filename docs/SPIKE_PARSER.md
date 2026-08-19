@@ -234,6 +234,10 @@ StableID = hex(sha256(normalized))[:16]
 
 대소문자는 변환하지 않는다. 정규화 함수는 순수 함수여야 하며 단위 테스트를 붙인다.
 
+> **스파이크 이후 보완 (ADR-016).** 한 책에 같은 본문이 반복되면 위 정의만으로는
+> 번역 행이 공유된다. 2번째 등장부터 `sha256(normalized + "#" + n)`으로 분리하기로 했다.
+> 순서 부여는 파서 후처리에서 하며, 이 절의 `Normalize`는 순수 함수로 그대로 둔다.
+
 ### 5.8 신뢰도 계산
 
 측정 가능한 신호로만 계산한다. 상수는 `confidence.go` 상단에 모은다.
@@ -360,12 +364,12 @@ confidence = clamp(
 
 ## 8. 완료 조건
 
-- [ ] `corpus.json`의 모든 도서가 캐시에 존재하고 `expected_title`이 검증됨
-- [ ] 4개 전략이 모두 구현되고 권별로 전 전략 점수가 기록됨
-- [ ] 권별 golden 스냅샷 생성, `make test` 통과
-- [ ] `.cache/report.html` 생성 — 챕터별 첫 문단 미리보기 포함
-- [ ] `docs/PARSER_REPORT.md` 작성 (아래 형식)
-- [ ] `make lint && make test` 통과
+- [x] `corpus.json`의 모든 도서가 캐시에 존재하고 `expected_title`이 검증됨
+- [x] 4개 전략이 모두 구현되고 권별로 전 전략 점수가 기록됨
+- [x] 권별 golden 스냅샷 생성, `make test` 통과
+- [x] `.cache/report.html` 생성 — 챕터별 첫 문단 미리보기 포함
+- [x] `docs/PARSER_REPORT.md` 작성 (아래 형식)
+- [x] `make lint && make test` 통과
 
 ### `docs/PARSER_REPORT.md` 형식
 

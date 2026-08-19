@@ -1,0 +1,98 @@
+{
+  "gutenberg_id": 1661,
+  "title": "The Adventures of Sherlock Holmes",
+  "source_sha256": "dc4da083f864bc9978a64c62c0e39f2f0cb3032f0cdf3616a0b4fef19699e8d1",
+  "strategy": "section-chapter",
+  "confidence": 0.9664,
+  "coverage": 0.9938,
+  "chapter_count": 12,
+  "paragraph_count": 2523,
+  "total_chars": 555722,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "I.A SCANDAL IN BOHEMIA",
+      "paragraph_count": 256,
+      "chars": 45837,
+      "text_sha256": "16ad61fa7febccde58cb4d0c214d4272f846be6a75f0b142a14d20915ba13e4d"
+    },
+    {
+      "idx": 1,
+      "title": "II.THE RED-HEADED LEAGUE",
+      "paragraph_count": 215,
+      "chars": 48787,
+      "text_sha256": "a4f3c434b1ca582e086415f5268a10e4aed78c936d208760ff41802c74902518"
+    },
+    {
+      "idx": 2,
+      "title": "III.A CASE OF IDENTITY",
+      "paragraph_count": 137,
+      "chars": 37616,
+      "text_sha256": "857af4df1b0cd0d80b3a0bd3ac71307a4a028d6d7e8e50ae3544215108620b49"
+    },
+    {
+      "idx": 3,
+      "title": "IV.THE BOSCOMBE VALLEY MYSTERY",
+      "paragraph_count": 215,
+      "chars": 50887,
+      "text_sha256": "9e39b40e58899ac635e76c5760e432564df755dfb3237ad475f6830dfb31c2e6"
+    },
+    {
+      "idx": 4,
+      "title": "V.THE FIVE ORANGE PIPS",
+      "paragraph_count": 178,
+      "chars": 39051,
+      "text_sha256": "5e1e426d6d6dda8d1c56df056c3c421b09d1636f5bcf58d6481de003518ae461"
+    },
+    {
+      "idx": 5,
+      "title": "VI.THE MAN WITH THE TWISTED LIP",
+      "paragraph_count": 222,
+      "chars": 48684,
+      "text_sha256": "9be0a88a6dcfe30569ad19f5defba1da2ee7e3b318071b9d5112b3282d55b948"
+    },
+    {
+      "idx": 6,
+      "title": "VII.THE ADVENTURE OF THE BLUE CARBUNCLE",
+      "paragraph_count": 214,
+      "chars": 41619,
+      "text_sha256": "497ad8d0c974c3e5b400cef0ce301d740241b255224f5896e9f9c43f4bd1f5bd"
+    },
+    {
+      "idx": 7,
+      "title": "VIII.THE ADVENTURE OF THE SPECKLED BAND",
+      "paragraph_count": 251,
+      "chars": 52410,
+      "text_sha256": "bfeda43ff0224f6818edb8f819bb377e339311d06364e1d8ab5453b9e4b3af69"
+    },
+    {
+      "idx": 8,
+      "title": "IX.THE ADVENTURE OF THE ENGINEER'S THUMB",
+      "paragraph_count": 176,
+      "chars": 44201,
+      "text_sha256": "926cc774849d91b12425dd7fbf1c073b48913b8106b94eff651f4467bb8026bb"
+    },
+    {
+      "idx": 9,
+      "title": "X.THE ADVENTURE OF THE NOBLE BACHELOR",
+      "paragraph_count": 226,
+      "chars": 43583,
+      "text_sha256": "3d76c358b65b34ece232d862c85a2adcfc64a9d8f3dd5de7dc98c26f96db7488"
+    },
+    {
+      "idx": 10,
+      "title": "XI.THE ADVENTURE OF THE BERYL CORONET",
+      "paragraph_count": 222,
+      "chars": 50486,
+      "text_sha256": "09c951ca0ee0d2ec7525d9bbe0f49fe09d30eb93a86e572ec53618f3f9b913d3"
+    },
+    {
+      "idx": 11,
+      "title": "XII.THE ADVENTURE OF THE COPPER BEECHES",
+      "paragraph_count": 211,
+      "chars": 52561,
+      "text_sha256": "58053a60f08add98487e1b6aa424dd9166fdece8c11486a40356f6aa625de7db"
+    }
+  ]
+}

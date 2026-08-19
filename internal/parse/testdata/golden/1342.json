@@ -1,0 +1,462 @@
+{
+  "gutenberg_id": 1342,
+  "title": "Pride and Prejudice",
+  "source_sha256": "6ac95942895963da67dc62f8bf9e6e0090b2e745a27f68940946c427fee3848a",
+  "strategy": "heading-split",
+  "confidence": 0.9871,
+  "coverage": 0.9894,
+  "chapter_count": 64,
+  "paragraph_count": 2139,
+  "total_chars": 708608,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "PRIDE. and PREJUDICE",
+      "paragraph_count": 2,
+      "chars": 164,
+      "text_sha256": "405ee5a05c67a530e3f8d4a1ab428dc68abca2bf2f9a6fd57ee0066e1936b191"
+    },
+    {
+      "idx": 1,
+      "title": "{ix}",
+      "paragraph_count": 16,
+      "chars": 24982,
+      "text_sha256": "171fbf81fb0f6a7909774b02a25ed7a8ebf8a064d4654298d4ba3f83dd46c72b"
+    },
+    {
+      "idx": 2,
+      "title": "{xxv}",
+      "paragraph_count": 1,
+      "chars": 3,
+      "text_sha256": "c773fd8ec85c689854404a4a543a1f8c141f42085c8ec1a5d4de8386b3618cdf"
+    },
+    {
+      "idx": 3,
+      "title": "Chapter I.",
+      "paragraph_count": 39,
+      "chars": 4536,
+      "text_sha256": "d9f4c61721ec5f6a574674bdc77ebf7700b6241f622a76cd69859e66f2b46505"
+    },
+    {
+      "idx": 4,
+      "title": "I hope Mr. Bingley will like it. CHAPTER II.",
+      "paragraph_count": 28,
+      "chars": 4268,
+      "text_sha256": "a4ea415fcfccbeb9ed2801a4ecc53c4f35fed384067a4751bd02d33c132b50df"
+    },
+    {
+      "idx": 5,
+      "title": "He rode a black horse. CHAPTER III.",
+      "paragraph_count": 25,
+      "chars": 9647,
+      "text_sha256": "7ca8cd63023e01210a8c52f91f151d5abb4f124a1d3ae1bda095562402f20182"
+    },
+    {
+      "idx": 6,
+      "title": "CHAPTER IV.",
+      "paragraph_count": 16,
+      "chars": 5907,
+      "text_sha256": "5e3c0e66f461b6d31688f0efde27deab09a87716f1e8376af821af05beefbf6d"
+    },
+    {
+      "idx": 7,
+      "title": "CHAPTER V.",
+      "paragraph_count": 26,
+      "chars": 5275,
+      "text_sha256": "fc2130fbd43f461342308971cdbe8210657e921b5e69f68d3428ff95fa13fd5d"
+    },
+    {
+      "idx": 8,
+      "title": "CHAPTER VI.",
+      "paragraph_count": 55,
+      "chars": 12989,
+      "text_sha256": "02fbb53c433c734a815a1372e451318eb1efa616397a18b541d8f6a7bb8d4f47"
+    },
+    {
+      "idx": 9,
+      "title": "A note for Miss Bennet. CHAPTER VII.",
+      "paragraph_count": 52,
+      "chars": 11141,
+      "text_sha256": "2d9257140905d719218c0654c766c1e60fab2bf6f9ce9a1d24e918be7486305d"
+    },
+    {
+      "idx": 10,
+      "title": "Covering a screen. CHAPTER VIII.",
+      "paragraph_count": 59,
+      "chars": 10895,
+      "text_sha256": "baadc3e5b8ca014615cf882275d041839e7a3fab771014f4bc8de6440b35afb5"
+    },
+    {
+      "idx": 11,
+      "title": "Mrs Bennet and her two youngest girls. CHAPTER IX.",
+      "paragraph_count": 39,
+      "chars": 9691,
+      "text_sha256": "04cbc37d6a3fad1a64ccd2081a5936dce3b9340dfe04236f816f1226d503d6a2"
+    },
+    {
+      "idx": 12,
+      "title": "CHAPTER X.",
+      "paragraph_count": 68,
+      "chars": 12452,
+      "text_sha256": "1b8cf6dc86e7e20e0f6a80aeb99c33dcb91a4e5ae9e382f842e1caccff3683e8"
+    },
+    {
+      "idx": 13,
+      "title": "Piling up the fire. CHAPTER XI.",
+      "paragraph_count": 34,
+      "chars": 8877,
+      "text_sha256": "30c1aa9128b034a66ee594ec91594a090571b6825d42259c8087f2d3e16a76ec"
+    },
+    {
+      "idx": 14,
+      "title": "CHAPTER XII.",
+      "paragraph_count": 7,
+      "chars": 3922,
+      "text_sha256": "717ef2f30836f1e6dea5fd0d00ea1082d879ce63cfd94b13e80a7d2fb402d90f"
+    },
+    {
+      "idx": 15,
+      "title": "CHAPTER XIII",
+      "paragraph_count": 30,
+      "chars": 9240,
+      "text_sha256": "92e4fdd275368b4f18adcf0d2beac0fe0905983bcfbf61fb9d181c169a31ed23"
+    },
+    {
+      "idx": 16,
+      "title": "CHAPTER XIV",
+      "paragraph_count": 19,
+      "chars": 6472,
+      "text_sha256": "dc22980cd6a89cb45b5d0157ad4846c002ea33dc85d301ab3cd304257e880ff8"
+    },
+    {
+      "idx": 17,
+      "title": "CHAPTER XV.",
+      "paragraph_count": 13,
+      "chars": 9769,
+      "text_sha256": "d32dc259ac7232019df3ccf08a153870b7b4988cff030674a68d1190b932b7cd"
+    },
+    {
+      "idx": 18,
+      "title": "CHAPTER XVI.",
+      "paragraph_count": 62,
+      "chars": 19001,
+      "text_sha256": "f58ccf95f0208c42d71e1e5504574100af2eb7be4ae056e822181b00a871a160"
+    },
+    {
+      "idx": 19,
+      "title": "delighted to see their dear friend again. CHAPTER XVII.",
+      "paragraph_count": 15,
+      "chars": 7261,
+      "text_sha256": "8d4c9cd6d9d593356e49b868e9a1aa7113d72b8da4eced1844ebaf587d95393b"
+    },
+    {
+      "idx": 20,
+      "title": "CHAPTER XVIII.",
+      "paragraph_count": 79,
+      "chars": 29155,
+      "text_sha256": "b6c760a4915ed5f4a9c5c3b585b8f85b922e7e0228a5df1b57181ee32f2e89cd"
+    },
+    {
+      "idx": 21,
+      "title": "\"to assure you in the most animated language.\" CHAPTER XIX.",
+      "paragraph_count": 22,
+      "chars": 10638,
+      "text_sha256": "2175ab97d64e1af6e81c63dc10388e26ac4c0eede984e3d89aec19d6db26015b"
+    },
+    {
+      "idx": 22,
+      "title": "CHAPTER XX.",
+      "paragraph_count": 36,
+      "chars": 9167,
+      "text_sha256": "dd50ea7837573edca7a91d3870b2eb0f38f77ce6089d2c0a1927c422abd966a4"
+    },
+    {
+      "idx": 23,
+      "title": "CHAPTER XXI.",
+      "paragraph_count": 30,
+      "chars": 11312,
+      "text_sha256": "37e2327eaefadb1f50a0d7515682e007f0efa663eaa1ddc8a3028c347a7d7a2b"
+    },
+    {
+      "idx": 24,
+      "title": "CHAPTER XXII.",
+      "paragraph_count": 22,
+      "chars": 10056,
+      "text_sha256": "9c3edb53b76f1d69b4cd6d793d3eab85111423917c4babbe38aabbba630d57c7"
+    },
+    {
+      "idx": 25,
+      "title": "\"Protested he must be entirely mistaken.\" CHAPTER XXIII.",
+      "paragraph_count": 26,
+      "chars": 9330,
+      "text_sha256": "36bde9190c393ac43dca71477565e4ee88119760e507be46bb59441c802e214c"
+    },
+    {
+      "idx": 26,
+      "title": "CHAPTER XXIV.",
+      "paragraph_count": 31,
+      "chars": 10790,
+      "text_sha256": "0e810e2261eca4cf24f018637296ce74c807c0e3d3f7a2ac68db6dc45c4ca158"
+    },
+    {
+      "idx": 27,
+      "title": "CHAPTER XXV.",
+      "paragraph_count": 22,
+      "chars": 8649,
+      "text_sha256": "ba5f0e1fb88b64a97797ecba2853df17cae01dd914dfe90e8cab4ab0c036c029"
+    },
+    {
+      "idx": 28,
+      "title": "\"Will you come and see me.\" CHAPTER XXVI.",
+      "paragraph_count": 30,
+      "chars": 12730,
+      "text_sha256": "e802a33c83aaf35b158f87c4eca0736aab55e7a156ffec22e3d76180ac6c5b14"
+    },
+    {
+      "idx": 29,
+      "title": "\"On the Stairs.\" CHAPTERXXVII.",
+      "paragraph_count": 23,
+      "chars": 7176,
+      "text_sha256": "8b502301e7039fa5b353821b2596a8ba909d894dcb4c9431ed4b0f46b1f1b493"
+    },
+    {
+      "idx": 30,
+      "title": "\"At the door.\" CHAPTERXXVIII.",
+      "paragraph_count": 22,
+      "chars": 8287,
+      "text_sha256": "f9f01d2870138745ad2b22655403c5f446b2a58f8af62f6a776c61f100ca035c"
+    },
+    {
+      "idx": 31,
+      "title": "\"Lady Catherine, said she, you have given me a treasure.\" CHAPTER XXIX.",
+      "paragraph_count": 42,
+      "chars": 13637,
+      "text_sha256": "2fc60ae1ba0939af3be91f4d91d94fde499a3a1653151579facccc193a054ec2"
+    },
+    {
+      "idx": 32,
+      "title": "CHAPTER XXX.",
+      "paragraph_count": 16,
+      "chars": 7161,
+      "text_sha256": "146c78499aacca225c33548ccbe0487c8b2865ea93c6e7e95b96a2d69dca3cd2"
+    },
+    {
+      "idx": 33,
+      "title": "CHAPTER XXXI.",
+      "paragraph_count": 30,
+      "chars": 8705,
+      "text_sha256": "1976a107e582d5f25b2c80672dc6aa502e7f19fae21cbda55a9bdc595bb589e8"
+    },
+    {
+      "idx": 34,
+      "title": "CHAPTER XXXII.",
+      "paragraph_count": 34,
+      "chars": 8481,
+      "text_sha256": "64d5f5e63e9b1cfcfacf51ec798c3ac0906fa412911ce18f32d47020ff2e48f4"
+    },
+    {
+      "idx": 35,
+      "title": "\"On looking up.\" CHAPTER XXXIII.",
+      "paragraph_count": 41,
+      "chars": 10321,
+      "text_sha256": "2e076826b41090afc57e212ac45ab16b92fd64d337555861c548cfee4f7d75ed"
+    },
+    {
+      "idx": 36,
+      "title": "CHAPTER XXXIV.",
+      "paragraph_count": 31,
+      "chars": 11968,
+      "text_sha256": "06ab398e34e7c1f0d7997dcdfca3d63fde3fa1d2e27ee7110197768cf6fcdef4"
+    },
+    {
+      "idx": 37,
+      "title": "\"Hearing herself called.\" CHAPTER XXXV.",
+      "paragraph_count": 6,
+      "chars": 17003,
+      "text_sha256": "c576efa0b4a04460f156140a2f9769360c2999b88e6e7f5021def81649e903a8"
+    },
+    {
+      "idx": 38,
+      "title": "CHAPTER XXXVI.",
+      "paragraph_count": 16,
+      "chars": 11848,
+      "text_sha256": "345be077b8f83a90109fa65829367ce2a58b80466a7a850d89cf5bd9c58be7b2"
+    },
+    {
+      "idx": 39,
+      "title": "\"His parting obeisance.\" CHAPTER XXXVII.",
+      "paragraph_count": 22,
+      "chars": 7808,
+      "text_sha256": "267eb9a4df773753e1ef45634dc165a07949ba033804146a3588334afe13dae7"
+    },
+    {
+      "idx": 40,
+      "title": "\"The elevation of his feelings.\" CHAPTER XXXVIII.",
+      "paragraph_count": 18,
+      "chars": 5982,
+      "text_sha256": "39de932e1424b8be0f06083b185978e3f235002ee4309b91c4dfbd0d8a4b6e55"
+    },
+    {
+      "idx": 41,
+      "title": "\"How nicely we are crammed in.\" CHAPTER XXXIX.",
+      "paragraph_count": 26,
+      "chars": 8741,
+      "text_sha256": "62fffc1960983908d8da8c0d86f6e992addc5f41bf382cf7e561abd334397afb"
+    },
+    {
+      "idx": 42,
+      "title": "CHAPTER XL.",
+      "paragraph_count": 37,
+      "chars": 9196,
+      "text_sha256": "af6b3ea5c009e98047f366d10d93dee5475e9199cbc838786f48c916dff3b44c"
+    },
+    {
+      "idx": 43,
+      "title": "\"When Colonel Miller's regiment went.\" CHAPTER XLI.",
+      "paragraph_count": 42,
+      "chars": 13013,
+      "text_sha256": "72d8d42d8b413f94239abcb5e18645ea8080f5a57a0fd23de24616a2c81fdea7"
+    },
+    {
+      "idx": 44,
+      "title": "\"The arrival of the Gardiners.\" CHAPTER XLII.",
+      "paragraph_count": 18,
+      "chars": 10627,
+      "text_sha256": "f2d5fd397ded4a983e64b71be598d162915123adbfa88992aacb665f47f086c6"
+    },
+    {
+      "idx": 45,
+      "title": "\"Conjecturing as to the date.\" CHAPTER XLIII.",
+      "paragraph_count": 79,
+      "chars": 27416,
+      "text_sha256": "de160f17847eb7118c68bf98509f9c16abceb5df579acbc1d24f275ea3293fcd"
+    },
+    {
+      "idx": 46,
+      "title": "CHAPTER XLIV.",
+      "paragraph_count": 20,
+      "chars": 13439,
+      "text_sha256": "d35f828f92b2b796bc0da38412dc9d0b37fe3e0d7c9dad9cc0a9d4cfc83648a7"
+    },
+    {
+      "idx": 47,
+      "title": "\"Engaged by the river.\" CHAPTER XLV.",
+      "paragraph_count": 20,
+      "chars": 10087,
+      "text_sha256": "445777a6c04a7e16db1b75888885b7fbd24a74d50f061ddb649e775a840096c7"
+    },
+    {
+      "idx": 48,
+      "title": "Chapter XLVI.",
+      "paragraph_count": 33,
+      "chars": 16935,
+      "text_sha256": "6c156f0bb223a6eda46a977cba43ea7779efd683f599b6ebe37a8a3a9f28131d"
+    },
+    {
+      "idx": 49,
+      "title": "\"The first pleasing earnest of their welcome.\" CHAPTER XLVII.",
+      "paragraph_count": 73,
+      "chars": 22229,
+      "text_sha256": "27a95bdcd9078e7e932887246e9560983d66f9a989b80b0581c5b0cfc92b5b24"
+    },
+    {
+      "idx": 50,
+      "title": "\"The Post.\" CHAPTER XLVIII.",
+      "paragraph_count": 37,
+      "chars": 12599,
+      "text_sha256": "e441e550a035d622567d942ac6e2d1bc64414f840d40ca164205c9c5dd6c1721"
+    },
+    {
+      "idx": 51,
+      "title": "CHAPTER XLIX.",
+      "paragraph_count": 57,
+      "chars": 12241,
+      "text_sha256": "a7bd0ac0d60d9b370433fcb4e9e4fa09143fe0f289405b15b8ba5d4036c8e78a"
+    },
+    {
+      "idx": 52,
+      "title": "\"The spiteful old ladies.\" CHAPTER L.",
+      "paragraph_count": 23,
+      "chars": 12475,
+      "text_sha256": "437616ee26e9c90a8ff135bd5b25e13b1c9f840a0124bebd3f67d7ac1b01de94"
+    },
+    {
+      "idx": 53,
+      "title": "\"With an affectionate smile.\" CHAPTER LI.",
+      "paragraph_count": 40,
+      "chars": 11185,
+      "text_sha256": "5214f86ed97ac5a1e5c852b18957c9f1d8002559245c5cd096cfe54c263abc75"
+    },
+    {
+      "idx": 54,
+      "title": "\"I am sure she did not listen.\" CHAPTER LII.",
+      "paragraph_count": 38,
+      "chars": 16481,
+      "text_sha256": "d5bcb90a5d69e3fd85f7ce314ae117b1db3b3183896fe5c09dcf5a8940c22ab5"
+    },
+    {
+      "idx": 55,
+      "title": "\"Mr. Darcy with him.\" CHAPTER LIII.",
+      "paragraph_count": 60,
+      "chars": 16010,
+      "text_sha256": "8f14c06863fdfed3254caadc693827a9109e4723a535b198839cbeef8500ff0b"
+    },
+    {
+      "idx": 56,
+      "title": "\"Jane happened to look round.\" CHAPTER LIV.",
+      "paragraph_count": 37,
+      "chars": 8827,
+      "text_sha256": "6051ed6fa02da1bbb650c294fac62562bcc82ded28ad014b30c46933ea334ff8"
+    },
+    {
+      "idx": 57,
+      "title": "\"Lizzy, my dear, I want to speak to you.\" CHAPTER LV.",
+      "paragraph_count": 56,
+      "chars": 12918,
+      "text_sha256": "17defc70ecc15b990ee00e68d421a03df4040ac9dcb23a8e66ecaf2aaaad61f2"
+    },
+    {
+      "idx": 58,
+      "title": "CHAPTER LVI.",
+      "paragraph_count": 79,
+      "chars": 15262,
+      "text_sha256": "d9f61b1b7dffd5624e1a55ff184829bc97bccd18b59d6d068d63be04e29d93ce"
+    },
+    {
+      "idx": 59,
+      "title": "\"But now it comes out.\" CHAPTER LVII.",
+      "paragraph_count": 21,
+      "chars": 9360,
+      "text_sha256": "f9572e7c9971f4fbb701081779acb6f7f594aaf14a9652224b7d0f06b1186dbb"
+    },
+    {
+      "idx": 60,
+      "title": "\"The efforts of his aunt.\" CHAPTER LVIII.",
+      "paragraph_count": 46,
+      "chars": 13591,
+      "text_sha256": "8535d1473bc70eca89b6aa5e61052681fe21aa624f82d3c84e179c9ef358e0fa"
+    },
+    {
+      "idx": 61,
+      "title": "\"Unable to utter a syllable.\" CHAPTER LIX.",
+      "paragraph_count": 48,
+      "chars": 13486,
+      "text_sha256": "ae07ccccf1f3917d67c9c0f0ff4365bbf6b5575b04c38902acb7bb98b9f3fa0f"
+    },
+    {
+      "idx": 62,
+      "title": "\"The obsequious civility.\" CHAPTER LX.",
+      "paragraph_count": 29,
+      "chars": 8653,
+      "text_sha256": "174a1ee863f1d3fc26deaeaaacf8fd409cff97e9a7213fc2fc8f46eaf49a00c6"
+    },
+    {
+      "idx": 63,
+      "title": "CHAPTER LXI.",
+      "paragraph_count": 15,
+      "chars": 7141,
+      "text_sha256": "ed44ce451ee7022cd99bd43dfc0037ac2d4d576fca8aaea4db0642963fa86b0b"
+    }
+  ]
+}

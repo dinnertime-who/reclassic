@@ -1,0 +1,161 @@
+{
+  "gutenberg_id": 4300,
+  "title": "Ulysses",
+  "source_sha256": "1344ed60a5c225e0a911f2f44f13de655d71f1efe88be6b23913f5af7deb9621",
+  "strategy": "section-chapter",
+  "confidence": 0.9725,
+  "coverage": 0.9934,
+  "chapter_count": 21,
+  "paragraph_count": 7064,
+  "total_chars": 1495108,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "- I -",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "[ 1 ]",
+      "paragraph_count": 365,
+      "chars": 39532,
+      "text_sha256": "0ccd222e9b6c7e3b5077cbdedee089925ac317ed6a2ccdd006ee31ae33c23ceb"
+    },
+    {
+      "idx": 2,
+      "title": "[ 2 ]",
+      "paragraph_count": 206,
+      "chars": 24403,
+      "text_sha256": "a4743a016438694e75f0f511deede849e4ed7a3aabd34126a366dcf38dae3909"
+    },
+    {
+      "idx": 3,
+      "title": "[ 3 ]",
+      "paragraph_count": 100,
+      "chars": 32389,
+      "text_sha256": "e818e2ffd0d14a55c73de282d5c114778afe438dc08d79bb3fd787645380d533"
+    },
+    {
+      "idx": 4,
+      "title": "- II -",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 5,
+      "title": "[ 4 ]",
+      "paragraph_count": 174,
+      "chars": 32750,
+      "text_sha256": "c1a4823d2818834c781607e66528f50f0c860c3735f0c483548244c66547ac6e"
+    },
+    {
+      "idx": 6,
+      "title": "[ 5 ]",
+      "paragraph_count": 151,
+      "chars": 35168,
+      "text_sha256": "79f657457a37f9dbd94e66064fb0e14cbd6d53dfed6cd9d32d888ffd87585d06"
+    },
+    {
+      "idx": 7,
+      "title": "[ 6 ]",
+      "paragraph_count": 402,
+      "chars": 60415,
+      "text_sha256": "41de6943b0761f8b12c3a034359ade698e517194d70e93d86cb6592466d0ae0d"
+    },
+    {
+      "idx": 8,
+      "title": "[ 7 ]",
+      "paragraph_count": 476,
+      "chars": 54475,
+      "text_sha256": "543ef60ae34d18b7e44ac1aba7cef08f13f32dbb769ada78cf34e1e515e4cec7"
+    },
+    {
+      "idx": 9,
+      "title": "[ 8 ]",
+      "paragraph_count": 385,
+      "chars": 70331,
+      "text_sha256": "54363436a3b956ef72e004851209a1e672d613f157abdb32a46421f86812d0f4"
+    },
+    {
+      "idx": 10,
+      "title": "[ 9 ]",
+      "paragraph_count": 478,
+      "chars": 66173,
+      "text_sha256": "547bb9957ec8935933b1bdf48748c6070124f442b6ecccfe74635d85c2fe96ff"
+    },
+    {
+      "idx": 11,
+      "title": "[ 10 ]",
+      "paragraph_count": 546,
+      "chars": 71409,
+      "text_sha256": "e1810cf6cda8aff6494a81e9272c7d9e397c9d3a130860d207b64889f0954f66"
+    },
+    {
+      "idx": 12,
+      "title": "[ 11 ]",
+      "paragraph_count": 634,
+      "chars": 69160,
+      "text_sha256": "07e03126fb137cd2601a17d10067c3279e831ab0d5d77df480163d5256352bfc"
+    },
+    {
+      "idx": 13,
+      "title": "[ 12 ]",
+      "paragraph_count": 566,
+      "chars": 118607,
+      "text_sha256": "1735c38803aed41db29eec9965fb3dd50853ddd20e5e635f3722560e624b8416"
+    },
+    {
+      "idx": 14,
+      "title": "[ 13 ]",
+      "paragraph_count": 134,
+      "chars": 89820,
+      "text_sha256": "e2fe101d27ebf18da175de577c4d0e5a2af5e49d09a01caf9825eca672a7c298"
+    },
+    {
+      "idx": 15,
+      "title": "[ 14 ]",
+      "paragraph_count": 64,
+      "chars": 113614,
+      "text_sha256": "a542ed37a9c1cecbfeeeb256ca500a7f7589a6edb5c1bb94fd30564e4d0ba071"
+    },
+    {
+      "idx": 16,
+      "title": "[ 15 ]",
+      "paragraph_count": 1437,
+      "chars": 227055,
+      "text_sha256": "9aa26229c915a988b20c45a01c7f4d80b5ff48047db1f185a5d9c0850289db00"
+    },
+    {
+      "idx": 17,
+      "title": "- III -",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 18,
+      "title": "[ 16 ]",
+      "paragraph_count": 290,
+      "chars": 127927,
+      "text_sha256": "017be9237d208d80e1cbd70da31a597ecb447ce0c211dc4aac4f04c71e93c397"
+    },
+    {
+      "idx": 19,
+      "title": "[ 17 ]",
+      "paragraph_count": 646,
+      "chars": 143183,
+      "text_sha256": "decd138fb38548762e92fb727435fcc64fd5c63f30999af0b797f8ba185757e0"
+    },
+    {
+      "idx": 20,
+      "title": "[ 18 ]",
+      "paragraph_count": 10,
+      "chars": 118697,
+      "text_sha256": "8e833159dc66c20c8d0360185ecb7816e5f78fbb1edd4cf9cdd6a8477f6bb965"
+    }
+  ]
+}

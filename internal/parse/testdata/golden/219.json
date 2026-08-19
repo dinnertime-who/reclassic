@@ -1,0 +1,35 @@
+{
+  "gutenberg_id": 219,
+  "title": "Heart of Darkness",
+  "source_sha256": "5a095b9033a983f62abac3df2dfa1fe6e60e55f27697a6ce4657e8c7cd91ada9",
+  "strategy": "section-chapter",
+  "confidence": 0.9978,
+  "coverage": 0.9988,
+  "chapter_count": 3,
+  "paragraph_count": 198,
+  "total_chars": 209375,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "I",
+      "paragraph_count": 74,
+      "chars": 78284,
+      "text_sha256": "e400fe7cb79ee1d8310355b060faf7334ff2eca87444c1004edfb0b26ef35371"
+    },
+    {
+      "idx": 1,
+      "title": "II",
+      "paragraph_count": 37,
+      "chars": 66722,
+      "text_sha256": "31ecfa0574b7fe8a77b78986cdce8168bdaa63c78773c7db6ca51a83f6a10852"
+    },
+    {
+      "idx": 2,
+      "title": "III",
+      "paragraph_count": 87,
+      "chars": 64369,
+      "text_sha256": "c38b44c50fd539be6ff16eb4c44fba5f586b3d8a839915e2ccc67742ce592aeb"
+    }
+  ]
+}

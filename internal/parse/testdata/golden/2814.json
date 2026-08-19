@@ -1,0 +1,119 @@
+{
+  "gutenberg_id": 2814,
+  "title": "Dubliners",
+  "source_sha256": "df46eaa570201529f7648afb03546b9fcdac991d8fa32c0d5ef0fa1072686220",
+  "strategy": "section-chapter",
+  "confidence": 0.9834,
+  "coverage": 0.9944,
+  "chapter_count": 15,
+  "paragraph_count": 1662,
+  "total_chars": 365084,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "THE SISTERS",
+      "paragraph_count": 75,
+      "chars": 16267,
+      "text_sha256": "27a996eba95d11e52d345ceeb87a4db306ef9972d2e164e942abb1c1a9d67c47"
+    },
+    {
+      "idx": 1,
+      "title": "AN ENCOUNTER",
+      "paragraph_count": 40,
+      "chars": 17046,
+      "text_sha256": "a36fc5fb3c04298fe1f3ac2ec8180fa8136984d0611106db613861d2c016cc0c"
+    },
+    {
+      "idx": 2,
+      "title": "ARABY",
+      "paragraph_count": 37,
+      "chars": 12223,
+      "text_sha256": "143c283625e9c434c4b4ab4a5e7dd43cdf600696cde10499bccd6a5aefeb8012"
+    },
+    {
+      "idx": 3,
+      "title": "EVELINE",
+      "paragraph_count": 26,
+      "chars": 9590,
+      "text_sha256": "0c1e451d61795a0f3db071a6c644ad15c8607d42745c609fa0bc1cbee691741c"
+    },
+    {
+      "idx": 4,
+      "title": "AFTER THE RACE",
+      "paragraph_count": 23,
+      "chars": 12548,
+      "text_sha256": "7a78487fa5a45a9083db64f9ef8cc7ca6a6b516151af98057e70e5d7886fc5fa"
+    },
+    {
+      "idx": 5,
+      "title": "TWO GALLANTS",
+      "paragraph_count": 92,
+      "chars": 20957,
+      "text_sha256": "3f2d05b8ccd80b40c9a56e5bbe1aa4a91fc64e3b9d27ac2124e411d29f73b3fa"
+    },
+    {
+      "idx": 6,
+      "title": "THE BOARDING HOUSE",
+      "paragraph_count": 31,
+      "chars": 14925,
+      "text_sha256": "0b02f9306aa3a46568acccc4101264f111ef6ebf87be7ae41b9d6fe83d2e59b1"
+    },
+    {
+      "idx": 7,
+      "title": "A LITTLE CLOUD",
+      "paragraph_count": 129,
+      "chars": 27000,
+      "text_sha256": "b0cd0b56757b76202ea2a2c68ebcc2229801c639eb68cc7761dfa5ed7e63950e"
+    },
+    {
+      "idx": 8,
+      "title": "COUNTERPARTS",
+      "paragraph_count": 80,
+      "chars": 22018,
+      "text_sha256": "a9046d1b8df3ea1fd573b453eca5ebcb3e3b1e070aab060847157ea711ef6ee8"
+    },
+    {
+      "idx": 9,
+      "title": "CLAY",
+      "paragraph_count": 24,
+      "chars": 13597,
+      "text_sha256": "f8faa76e5f86331c5ca8489d9c81442c4de710c8bf5a448d9fee6c2ca947e65b"
+    },
+    {
+      "idx": 10,
+      "title": "A PAINFUL CASE",
+      "paragraph_count": 37,
+      "chars": 20127,
+      "text_sha256": "28cd49fef86338b5707f97b8167c3f9caee5435e633006d66adb83614bc6776e"
+    },
+    {
+      "idx": 11,
+      "title": "IVY DAY IN THE COMMITTEE ROOM",
+      "paragraph_count": 223,
+      "chars": 27592,
+      "text_sha256": "14b3663feb4bca10516c2b5c773d74c1ee69f1ceed4e1bd8b445d1224e4ca1fe"
+    },
+    {
+      "idx": 12,
+      "title": "A MOTHER",
+      "paragraph_count": 84,
+      "chars": 25010,
+      "text_sha256": "bcddede206a74ced797a8cdc03fe7a6f6146692da09ca1637bba8e2173aef641"
+    },
+    {
+      "idx": 13,
+      "title": "GRACE",
+      "paragraph_count": 306,
+      "chars": 41409,
+      "text_sha256": "995c4668d6734af79c5157f7f16dff9e9ed95f9f4aaeec480ed884002f1274e4"
+    },
+    {
+      "idx": 14,
+      "title": "THE DEAD",
+      "paragraph_count": 455,
+      "chars": 84775,
+      "text_sha256": "a68f2ef7c33b588f5c8df38855e3d18feaa00d7873482fc75411ffbc4a0846bc"
+    }
+  ]
+}

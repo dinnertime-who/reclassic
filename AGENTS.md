@@ -15,12 +15,19 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/ARCHITECTURE.md` | 시스템 구조, 데이터 모델, 핵심 불변식 |
 | `docs/DECISIONS.md` | 설계 결정 이력 (ADR) |
 | `docs/CONVENTIONS.md` | 코딩 규약 |
-| `docs/SPIKE_PARSER.md` | **현재 진행 중인 작업 — 파서 검증 스파이크 명세** |
+| `docs/SPIKE_PARSER.md` | 파서 검증 스파이크 명세 (완료) |
+| `docs/PARSER_REPORT.md` | **스파이크 결과와 권고 — 지금의 근거 문서** |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
-**현재 진행 중인 작업은 `docs/SPIKE_PARSER.md`입니다.** 파서 검증 스파이크가 끝나기 전에는
-DB·API·웹 코드를 작성하지 마세요. 스파이크 결과가 스키마 설계를 바꿀 수 있습니다 (ADR-011).
+**현재 작업은 파서 후처리 구현입니다 — ADR-013과 ADR-016을 함께 구현합니다.**
+둘 다 Accepted이고 아직 미구현입니다. 구현하면 golden 스냅샷 22권이 전부 바뀌므로,
+`make golden GOLDEN_UPDATE=1` 전에 `make parsecheck` 리포트로 눈 검증을 거치세요.
+
+ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹 금지")는 **해제됐습니다.**
+스파이크가 답을 냈고, 스키마 보정 레이어는 넣지 않기로 정해졌습니다(PARSER_REPORT 권고 2).
+다만 **DB 스키마를 쓸 때 `stable_id` 생성 규칙은 ADR-016을 반드시 따르세요.**
+같은 본문이 반복되면 2번째부터 등장 순서를 붙입니다. 나중에 바꾸면 쌓인 번역이 전부 어긋납니다.
 
 ## 기술 스택
 
@@ -49,6 +56,8 @@ DB·API·웹 코드를 작성하지 마세요. 스파이크 결과가 스키마 
 | 로컬 실행 | `make dev` |
 | 검증용 도서 내려받기 | `make fetch-corpus` |
 | 파서 검증 리포트 | `make parsecheck` |
+| golden 스냅샷 비교 | `make golden` |
+| golden 스냅샷 갱신 | `make golden GOLDEN_UPDATE=1` |
 
 `go test ./...`나 `npm run ...`을 직접 추론해서 실행하지 마세요.
 **Makefile이 유일한 진입점입니다.** 필요한 명령이 없으면 Makefile에 추가하고 이 표도 같이 갱신하세요.
@@ -81,6 +90,9 @@ DB·API·웹 코드를 작성하지 마세요. 스파이크 결과가 스키마 
 작업 중 아래에 해당하는 판단이 필요하면, 임의로 정하지 말고 `docs/DECISIONS.md`에
 `Proposed` 상태의 ADR로 남기고 사람에게 확인을 요청하세요.
 
-- 파서 자동 분리 실패 시 관리자 보정 UI의 범위
+- 희곡·운문의 지원 범위 (ADR-015가 `Proposed`로 열려 있음)
 - 번역 프로젝트의 공개 기준 (승인 커버리지 임계값)
 - 인증 방식 세부 (세션 저장소, 만료 정책)
+
+관리자 보정 UI의 범위는 더 이상 열린 질문이 아닙니다 — **가벼운 챕터 보정**(장 병합, 제목 수정)이면
+충분하고, 스키마 보정 레이어는 넣지 않습니다. 근거는 `docs/PARSER_REPORT.md` 권고 1·2와 ADR-013.

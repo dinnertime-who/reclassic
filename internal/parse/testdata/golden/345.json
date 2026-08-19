@@ -1,0 +1,392 @@
+{
+  "gutenberg_id": 345,
+  "title": "Dracula",
+  "source_sha256": "5e61429f5b4696427ff10e6b0b19a785caa0c4e672c04a48ba12afd36af23fcb",
+  "strategy": "anchor-toc",
+  "confidence": 0.9785,
+  "coverage": 0.9941,
+  "chapter_count": 54,
+  "paragraph_count": 1945,
+  "total_chars": 829872,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "CHAPTER I JONATHAN HARKER'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "CHAPTER I. Jonathan Harker's Journal",
+      "paragraph_count": 37,
+      "chars": 30466,
+      "text_sha256": "2a6ff0504e9c408f40b0d3684cdb19b5b4f540fac4586f12bd8f3f808548a628"
+    },
+    {
+      "idx": 2,
+      "title": "CHAPTER II JONATHAN HARKER'S JOURNAL-continued",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 3,
+      "title": "CHAPTER II. Jonathan Harker's Journal",
+      "paragraph_count": 58,
+      "chars": 28356,
+      "text_sha256": "9a701b8a536ea13863a7a39fcf955cd4d9260f48199c683341f60c22b5d66ec9"
+    },
+    {
+      "idx": 4,
+      "title": "CHAPTER III JONATHAN HARKER'S JOURNAL-continued",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 5,
+      "title": "CHAPTER III. Jonathan Harker's Journal",
+      "paragraph_count": 39,
+      "chars": 29610,
+      "text_sha256": "34aee48191f09b88ff26f6d7766c7b1b6668a04cbb77bc7df66ca836a05da2e9"
+    },
+    {
+      "idx": 6,
+      "title": "CHAPTER IV JONATHAN HARKER'S JOURNAL-continued",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 7,
+      "title": "CHAPTER IV. Jonathan Harker's Journal",
+      "paragraph_count": 71,
+      "chars": 30054,
+      "text_sha256": "e85a2faa3001f8747702c987f42861c79222e3a9a5732784affd839050cfcea5"
+    },
+    {
+      "idx": 8,
+      "title": "CHAPTER V",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 9,
+      "title": "CHAPTER V. Letters-Lucy and Mina",
+      "paragraph_count": 45,
+      "chars": 17945,
+      "text_sha256": "4b8bd3b0208413a0840d321af4ccdda4d7b995fae9d78a0c1f5a7a599c24ec65"
+    },
+    {
+      "idx": 10,
+      "title": "CHAPTER VI MINA MURRAY'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 11,
+      "title": "CHAPTER VI. Mina Murray's Journal",
+      "paragraph_count": 50,
+      "chars": 29042,
+      "text_sha256": "35501a36a0550adc8f325f16fba41fecfaee6994e7d5787f7d7fff3849a5f71b"
+    },
+    {
+      "idx": 12,
+      "title": "CHAPTER VII CUTTING FROM \"THE DAILYGRAPH,\" 8 AUGUST",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 13,
+      "title": "CHAPTER VII. Cutting from \"The Dailygraph,\" 8 August",
+      "paragraph_count": 42,
+      "chars": 29733,
+      "text_sha256": "f391ecab0854227fcb72fe6d8951b5d22a07703a8c28a968682022d53b1e814d"
+    },
+    {
+      "idx": 14,
+      "title": "CHAPTER VIII MINA MURRAY'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 15,
+      "title": "CHAPTER VIII. Mina Murray's Journal",
+      "paragraph_count": 56,
+      "chars": 32488,
+      "text_sha256": "0abcecb653270ded3587752884e4e47a4a135bf821b7418f89aa088bb4970aa7"
+    },
+    {
+      "idx": 16,
+      "title": "CHAPTER IX",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 17,
+      "title": "CHAPTER IX. Mina Murray's Journal",
+      "paragraph_count": 72,
+      "chars": 30030,
+      "text_sha256": "216502bfbd74121249552d6bcb6b3d3d033c4867a9805119a96a9cc39921faf2"
+    },
+    {
+      "idx": 18,
+      "title": "CHAPTER X",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 19,
+      "title": "CHAPTER X. Mina Murray's Journal",
+      "paragraph_count": 100,
+      "chars": 30618,
+      "text_sha256": "ba122703233f0db1e27dea5b787ef9e0f085497e733392ea3429ebc9f1a238e4"
+    },
+    {
+      "idx": 20,
+      "title": "CHAPTER XI",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 21,
+      "title": "CHAPTER XI. Lucy Westenra's Diary",
+      "paragraph_count": 76,
+      "chars": 26835,
+      "text_sha256": "b5db51129847bd01421ed5e08e738b810e71de7b70f1b05638a6fb16ba6d303d"
+    },
+    {
+      "idx": 22,
+      "title": "CHAPTER XII DR. SEWARD'S DIARY",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 23,
+      "title": "CHAPTER XII. Dr. Seward's Diary",
+      "paragraph_count": 101,
+      "chars": 37661,
+      "text_sha256": "d6ed76abc46098533420f334940c7e0e784bac726d5a1f03446d63d95a795546"
+    },
+    {
+      "idx": 24,
+      "title": "CHAPTER XIII DR. SEWARD'S DIARY-continued.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 25,
+      "title": "CHAPTER XIII. Dr. Seward's Diary",
+      "paragraph_count": 102,
+      "chars": 33962,
+      "text_sha256": "8e072d73ca2b772492ebd1441d5dede5801548551f1460cf23c307f15e533185"
+    },
+    {
+      "idx": 26,
+      "title": "CHAPTER XIV MINA HARKER'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 27,
+      "title": "CHAPTER XIV. Mina Harker's Journal",
+      "paragraph_count": 105,
+      "chars": 32391,
+      "text_sha256": "b5fb0be49b637ee9098b4a62cf7a3c3fb25f0d9b3c62ed590318ea315f45f9c7"
+    },
+    {
+      "idx": 28,
+      "title": "CHAPTER XV DR. SEWARD'S DIARY-continued.",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 29,
+      "title": "CHAPTER XV. Dr. Seward's Diary",
+      "paragraph_count": 101,
+      "chars": 29510,
+      "text_sha256": "1b29b4a57c595d8233d3836cb2f1b6e7878f90a2bc8cce24ae4d1a6477837774"
+    },
+    {
+      "idx": 30,
+      "title": "CHAPTER XVI DR. SEWARD'S DIARY-continued",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 31,
+      "title": "CHAPTER XVI. Dr. Seward's Diary",
+      "paragraph_count": 59,
+      "chars": 23780,
+      "text_sha256": "016206256636bf616129f52ea31993ac3b2e46d8ac558e3bb624db1d5fb3cc33"
+    },
+    {
+      "idx": 32,
+      "title": "CHAPTER XVII DR. SEWARD'S DIARY-continued",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 33,
+      "title": "CHAPTER XVII. Dr. Seward's Diary",
+      "paragraph_count": 74,
+      "chars": 28890,
+      "text_sha256": "a30272d32609e1a15df93f803fc6722c1630c126f55a271b13217acf6db9ab02"
+    },
+    {
+      "idx": 34,
+      "title": "CHAPTER XVIII DR. SEWARD'S DIARY",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 35,
+      "title": "CHAPTER XVIII. Dr. Seward's Diary",
+      "paragraph_count": 82,
+      "chars": 35767,
+      "text_sha256": "900b0936cbc6d1e6e97ecb5e8550b07c14ee24f584dbe833b8a32c99a87590a1"
+    },
+    {
+      "idx": 36,
+      "title": "CHAPTER XIX JONATHAN HARKER'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 37,
+      "title": "CHAPTER XIX. Jonathan Harker's Journal",
+      "paragraph_count": 42,
+      "chars": 29348,
+      "text_sha256": "5f98a06b63f8e1a5e59129ab09b917ec9570ae50760ee6c7ca08d0ea17bcf894"
+    },
+    {
+      "idx": 38,
+      "title": "CHAPTER XX JONATHAN HARKER'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 39,
+      "title": "CHAPTER XX. Jonathan Harker's Journal",
+      "paragraph_count": 101,
+      "chars": 31009,
+      "text_sha256": "46616ecdb8e600634d6742a5fdc3c8a086d8c71ff02bd6df75213fe19cdbf87f"
+    },
+    {
+      "idx": 40,
+      "title": "CHAPTER XXI DR. SEWARD'S DIARY",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 41,
+      "title": "CHAPTER XXI. Dr. Seward's Diary",
+      "paragraph_count": 67,
+      "chars": 32069,
+      "text_sha256": "6c4ef6ba2fd8d77e591350a1583e481b97fca82dc476113296ea88f786bf66f7"
+    },
+    {
+      "idx": 42,
+      "title": "CHAPTER XXII JONATHAN HARKER'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 43,
+      "title": "CHAPTER XXII. Jonathan Harker's Journal",
+      "paragraph_count": 62,
+      "chars": 27981,
+      "text_sha256": "47e207aed86f91345725fda8056f6d5714e79bd3aafbb6fbbdc89ebbf77e3a76"
+    },
+    {
+      "idx": 44,
+      "title": "CHAPTER XXIII DR. SEWARD'S DIARY",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 45,
+      "title": "CHAPTER XXIII. Dr. Seward's Diary",
+      "paragraph_count": 80,
+      "chars": 29369,
+      "text_sha256": "3fad343d91d6c307d2bfc9b7d0eda90b3f8adb6a18c2a8ea5998a5bd4952844a"
+    },
+    {
+      "idx": 46,
+      "title": "CHAPTER XXIV DR. SEWARD'S PHONOGRAPH DIARY, SPOKEN BY VAN HELSING",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 47,
+      "title": "CHAPTER XXIV. Dr. Seward's Phonograph Diary, spoken by Van Helsing",
+      "paragraph_count": 68,
+      "chars": 31919,
+      "text_sha256": "b13dbd71bf285b714d6ca42b5bf32fd05f40f6f0aa53dd461338ac53578c2dd8"
+    },
+    {
+      "idx": 48,
+      "title": "CHAPTER XXV DR. SEWARD'S DIARY",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 49,
+      "title": "CHAPTER XXV. Dr. Seward's Diary",
+      "paragraph_count": 77,
+      "chars": 32418,
+      "text_sha256": "54f19cdd584215bc134536930dcee49f64533e5eb50718090c7bc208f050c280"
+    },
+    {
+      "idx": 50,
+      "title": "CHAPTER XXVI DR. SEWARD'S DIARY",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 51,
+      "title": "CHAPTER XXVI. Dr. Seward's Diary",
+      "paragraph_count": 91,
+      "chars": 36847,
+      "text_sha256": "ef9fd3a06bf557674c9a805bff00cda5f4ba19bf7ea52957d935dcc752307c7e"
+    },
+    {
+      "idx": 52,
+      "title": "CHAPTER XXVII MINA HARKER'S JOURNAL",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 53,
+      "title": "CHAPTER XXVII. Mina Harker's Journal",
+      "paragraph_count": 87,
+      "chars": 41774,
+      "text_sha256": "9fed938010b120bf13e1d159c99428b813c9fe02109f87ae4e097264ffad58a5"
+    }
+  ]
+}

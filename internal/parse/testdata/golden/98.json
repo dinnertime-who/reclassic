@@ -1,0 +1,350 @@
+{
+  "gutenberg_id": 98,
+  "title": "A Tale of Two Cities",
+  "source_sha256": "4343f7bcd92e7a53f798c899b73f8717da4d1d29c779f06fd21117f7f422e52e",
+  "strategy": "section-chapter",
+  "confidence": 0.9731,
+  "coverage": 0.9918,
+  "chapter_count": 48,
+  "paragraph_count": 3259,
+  "total_chars": 746599,
+  "warnings": [],
+  "chapters": [
+    {
+      "idx": 0,
+      "title": "Book the First-Recalled to Life",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 1,
+      "title": "CHAPTER I.The Period",
+      "paragraph_count": 6,
+      "chars": 5758,
+      "text_sha256": "de7e806484c20016663d89d2f1455b8afe3002ea142e8a631f1e811a32c9285b"
+    },
+    {
+      "idx": 2,
+      "title": "CHAPTER II.The Mail",
+      "paragraph_count": 59,
+      "chars": 11043,
+      "text_sha256": "adae6154ba1398fe129a16dbdb3ceef4db4ab590fc6e0e96a0741aa3b735b65a"
+    },
+    {
+      "idx": 3,
+      "title": "CHAPTER III.The Night Shadows",
+      "paragraph_count": 34,
+      "chars": 8843,
+      "text_sha256": "0ae84a61b945ccbe5a6c4d477b7afbbb676a52f75b59a7fa8b93847d8eaed2ae"
+    },
+    {
+      "idx": 4,
+      "title": "CHAPTER IV.The Preparation",
+      "paragraph_count": 100,
+      "chars": 24137,
+      "text_sha256": "04aa2c7f5524821cd4a347cf9c7dc79a757abaff96ddafa22d3f2a288ca1c7fa"
+    },
+    {
+      "idx": 5,
+      "title": "CHAPTER V.The Wine-shop",
+      "paragraph_count": 79,
+      "chars": 23223,
+      "text_sha256": "3e86f439940e89915940e003d0088b29fe6aa3a6e6640a9a56278a2ad5845ba9"
+    },
+    {
+      "idx": 6,
+      "title": "CHAPTER VI.The Shoemaker",
+      "paragraph_count": 107,
+      "chars": 21867,
+      "text_sha256": "ffeb73f8d33128d8c50aa9b30c55fbb3922d3b30d31a33303c59de4a6f88e27e"
+    },
+    {
+      "idx": 7,
+      "title": "Book the Second-the Golden Thread",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 8,
+      "title": "CHAPTER I.Five Years Later",
+      "paragraph_count": 35,
+      "chars": 13580,
+      "text_sha256": "51898637dba8bb36dbab687bb943580a5ab586fd59e8cecd0c222e6f4f9952aa"
+    },
+    {
+      "idx": 9,
+      "title": "CHAPTER II.A Sight",
+      "paragraph_count": 55,
+      "chars": 13124,
+      "text_sha256": "5c7d8047f22f441cd81d56118755a12b00427d476a5d04a6189c89e3f99cbd8d"
+    },
+    {
+      "idx": 10,
+      "title": "CHAPTER III.A Disappointment",
+      "paragraph_count": 131,
+      "chars": 27133,
+      "text_sha256": "9f755a04856a8a90c51bc0e8171695a8c56e1d6f92b6fae6ddc64c6b6be001e2"
+    },
+    {
+      "idx": 11,
+      "title": "CHAPTER IV.Congratulatory",
+      "paragraph_count": 75,
+      "chars": 12280,
+      "text_sha256": "8829f4e38a5502f8b3ab6319e1e850c82c01756d46c8cf68238eac5ab03d1032"
+    },
+    {
+      "idx": 12,
+      "title": "CHAPTER V.The Jackal",
+      "paragraph_count": 63,
+      "chars": 11710,
+      "text_sha256": "fe47769bb0a9a7740230539aa6526bc0885fedb9456a09665d7c97090cf31887"
+    },
+    {
+      "idx": 13,
+      "title": "CHAPTER VI.Hundreds of People",
+      "paragraph_count": 111,
+      "chars": 25400,
+      "text_sha256": "f868a804945511b99c7695fa7b0f29444bc7668756604ad1f31f81d919feb523"
+    },
+    {
+      "idx": 14,
+      "title": "CHAPTER VII.Monseigneur in Town",
+      "paragraph_count": 43,
+      "chars": 19022,
+      "text_sha256": "e5861199a05e5f24da1ff144ca7ab404ca632ec205748a463895a81e0aff6163"
+    },
+    {
+      "idx": 15,
+      "title": "CHAPTER VIII.Monseigneur in the Country",
+      "paragraph_count": 64,
+      "chars": 10371,
+      "text_sha256": "46df64f3fa011b3cd9a61a1188dac977ee77ecd3d19a9c0777cc83b0f18c1f64"
+    },
+    {
+      "idx": 16,
+      "title": "CHAPTER IX.The Gorgon's Head",
+      "paragraph_count": 115,
+      "chars": 22499,
+      "text_sha256": "3aa17e32c219a86f0534c6a3814752a78909b61df42645df23d2cd251a25fde4"
+    },
+    {
+      "idx": 17,
+      "title": "CHAPTER X.Two Promises",
+      "paragraph_count": 87,
+      "chars": 15685,
+      "text_sha256": "e3ca79fb5cc5a17f51679c2b8531da60d9b6d35d96fec036cf3a5463163d1533"
+    },
+    {
+      "idx": 18,
+      "title": "CHAPTER XI.A Companion Picture",
+      "paragraph_count": 46,
+      "chars": 7398,
+      "text_sha256": "9d08f8a02e367668b42bc428ca1893fc2a913940effb8f203b6ee067b7088910"
+    },
+    {
+      "idx": 19,
+      "title": "CHAPTER XII.The Fellow of Delicacy",
+      "paragraph_count": 65,
+      "chars": 13877,
+      "text_sha256": "5b03907f7fe020fca1a89d8b02dceefdccd9c2542bc8c01e678483f0c09807ff"
+    },
+    {
+      "idx": 20,
+      "title": "CHAPTER XIII.The Fellow of No Delicacy",
+      "paragraph_count": 44,
+      "chars": 9602,
+      "text_sha256": "370b82e52dd4a854cf51a946c13d0ee2ade35e452a45f7c46f03dac3a280a6bf"
+    },
+    {
+      "idx": 21,
+      "title": "CHAPTER XIV.The Honest Tradesman",
+      "paragraph_count": 82,
+      "chars": 21763,
+      "text_sha256": "c3cd2a7500434116d32e93d5ff9c3433f7cc23ae47ae1febde71a4115dce96ac"
+    },
+    {
+      "idx": 22,
+      "title": "CHAPTER XV.Knitting",
+      "paragraph_count": 98,
+      "chars": 23059,
+      "text_sha256": "439f8cb62308d2b1dfda3909241ee9dc03f45beb468c85270cf0ea8d6e4b9919"
+    },
+    {
+      "idx": 23,
+      "title": "CHAPTER XVI.Still Knitting",
+      "paragraph_count": 121,
+      "chars": 21721,
+      "text_sha256": "a4cf3acee57d8544c2b968dcdf8039be56a69f73f93550e878db39c533de44c3"
+    },
+    {
+      "idx": 24,
+      "title": "CHAPTER XVII.One Night",
+      "paragraph_count": 42,
+      "chars": 10098,
+      "text_sha256": "3d0389242c0e8cdaac932e8f560eb11e0014efacb0569aa26212da18cdac9d9a"
+    },
+    {
+      "idx": 25,
+      "title": "CHAPTER XVIII.Nine Days",
+      "paragraph_count": 55,
+      "chars": 13015,
+      "text_sha256": "84cb17057bae9405bac566b74680a6ef73c2a3c8b6da8b9b98870f13ed83dff0"
+    },
+    {
+      "idx": 26,
+      "title": "CHAPTER XIX.An Opinion",
+      "paragraph_count": 70,
+      "chars": 15297,
+      "text_sha256": "ffacc8b41f20418056881b70cf295cbf6a65643a41f9eae1fac6e26e18ddd277"
+    },
+    {
+      "idx": 27,
+      "title": "CHAPTER XX.A Plea",
+      "paragraph_count": 45,
+      "chars": 7035,
+      "text_sha256": "5bff83bca265a6a9516a5f8d5bf90b4b69958a7f72fdcfc9beda3b3510398a43"
+    },
+    {
+      "idx": 28,
+      "title": "CHAPTER XXI.Echoing Footsteps",
+      "paragraph_count": 82,
+      "chars": 23689,
+      "text_sha256": "1c379ae5a4587b6fd35da4741e2f53ce08dcda741da92fd118917e4affe030b2"
+    },
+    {
+      "idx": 29,
+      "title": "CHAPTER XXII.The Sea Still Rises",
+      "paragraph_count": 34,
+      "chars": 11340,
+      "text_sha256": "febf0d39d2518d7afa7947f01aa720dc174359da685219a56619b2bce6e32e58"
+    },
+    {
+      "idx": 30,
+      "title": "CHAPTER XXIII.Fire Rises",
+      "paragraph_count": 46,
+      "chars": 14877,
+      "text_sha256": "90ffc10840f1870b26e4f6134b0990dbe42348c6cb5edfb72580e41f58da7864"
+    },
+    {
+      "idx": 31,
+      "title": "CHAPTER XXIV.Drawn to the Loadstone Rock",
+      "paragraph_count": 89,
+      "chars": 24421,
+      "text_sha256": "0f68a515d5eb66933c1bc7de85f1cfc73a2b958045a9169e0cc375fa463a652d"
+    },
+    {
+      "idx": 32,
+      "title": "Book the Third-the Track of a Storm",
+      "paragraph_count": 0,
+      "chars": 0,
+      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "idx": 33,
+      "title": "CHAPTER I.In Secret",
+      "paragraph_count": 109,
+      "chars": 23890,
+      "text_sha256": "04867ff69c0b34b87ee0e8d7e6ce775594ad1d07b87d9832f3c37fab0468f0f7"
+    },
+    {
+      "idx": 34,
+      "title": "CHAPTER II.The Grindstone",
+      "paragraph_count": 40,
+      "chars": 13658,
+      "text_sha256": "899cc88593cef5aec5f21610125208c2bce17f77ec04cdcffdcf01c9603ae881"
+    },
+    {
+      "idx": 35,
+      "title": "CHAPTER III.The Shadow",
+      "paragraph_count": 54,
+      "chars": 9554,
+      "text_sha256": "bc6f78fd5f562a977b645202c17fcdd36ec6cb152854f1bdd3d6f1aa8d823769"
+    },
+    {
+      "idx": 36,
+      "title": "CHAPTER IV.Calm in Storm",
+      "paragraph_count": 14,
+      "chars": 11844,
+      "text_sha256": "afb59f5cd40bd517dd77f24fec09aa9fa23f3f995671c6c1ec068bc594773368"
+    },
+    {
+      "idx": 37,
+      "title": "CHAPTER V.The Wood-Sawyer",
+      "paragraph_count": 51,
+      "chars": 12590,
+      "text_sha256": "5dfa0cbb1dbec14e836b0d2e8a622ab6fa3bf793920d8d5dd189c342d219629f"
+    },
+    {
+      "idx": 38,
+      "title": "CHAPTER VI.Triumph",
+      "paragraph_count": 46,
+      "chars": 14042,
+      "text_sha256": "f01eb0c8f2c0846fd1904cebb2a738ef67aafa699ec417fd58653a23f83580dc"
+    },
+    {
+      "idx": 39,
+      "title": "CHAPTER VII.A Knock at the Door",
+      "paragraph_count": 58,
+      "chars": 10251,
+      "text_sha256": "8fe019097ad7a021274655a7310baf99be4cfa34b0a7f59bb44b1707779854af"
+    },
+    {
+      "idx": 40,
+      "title": "CHAPTER VIII.A Hand at Cards",
+      "paragraph_count": 126,
+      "chars": 25717,
+      "text_sha256": "d20470225f775388385693e9dcf0b1fce33f09fe3fb3094d7801bfb7a0df2023"
+    },
+    {
+      "idx": 41,
+      "title": "CHAPTER IX.The Game Made",
+      "paragraph_count": 127,
+      "chars": 25282,
+      "text_sha256": "f5e1d5608141d9bc855e56a8aaa16d6251172758a4b0e3785e3b68256b52fb79"
+    },
+    {
+      "idx": 42,
+      "title": "CHAPTER X.The Substance of the Shadow",
+      "paragraph_count": 117,
+      "chars": 30639,
+      "text_sha256": "8f31c71ccfda90eb58735951da5df35758048654a383738e44ec1dbc7a9c5fe7"
+    },
+    {
+      "idx": 43,
+      "title": "CHAPTER XI.Dusk",
+      "paragraph_count": 45,
+      "chars": 7615,
+      "text_sha256": "f24081f53db4b0f65b9f7e45996ef2828c987ba2b54d17e2117c46f782513424"
+    },
+    {
+      "idx": 44,
+      "title": "CHAPTER XII.Darkness",
+      "paragraph_count": 86,
+      "chars": 17300,
+      "text_sha256": "980690aaec39872aaeb0fd966851b8770c1704a32767e56d2e264b3bd681904f"
+    },
+    {
+      "idx": 45,
+      "title": "CHAPTER XIII.Fifty-two",
+      "paragraph_count": 141,
+      "chars": 23939,
+      "text_sha256": "2fd3fa058a3d01b5b99280e423241683257751462939a4d6fca447f140c9ed69"
+    },
+    {
+      "idx": 46,
+      "title": "CHAPTER XIV.The Knitting Done",
+      "paragraph_count": 112,
+      "chars": 25470,
+      "text_sha256": "84531d584c1b2b3d312497c9b42b4b8e424bb24b38f14374153ae4c626d0b5d4"
+    },
+    {
+      "idx": 47,
+      "title": "CHAPTER XV.The Footsteps Die Out For Ever",
+      "paragraph_count": 50,
+      "chars": 11941,
+      "text_sha256": "b4311d80265107cf27060a8c8d7477aaa53997317ca02ff331ab15fef3ad4f27"
+    }
+  ]
+}

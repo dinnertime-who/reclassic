@@ -1,0 +1,136 @@
+{
+  "books": [
+    {
+      "gutenberg_id": 1342,
+      "expected_title": "Pride and Prejudice",
+      "category": "standard-novel",
+      "note": "표준 장편. Chapter I, II 형식. Gutendex 2026-08-19 확인"
+    },
+    {
+      "gutenberg_id": 84,
+      "expected_title": "Frankenstein",
+      "category": "standard-novel",
+      "note": "Chapter 구조 + Letter 도입부. 공식 제목: Frankenstein; or, the modern prometheus"
+    },
+    {
+      "gutenberg_id": 345,
+      "expected_title": "Dracula",
+      "category": "epistolary",
+      "note": "서간·일기체. 날짜가 제목처럼 보임"
+    },
+    {
+      "gutenberg_id": 2701,
+      "expected_title": "Moby Dick",
+      "category": "book-chapter",
+      "note": "Book → Chapter 중첩. 공식 제목: Moby Dick; Or, The Whale"
+    },
+    {
+      "gutenberg_id": 98,
+      "expected_title": "A Tale of Two Cities",
+      "category": "book-chapter",
+      "note": "Book I → Chapter 중첩"
+    },
+    {
+      "gutenberg_id": 46,
+      "expected_title": "A Christmas Carol",
+      "category": "odd-heading",
+      "note": "장 명칭이 Stave. 공식 제목: A Christmas Carol in Prose; Being a Ghost Story of Christmas"
+    },
+    {
+      "gutenberg_id": 1661,
+      "expected_title": "The Adventures of Sherlock Holmes",
+      "category": "short-stories",
+      "note": "단편집. 장 = 독립 작품"
+    },
+    {
+      "gutenberg_id": 2814,
+      "expected_title": "Dubliners",
+      "category": "short-stories",
+      "note": "단편집. 장 = 독립 작품"
+    },
+    {
+      "gutenberg_id": 1400,
+      "expected_title": "Great Expectations",
+      "category": "long-classic",
+      "note": "분량 스트레스"
+    },
+    {
+      "gutenberg_id": 74,
+      "expected_title": "The Adventures of Tom Sawyer",
+      "category": "long-classic",
+      "note": "분량 스트레스. 공식 제목: The Adventures of Tom Sawyer, Complete"
+    },
+    {
+      "gutenberg_id": 76,
+      "expected_title": "Adventures of Huckleberry Finn",
+      "category": "long-classic",
+      "note": "분량 스트레스"
+    },
+    {
+      "gutenberg_id": 1080,
+      "expected_title": "A Modest Proposal",
+      "category": "essay-short",
+      "note": "챕터 없는 짧은 산문. single-chapter 폴백 검증"
+    },
+    {
+      "gutenberg_id": 2542,
+      "expected_title": "A Doll's House",
+      "category": "play",
+      "note": "희곡. 깨끗한 실패가 정답. 공식 제목: A Doll's House : a play"
+    },
+    {
+      "gutenberg_id": 1524,
+      "expected_title": "Hamlet",
+      "category": "play",
+      "note": "희곡. 깨끗한 실패가 정답"
+    },
+    {
+      "gutenberg_id": 1727,
+      "expected_title": "The Odyssey",
+      "category": "verse",
+      "note": "Butler 산문 번역. 운문 실패 가정이 성립하는지 확인"
+    },
+    {
+      "gutenberg_id": 100,
+      "expected_title": "The Complete Works of William Shakespeare",
+      "category": "mega",
+      "note": "초대형 합본. 메모리·성능 한계"
+    },
+    {
+      "gutenberg_id": 4300,
+      "expected_title": "Ulysses",
+      "category": "hard",
+      "note": "최난도. 실패해도 무방"
+    },
+    {
+      "gutenberg_id": 205,
+      "expected_title": "Walden",
+      "category": "nonfiction",
+      "note": "논픽션. 공식 제목: Walden, and On The Duty Of Civil Disobedience"
+    },
+    {
+      "gutenberg_id": 1232,
+      "expected_title": "The Prince",
+      "category": "nonfiction",
+      "note": "논픽션 구조"
+    },
+    {
+      "gutenberg_id": 5200,
+      "expected_title": "Metamorphosis",
+      "category": "novella",
+      "note": "중편"
+    },
+    {
+      "gutenberg_id": 219,
+      "expected_title": "Heart of Darkness",
+      "category": "novella",
+      "note": "중편"
+    },
+    {
+      "gutenberg_id": 174,
+      "expected_title": "The Picture of Dorian Gray",
+      "category": "novella",
+      "note": "중편"
+    }
+  ]
+}
