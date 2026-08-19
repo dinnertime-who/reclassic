@@ -16,13 +16,33 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/DECISIONS.md` | 설계 결정 이력 (ADR) |
 | `docs/CONVENTIONS.md` | 코딩 규약 |
 | `docs/SPIKE_PARSER.md` | 파서 검증 스파이크 명세 (완료) |
-| `docs/PARSER_REPORT.md` | **스파이크 결과와 권고 — 지금의 근거 문서** |
+| `docs/PARSER_REPORT.md` | 스파이크 결과와 권고 — 파서 판단의 근거 |
+| `docs/SLICE_SKELETON.md` | **현재 작업 — 프로젝트 골격 명세** |
+| `docs/SLICE_READ_PATH.md` | 다음 작업 — 읽기 경로(적재 → API → 화면) 명세 |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
-**현재 작업:** ADR-013·016 파서 후처리는 구현됐다 (`internal/parse/postprocess.go`).
-다음은 스켈레톤(DB·API)이어도 된다. `stable_id`는 ADR-016을 따라야 한다.
-ADR-014(합본 크기 판정 → 관리자 큐)는 수집 파이프라인에 붙인다. ADR-015(희곡)는 아직 Proposed.
+**현재 작업은 `docs/SLICE_SKELETON.md`입니다 — 프로젝트 골격.**
+지금 서 있는 것은 파서뿐입니다. `ARCHITECTURE.md`가 예고한 디렉토리 8개가 없고
+`make generate` / `migrate` / `dev`가 죽어 있습니다. 도구 여섯(goose·sqlc·oapi-codegen·
+orval·docker compose·TanStack Start)이 맞물려 도는지 엔드포인트 하나로 확인하는 슬라이스입니다.
+**기능은 만들지 않습니다. 배선만 합니다.**
+
+계획된 순서:
+
+| | 슬라이스 | 명세 |
+|---|---|---|
+| 1 | 골격 (walking skeleton) | `docs/SLICE_SKELETON.md` ← **지금** |
+| 2 | 읽기 경로 — 적재 → API → SSR 화면 | `docs/SLICE_READ_PATH.md` |
+| 3 | 수집 자동화 (River + R2) | 미작성 |
+| 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | 미작성 |
+
+슬라이스 2에서 책이 브라우저에 뜨지만 **원문 전용 페이지라 `noindex`입니다**(ADR-007).
+색인 대상이 되는 것은 번역 페이지이고 그건 슬라이스 4입니다.
+
+파서 쪽(ADR-013·016)은 구현·검증이 끝났습니다 (`internal/parse/postprocess.go`).
+ADR-014(합본 크기 판정 → 관리자 큐)는 슬라이스 2의 적재 게이트에서 처리합니다.
+ADR-015(희곡 지원 범위)는 아직 Proposed이고 지금 막는 것은 없습니다.
 
 ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹 금지")는 **해제됐습니다.**
 스파이크가 답을 냈고, 스키마 보정 레이어는 넣지 않기로 정해졌습니다(PARSER_REPORT 권고 2).
@@ -33,8 +53,8 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 
 | 영역 | 선택 | 비고 |
 |---|---|---|
-| 백엔드 | Go | 배포 단위 2개: `cmd/api`, `cmd/worker` |
-| DB | PostgreSQL | 마이그레이션은 `internal/db/migrations/` |
+| 백엔드 | Go + chi | 배포 단위 2개: `cmd/api`, `cmd/worker`. 라우터는 chi (ADR-018) |
+| DB | PostgreSQL | 드라이버 pgx/v5, 마이그레이션 goose (ADR-017). `internal/db/migrations/` |
 | 잡 큐 | River | Postgres 기반. 트랜잭션 안에서 enqueue |
 | 쿼리 | sqlc | SQL → Go 타입 생성 |
 | HTML 파싱 | goquery | Gutenberg 원문 추출 |

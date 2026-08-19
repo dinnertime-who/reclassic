@@ -20,6 +20,8 @@ make help     # 사용 가능한 명령
 | [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | 코딩 규약 |
 | [`docs/SPIKE_PARSER.md`](docs/SPIKE_PARSER.md) | 파서 검증 스파이크 명세 |
 | [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md) | 파서 검증 결과와 권고 |
+| [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md) | 현재 작업 — 프로젝트 골격 명세 |
+| [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 다음 작업 — 읽기 경로 명세 |
 
 ## AI 에이전트 지침
 
@@ -34,5 +36,9 @@ Claude Code, Codex, Cursor, Augment 등이 공통으로 읽는 파일이다.
 **파서 검증 스파이크 결과** — [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md).
 
 공식 신뢰도는 22/22 자동 구간이고 본문 커버리지는 높다.
-파서 후처리(ADR-013)와 `stable_id` 등장 순서(ADR-016)는 구현됐다.
-합본 크기 판정(ADR-014)은 수집 파이프라인에 남는다. 희곡 지원(ADR-015)만 Proposed다.
+파서 후처리(ADR-013)와 `stable_id` 등장 순서(ADR-016)는 구현·검증이 끝났다.
+
+**다음은 프로젝트 골격이다** — [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md).
+지금 서 있는 것은 파서뿐이라, 도구 체인이 맞물려 도는지 엔드포인트 하나로 먼저 확인한다.
+그다음이 읽기 경로([`SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md)) — 적재부터 SSR 화면까지 한 번에 —
+그리고 수집 자동화, 번역 순이다.

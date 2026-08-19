@@ -389,3 +389,74 @@ ADR-004의 revision 전환 규칙에서 **"해시 일치 → 자동 승계"가 �
 - 본문 자체가 바뀌면(예: ADR-013의 이미지 이니셜 복원 56문단) 어떤 방식으로도 id가 바뀐다.
   이는 ADR-004가 설계상 받아내기로 한 부분이다.
 - 구현: `internal/parse/postprocess.go`의 `assignOccurrenceIDs`. `Normalize`는 순수 함수로 그대로다.
+
+---
+
+## ADR-017 — 마이그레이션은 goose, DB 드라이버는 pgx/v5
+**상태:** Accepted (2026-08-19)
+
+**맥락:** `ARCHITECTURE.md`와 `AGENTS.md`는 `internal/db/migrations/`에 순번 SQL을 두고
+`make migrate`로 적용한다고만 정했다. **러너는 미지정이었다.**
+sqlc가 생성할 코드의 드라이버도 정해지지 않았다. 둘 다 새 의존성이라 결정이 필요하다.
+
+**결정:**
+
+- 마이그레이션 러너는 **`github.com/pressly/goose/v3`**. 라이브러리로 임베드해
+  `make migrate`를 `go run`으로 처리한다.
+- DB 드라이버는 **`github.com/jackc/pgx/v5`**. sqlc는 `pgx/v5` 타입으로 생성한다.
+- sqlc 자체는 빌드 타임 도구다. 런타임 의존성이 아니며 `make doctor`에서 존재만 확인한다.
+
+**대안과 기각 사유:**
+
+- **golang-migrate** — 가장 널리 쓰이지만 CLI 설치가 전제이고 `make doctor` 확인 항목이 하나 는다.
+  goose는 라이브러리 임베드로 별도 바이너리 없이 끝난다.
+- **atlas** — 선언적 스키마 관리가 강력하나 이 규모에 무겁고,
+  "순번 SQL 파일을 직접 작성하고 적용된 파일은 수정하지 않는다"는 기존 규약과 결이 다르다.
+- **러너 없이 psql** — 의존성은 0이지만 적용 이력 추적을 직접 만들게 되고, 결국 러너를 재발명한다.
+
+**결과:**
+
+- 개발자가 설치할 바이너리는 sqlc 하나로 유지된다. goose는 `go.mod`에 들어간다.
+- 마이그레이션 파일명은 goose 규약(`NNNNN_설명.sql`, `-- +goose Up` / `-- +goose Down`)을 따른다.
+  기존 규약의 "순번 SQL"과 충돌하지 않는다.
+- River를 붙일 때 River 자체 마이그레이션이 따로 온다. 두 러너가 공존하게 되며,
+  적용 순서(goose 먼저 → River)를 그때 명시한다.
+
+---
+
+## ADR-018 — HTTP 라우터는 chi
+**상태:** Accepted (2026-08-19)
+
+**맥락:** 라우터가 결정된 적이 없다. 문서 전체에 근거가 두 개뿐이었다 —
+`ARCHITECTURE.md`·`CONVENTIONS.md`의 `srv := &http.Server{...}` 조각(표준 `net/http`)과
+ADR-009의 "oapi-codegen으로 Go 서버 인터페이스를 생성한다".
+
+**지금 정해야 하는 이유:** oapi-codegen은 **대상 라우터별로 다른 코드를 생성한다**
+(`chi-server`, `std-http-server`, `echo-server`, `gin-server` …).
+설정 파일에 대상을 적어야 하므로 `openapi.yaml`을 만드는 시점에 이미 정해져 있어야 한다.
+
+**결정:**
+
+- 라우터는 **`github.com/go-chi/chi/v5`**.
+- oapi-codegen 생성 대상은 **`chi-server`**.
+- 핸들러는 `http.HandlerFunc` 시그니처를 유지한다. chi 고유 타입을 핸들러 인자로 쓰지 않는다.
+- 미들웨어는 표준 `http.Handler` 래퍼만 쓴다.
+
+**대안과 기각 사유:**
+
+- **표준 `net/http` (`std-http-server`)** — 의존성이 0이고 Go 1.22+ `ServeMux`의
+  메서드·와일드카드 라우팅으로 라우팅만 보면 충분하다(이 프로젝트는 1.26.6).
+  기각 이유는 라우팅이 아니라 미들웨어다. 세션 인증, 관리자·검수자 권한 분리,
+  요청 로깅(`log/slog`), 패닉 복구, 요청 ID를 전부 직접 조립해야 한다.
+  제품 코드가 아닌 곳에 시간을 쓴다.
+- **echo / gin / fiber** — 자체 컨텍스트 타입을 쓴다.
+  "`context.Context`는 항상 첫 인자", "외부 I/O는 인터페이스 뒤에"라는 기존 규약과 결이 다르고,
+  핸들러가 프레임워크에 묶여 나중에 갈아타기 어렵다.
+
+**결과:**
+
+- **잠기지 않는다.** chi는 프레임워크가 아니라 라우터 + 미들웨어 모음이고 핸들러 시그니처가
+  표준과 같다. 나중에 표준 `ServeMux`로 옮겨도 핸들러는 손대지 않는다.
+  되돌리기 쉬운 결정이므로 여기에 더 시간을 쓰지 않는다.
+- `go.mod` 런타임 의존성은 goquery / x/text / pgx / goose / chi 다섯이 된다.
+- `AGENTS.md` 기술 스택 표의 백엔드 행에 반영한다.
