@@ -68,7 +68,53 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /admin/books:
+    post:
+      operationId: requestBook
+      summary: 도서 수집 지시
+      description: |
+        books 행 생성과 FetchSource 잡 등록을 **한 트랜잭션 안에서** 한다.
+        "책은 생성됐는데 잡 등록이 실패"하는 틈이 없다 — ADR-003이 River를 고른 근거다.
+
+        수집은 비동기라 202다. 결과는 books.status로 확인한다.
+      security:
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookRequest"
+      responses:
+        "202":
+          description: 수집을 지시했다
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookRequestAccepted"
+        "401":
+          description: 관리자 토큰이 없거나 틀렸다
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: 이미 수집이 지시된 책이다
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
+  securitySchemes:
+    # 임시 운영 가드다. 세션 인증은 아직 열린 질문이라(AGENTS.md)
+    # 그때까지 관리자 엔드포인트를 무인증으로 열어 두지 않기 위한 것뿐이다.
+    # 사용자 인증(제안자·검수자)은 이 방식으로 하지 않는다.
+    adminToken:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+
   schemas:
     Health:
       type: object
@@ -126,3 +172,29 @@ components:
       properties:
         message:
           type: string
+
+    BookRequest:
+      type: object
+      required: [gutenbergId, title]
+      properties:
+        gutenbergId:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+          minLength: 1
+          description: 관리자가 카탈로그에서 확인한 제목. 수집 결과 검증에 쓴다
+        language:
+          type: string
+          default: en
+
+    BookRequestAccepted:
+      type: object
+      required: [bookId, status]
+      properties:
+        bookId:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum: [pending]

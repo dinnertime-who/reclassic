@@ -22,6 +22,7 @@ make help     # 사용 가능한 명령
 | [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md) | 파서 검증 결과와 권고 |
 | [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md) | 프로젝트 골격 명세 (완료) |
 | [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 읽기 경로 명세 (완료) |
+| [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md) | 수집 자동화 명세 (완료) |
 
 ## AI 에이전트 지침
 
@@ -61,4 +62,13 @@ make succession   # stable_id 승계율 측정
 **`stable_id` 승계율은 파서 미변경 상태에서 21권 37,125문단 100%다.**
 ADR-004가 전제한 "해시 일치 → 자동 승계"가 처음으로 수치로 확인됐다.
 
-**다음은 수집 자동화(River + R2)이고, 그다음이 번역이다.**
+**수집 자동화 슬라이스 완료** — [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md).
+관리자가 도서 번호를 넣으면 수집·보관·파싱·적재가 자동으로 돈다.
+
+```bash
+curl -X POST localhost:8080/admin/books \
+  -H 'X-Admin-Token: local-dev-token' -H 'Content-Type: application/json' \
+  -d '{"gutenbergId":11,"title":"Alice'"'"'s Adventures in Wonderland"}'
+```
+
+**다음은 번역(제안·검수)이다. 여기서 SEO 값어치가 나온다.**

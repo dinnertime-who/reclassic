@@ -4,6 +4,7 @@ package api
 
 import (
 	"context"
+	"crypto/subtle"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -27,16 +28,40 @@ type ChapterReader interface {
 	Chapter(ctx context.Context, gutenbergID, idx int) (*book.ChapterView, error)
 }
 
-// Server는 생성된 StrictServerInterface를 구현한다.
-type Server struct {
-	db      Pinger
-	reader  ChapterReader
-	version string
-	log     *slog.Logger
+// BookRequester는 관리자 수집 지시를 받는다.
+type BookRequester interface {
+	Request(ctx context.Context, gutenbergID int, title, language string) (int64, error)
 }
 
-func NewServer(database Pinger, reader ChapterReader, version string, log *slog.Logger) *Server {
-	return &Server{db: database, reader: reader, version: version, log: log}
+// Server는 생성된 StrictServerInterface를 구현한다.
+type Server struct {
+	db         Pinger
+	reader     ChapterReader
+	requester  BookRequester
+	adminToken string
+	version    string
+	log        *slog.Logger
+}
+
+type Deps struct {
+	DB        Pinger
+	Reader    ChapterReader
+	Requester BookRequester
+	// AdminToken은 관리자 엔드포인트를 막는 임시 가드다. 비어 있으면 안 된다.
+	AdminToken string
+	Version    string
+	Log        *slog.Logger
+}
+
+func NewServer(d Deps) *Server {
+	return &Server{
+		db:         d.DB,
+		reader:     d.Reader,
+		requester:  d.Requester,
+		adminToken: d.AdminToken,
+		version:    d.Version,
+		log:        d.Log,
+	}
 }
 
 // GetHealthz는 실제 Ping 결과를 돌려준다.
@@ -82,6 +107,31 @@ func (s *Server) GetBookChapter(ctx context.Context, req gen.GetBookChapterReque
 	}, nil
 }
 
+// RequestBook은 수집을 지시한다. 실제 수집은 워커가 한다.
+func (s *Server) RequestBook(ctx context.Context, req gen.RequestBookRequestObject) (gen.RequestBookResponseObject, error) {
+	if req.Body == nil {
+		return gen.RequestBook409JSONResponse{Message: "본문이 없다"}, nil
+	}
+
+	language := "en"
+	if req.Body.Language != nil && *req.Body.Language != "" {
+		language = *req.Body.Language
+	}
+
+	bookID, err := s.requester.Request(ctx, req.Body.GutenbergId, req.Body.Title, language)
+	if err != nil {
+		if errors.Is(err, book.ErrAlreadyRequested) {
+			return gen.RequestBook409JSONResponse{Message: "이미 수집이 지시된 책이다"}, nil
+		}
+		return nil, err
+	}
+
+	return gen.RequestBook202JSONResponse{
+		BookId: bookID,
+		Status: gen.Pending,
+	}, nil
+}
+
 // Router는 미들웨어를 붙이고 생성된 라우팅을 얹는다.
 func (s *Server) Router() http.Handler {
 	r := chi.NewRouter()
@@ -91,9 +141,35 @@ func (s *Server) Router() http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(requestLogger(s.log))
 
-	// 인증 미들웨어 자리. 세션·권한 분리는 이번 슬라이스 범위가 아니다.
+	// 사용자 세션 인증 자리. 제안·검수 권한 분리는 번역 슬라이스다.
+	// 지금은 관리자 오퍼레이션만 임시 토큰으로 막는다.
+	return gen.HandlerFromMux(gen.NewStrictHandler(s, []gen.StrictMiddlewareFunc{s.adminGuard}), r)
+}
 
-	return gen.HandlerFromMux(gen.NewStrictHandler(s, nil), r)
+// adminOperations는 관리자 토큰이 필요한 오퍼레이션이다.
+// openapi.yaml의 security 선언과 같아야 한다 — 여기 넣는 것을 잊으면 무인증으로 열린다.
+var adminOperations = map[string]bool{
+	"RequestBook": true,
+}
+
+// adminGuard는 임시 운영 가드다. 세션 인증이 붙으면 걷어낸다.
+// 사용자 인증(제안자·검수자)은 이 방식으로 하지 않는다.
+func (s *Server) adminGuard(next gen.StrictHandlerFunc, operationID string) gen.StrictHandlerFunc {
+	return func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error) {
+		if !adminOperations[operationID] {
+			return next(ctx, w, r, request)
+		}
+		// 상수 시간 비교. 토큰 길이가 짧아 타이밍 차이가 의미 있다.
+		given := r.Header.Get("X-Admin-Token")
+		if subtle.ConstantTimeCompare([]byte(given), []byte(s.adminToken)) != 1 {
+			s.log.WarnContext(ctx, "관리자 토큰 불일치",
+				slog.String("operation", operationID),
+				slog.String("request_id", middleware.GetReqID(ctx)),
+			)
+			return gen.RequestBook401JSONResponse{Message: "관리자 토큰이 없거나 틀렸다"}, nil
+		}
+		return next(ctx, w, r, request)
+	}
 }
 
 // requestLogger는 요청 한 건을 구조화 필드로 남긴다.

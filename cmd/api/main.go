@@ -16,6 +16,7 @@ import (
 	"github.com/dinnertime/reclassic/internal/book"
 	"github.com/dinnertime/reclassic/internal/config"
 	"github.com/dinnertime/reclassic/internal/db"
+	"github.com/dinnertime/reclassic/internal/jobs"
 )
 
 // version은 빌드 시 -ldflags로 주입한다. 개발 중에는 dev.
@@ -43,6 +44,12 @@ func run(log *slog.Logger) error {
 	if err != nil {
 		return err
 	}
+	// 관리자 엔드포인트를 막는 임시 가드. 비어 있으면 기동하지 않는다 —
+	// 무인증으로 열린 채 배포되는 것이 최악이다.
+	adminToken, err := config.Require("ADMIN_TOKEN")
+	if err != nil {
+		return err
+	}
 
 	// SIGINT/SIGTERM에서 취소되는 컨텍스트. Railway는 배포 교체 시 SIGTERM을 보낸다.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -54,11 +61,24 @@ func run(log *slog.Logger) error {
 	}
 	defer pool.Close()
 
+	// api는 잡을 넣기만 한다. 소비는 worker가 한다 (ADR-001).
+	riverClient, err := jobs.NewInsertOnlyClient(pool)
+	if err != nil {
+		return err
+	}
+
 	srv := &http.Server{
 		// Railway 프라이빗 네트워크는 IPv6 전용이다 (불변식 4).
 		// 0.0.0.0에 바인딩하면 서비스 간 내부 호출을 받지 못한다.
-		Addr:              "[::]:" + port,
-		Handler:           api.NewServer(pool, book.NewReader(pool), version, log).Router(),
+		Addr: "[::]:" + port,
+		Handler: api.NewServer(api.Deps{
+			DB:         pool,
+			Reader:     book.NewReader(pool),
+			Requester:  book.NewRequester(pool, jobs.NewEnqueuer(riverClient)),
+			AdminToken: adminToken,
+			Version:    version,
+			Log:        log,
+		}).Router(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 

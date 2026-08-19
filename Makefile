@@ -82,19 +82,20 @@ generate: web-install ## 코드 생성 (sqlc / oapi-codegen / orval)
 	cd $(WEB) && $(PNPM) run generate-api
 
 .PHONY: migrate
-migrate: ## 마이그레이션 적용 (goose, ADR-017)
+migrate: ## 마이그레이션 적용 (goose → River 순, ADR-017/022)
 	$(call need,$(GO),brew install go)
 	$(GO) run ./tools/migrate
 
 .PHONY: dev
-dev: ## 로컬 의존 서비스 기동 (Postgres)
+dev: ## 로컬 의존 서비스 기동 (Postgres + MinIO)
 	$(call need,docker,https://docs.docker.com/desktop/)
 	docker compose up -d --wait
 	@echo
-	@echo "Postgres 기동 완료. 다음 순서로 띄운다:"
-	@echo "  make migrate    # 스키마 적용"
-	@echo "  make run-api    # :8080"
-	@echo "  make run-web    # :3000  (SSR)"
+	@echo "Postgres(:5432) · MinIO(:9000, 콘솔 :9001) 기동 완료. 다음 순서로 띄운다:"
+	@echo "  make migrate     # goose → River"
+	@echo "  make run-api     # :8080"
+	@echo "  make run-worker  # 잡 소비"
+	@echo "  make run-web     # :3000  (SSR)"
 
 .PHONY: dev-down
 dev-down: ## 로컬 의존 서비스 정지

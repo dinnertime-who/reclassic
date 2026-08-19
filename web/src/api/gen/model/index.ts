@@ -8,6 +8,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './bookRequest.ts';
+export * from './bookRequestAccepted.ts';
+export * from './bookRequestAcceptedStatus.ts';
 export * from './chapter.ts';
 export * from './chapterView.ts';
 export * from './error.ts';

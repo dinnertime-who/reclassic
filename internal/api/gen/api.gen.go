@@ -14,6 +14,21 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for BookRequestAcceptedStatus.
+const (
+	Pending BookRequestAcceptedStatus = "pending"
+)
+
+// Valid indicates whether the value is a known member of the BookRequestAcceptedStatus enum.
+func (e BookRequestAcceptedStatus) Valid() bool {
+	switch e {
+	case Pending:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for HealthDb.
 const (
 	HealthDbDown HealthDb = "down"
@@ -46,6 +61,24 @@ func (e HealthStatus) Valid() bool {
 		return false
 	}
 }
+
+// BookRequest defines model for BookRequest.
+type BookRequest struct {
+	GutenbergId int     `json:"gutenbergId"`
+	Language    *string `json:"language,omitempty"`
+
+	// Title 관리자가 카탈로그에서 확인한 제목. 수집 결과 검증에 쓴다
+	Title string `json:"title"`
+}
+
+// BookRequestAccepted defines model for BookRequestAccepted.
+type BookRequestAccepted struct {
+	BookId int64                     `json:"bookId"`
+	Status BookRequestAcceptedStatus `json:"status"`
+}
+
+// BookRequestAcceptedStatus defines model for BookRequestAccepted.Status.
+type BookRequestAcceptedStatus string
 
 // Chapter defines model for Chapter.
 type Chapter struct {
@@ -95,8 +128,14 @@ type Paragraph struct {
 	StableId string `json:"stableId"`
 }
 
+// RequestBookJSONRequestBody defines body for RequestBook for application/json ContentType.
+type RequestBookJSONRequestBody = BookRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// RequestBook 도서 수집 지시
+	// (POST /admin/books)
+	RequestBook(w http.ResponseWriter, r *http.Request)
 	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 	// (GET /books/{gutenbergId}/chapters/{idx})
 	GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int)
@@ -108,6 +147,12 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// RequestBook 도서 수집 지시
+// (POST /admin/books)
+func (_ Unimplemented) RequestBook(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 // (GET /books/{gutenbergId}/chapters/{idx})
@@ -129,6 +174,20 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// RequestBook operation middleware
+func (siw *ServerInterfaceWrapper) RequestBook(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RequestBook(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // GetBookChapter operation middleware
 func (siw *ServerInterfaceWrapper) GetBookChapter(w http.ResponseWriter, r *http.Request) {
@@ -298,8 +357,61 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/books/{gutenbergId}/chapters/{idx}", wrapper.GetBookChapter)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/books", wrapper.RequestBook)
+	})
 
 	return r
+}
+
+type RequestBookRequestObject struct {
+	Body *RequestBookJSONRequestBody
+}
+
+type RequestBookResponseObject interface {
+	VisitRequestBookResponse(w http.ResponseWriter) error
+}
+
+type RequestBook202JSONResponse BookRequestAccepted
+
+func (response RequestBook202JSONResponse) VisitRequestBookResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(202)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RequestBook401JSONResponse Error
+
+func (response RequestBook401JSONResponse) VisitRequestBookResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type RequestBook409JSONResponse Error
+
+func (response RequestBook409JSONResponse) VisitRequestBookResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
 }
 
 type GetBookChapterRequestObject struct {
@@ -362,6 +474,9 @@ func (response GetHealthz200JSONResponse) VisitGetHealthzResponse(w http.Respons
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// RequestBook 도서 수집 지시
+	// (POST /admin/books)
+	RequestBook(ctx context.Context, request RequestBookRequestObject) (RequestBookResponseObject, error)
 	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 	// (GET /books/{gutenbergId}/chapters/{idx})
 	GetBookChapter(ctx context.Context, request GetBookChapterRequestObject) (GetBookChapterResponseObject, error)
@@ -407,6 +522,37 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
+}
+
+// RequestBook operation middleware
+func (sh *strictHandler) RequestBook(w http.ResponseWriter, r *http.Request) {
+	var request RequestBookRequestObject
+
+	var body RequestBookJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.RequestBook(ctx, request.(RequestBookRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RequestBook")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(RequestBookResponseObject); ok {
+		if err := validResponse.VisitRequestBookResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // GetBookChapter operation middleware

@@ -19,6 +19,7 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/PARSER_REPORT.md` | 스파이크 결과와 권고 — 파서 판단의 근거 |
 | `docs/SLICE_SKELETON.md` | 프로젝트 골격 명세 (완료) |
 | `docs/SLICE_READ_PATH.md` | 읽기 경로 명세 (완료) |
+| `docs/SLICE_INGEST_AUTOMATION.md` | 수집 자동화 명세 (완료) |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
@@ -35,7 +36,13 @@ ADR-006(SSR)의 전제도 실물로 검증했습니다.
 ADR-004가 전제한 "해시 일치 → 자동 승계"가 처음으로 수치로 확인됐습니다.
 파서를 고친 뒤 `make succession`을 돌려 이 수치가 얼마나 떨어지는지 보는 것이 사용법입니다.
 
-**현재 작업은 슬라이스 3 — 수집 자동화(River + R2)입니다.**
+**슬라이스 3(수집 자동화)도 끝났습니다.** `POST /admin/books` 한 번으로
+FetchSource → R2 → ParseBook → 적재가 자동으로 돕니다.
+**ADR-003의 근거("트랜잭션 안 enqueue")는 테스트로 못 박혀 있습니다** —
+`internal/book/enqueue_integration_test.go`가 잡 등록이 실패하면 `books` 행도
+남지 않는 것을 확인합니다. 이걸 깨면 River를 쓸 이유가 사라집니다.
+
+**현재 작업은 슬라이스 4 — 번역(제안·검수)입니다. 여기서 SEO 값어치가 나옵니다.**
 
 계획된 순서:
 
@@ -43,8 +50,8 @@ ADR-004가 전제한 "해시 일치 → 자동 승계"가 처음으로 수치로
 |---|---|---|
 | 1 | 골격 (walking skeleton) | `docs/SLICE_SKELETON.md` — **완료** |
 | 2 | 읽기 경로 — 적재 → API → SSR 화면 | `docs/SLICE_READ_PATH.md` — **완료** |
-| 3 | 수집 자동화 (River + R2) | 미작성 ← **지금** |
-| 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | 미작성 |
+| 3 | 수집 자동화 (River + R2) | `docs/SLICE_INGEST_AUTOMATION.md` — **완료** |
+| 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | `docs/SLICE_TRANSLATION.md` ← **지금** |
 
 슬라이스 2에서 책이 브라우저에 뜨지만 **원문 전용 페이지라 `noindex`입니다**(ADR-007).
 색인 대상이 되는 것은 번역 페이지이고 그건 슬라이스 4입니다.
@@ -85,14 +92,14 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 포맷 | `make fmt` |
 | 코드 생성 (sqlc / oapi-codegen / orval) | `make generate` |
 | 마이그레이션 적용 | `make migrate` |
-| 로컬 의존 서비스 기동 (Postgres) | `make dev` |
+| 로컬 의존 서비스 기동 (Postgres + MinIO) | `make dev` |
 | 로컬 의존 서비스 정지 | `make dev-down` |
 | API 서버 실행 (:8080) | `make run-api` |
-| 워커 실행 | `make run-worker` |
 | 웹 개발 서버 실행 (:3000, SSR) | `make run-web` |
 | `web/` 의존성 설치 | `make web-install` |
 | 파서 결과 적재 (멱등) | `make ingest` (한 권만: `make ingest ONLY=1342`) |
 | `stable_id` 승계율 측정 | `make succession` |
+| 워커 실행 (잡 소비) | `make run-worker` |
 | 검증용 도서 내려받기 | `make fetch-corpus` |
 | 파서 검증 리포트 | `make parsecheck` |
 | golden 스냅샷 비교 | `make golden` |
@@ -118,6 +125,8 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
   검증용 도서는 `internal/parse/testdata/corpus.json`에 ID만 기록하고 `make fetch-corpus`로 받습니다.
 - **Gutenberg에 병렬 요청을 보내지 마세요.** 워커 동시성은 1~2, 요청 간 최소 1초 간격, User-Agent 명시.
   공격적으로 긁으면 IP가 차단되고 복구가 어렵습니다.
+- **수집 큐(`fetch`)의 동시성을 1보다 올리지 마세요.** Gutenberg에 병렬 요청이 나갑니다.
+  파싱 큐(`parse`)는 올려도 됩니다. 큐를 나눈 이유가 그것입니다.
 - **`0.0.0.0`에 바인딩하지 마세요.** Railway 프라이빗 네트워크는 IPv6 전용이라 `[::]`를 써야 서비스 간 호출이 됩니다.
 - **비즈니스 로직을 TanStack Start의 server function에 넣지 마세요.**
   권한 검사·DB 접근·도메인 로직은 전부 Go. server function은 SSR 데이터 페칭과 쿠키 전달 전용입니다.

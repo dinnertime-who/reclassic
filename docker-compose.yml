@@ -17,5 +17,26 @@ services:
       timeout: 3s
       retries: 30
 
+  # 로컬 S3. 프로덕션은 Cloudflare R2다 (ADR-008) — 프로토콜이 같아
+  # 자격증명 없이도 어댑터 배선을 검증할 수 있다.
+  minio:
+    image: minio/minio:latest
+    container_name: reclassic-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: reclassic
+      MINIO_ROOT_PASSWORD: reclassic-secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - reclassic-miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
 volumes:
   reclassic-pgdata:
+  reclassic-miniodata:

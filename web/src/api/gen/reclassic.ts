@@ -8,6 +8,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
+  BookRequest,
+  BookRequestAccepted,
   ChapterView,
   Error,
   Health
@@ -93,5 +95,57 @@ export const getBookChapter = async (gutenbergId: number,
     method: 'GET'
 
 
+  }
+);}
+
+
+
+export type requestBookResponse202 = {
+  data: BookRequestAccepted
+  status: 202
+}
+
+export type requestBookResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type requestBookResponse409 = {
+  data: Error
+  status: 409
+}
+
+export type requestBookResponseSuccess = (requestBookResponse202) & {
+  headers: Headers;
+};
+export type requestBookResponseError = (requestBookResponse401 | requestBookResponse409) & {
+  headers: Headers;
+};
+
+export type requestBookResponse = (requestBookResponseSuccess | requestBookResponseError)
+
+export const getRequestBookUrl = () => {
+
+
+
+
+  return `/admin/books`
+}
+
+/**
+ * books 행 생성과 FetchSource 잡 등록을 **한 트랜잭션 안에서** 한다.
+ * "책은 생성됐는데 잡 등록이 실패"하는 틈이 없다 — ADR-003이 River를 고른 근거다.
+ *
+ * 수집은 비동기라 202다. 결과는 books.status로 확인한다.
+ * @summary 도서 수집 지시
+ */
+export const requestBook = async (bookRequest: BookRequest, options?: Parameters<typeof apiFetch>[1]): Promise<requestBookResponse> => {
+
+  return apiFetch<requestBookResponse>(getRequestBookUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(bookRequest)
   }
 );}
