@@ -2,7 +2,7 @@
 
 **작업 종류:** 구현 슬라이스
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`,
-`docs/DECISIONS.md` (특히 ADR-001 / 002 / 006 / 009 / 017 / 018)
+`docs/DECISIONS.md` (특히 ADR-001 / 002 / 006 / 009 / 017 / 018 / 019)
 **다음 슬라이스:** `docs/SLICE_PERSISTENCE.md`
 
 ---
@@ -61,7 +61,15 @@ github.com/jackc/pgx/v5        ADR-017
 github.com/pressly/goose/v3    ADR-017
 ```
 
-빌드 타임 도구: `sqlc`, `oapi-codegen`, `orval`(npm). `make doctor`에서 존재만 확인한다.
+Node 쪽은 ADR-019에서 정했다.
+
+```
+pnpm                           패키지 매니저. packageManager 필드로 버전 고정, corepack 활성화
+web/package.json               저장소의 유일한 Node 패키지. 루트에 package.json을 만들지 않는다
+orval                          web/의 devDependency. 설정에서 ../openapi.yaml 참조
+```
+
+빌드 타임 도구: `sqlc`, `oapi-codegen`(Go), `orval`(pnpm). **`make doctor`에 확인 항목을 추가한다.**
 이 밖에 필요하면 추가 전에 `Proposed` ADR로 남기고 확인할 것.
 
 ---
@@ -81,6 +89,8 @@ github.com/pressly/goose/v3    ADR-017
 | `internal/api/server.go` | 핸들러 구현과 라우터 조립 |
 | `cmd/api/main.go` | 얇게. 설정 읽고 서버 기동만 |
 | `cmd/worker/main.go` | 기동과 종료만 |
+| `web/package.json` · `web/pnpm-lock.yaml` | 저장소의 유일한 Node 패키지 (ADR-019) |
+| `web/orval.config.ts` | `../openapi.yaml` → TS 클라이언트 |
 | `web/` | TanStack Start 앱 |
 | Makefile · `AGENTS.md` 명령어 표 | 함께 갱신 |
 
@@ -202,6 +212,7 @@ River는 다음다음 슬라이스다. 배포 단위가 둘이라는 것(ADR-001
 ### 4.7 `web/`
 
 - TanStack Start. `/healthz`를 **SSR에서** 호출해 화면에 값을 표시한다
+- 패키지 매니저는 **pnpm**. 루트에 `package.json`을 만들지 않는다 (ADR-019)
 - API 호출은 **orval 생성 클라이언트만** 쓴다. 직접 `fetch` 금지 (CONVENTIONS)
 - 베이스 URL은 서버·클라이언트에서 분기한다. CONVENTIONS의 코드 조각을 그대로 쓴다
 - **server function에 로직을 넣지 않는다.** 데이터 페칭과 쿠키 전달 전용 (ADR-006)
@@ -210,6 +221,11 @@ River는 다음다음 슬라이스다. 배포 단위가 둘이라는 것(ADR-001
 
 `generate`(sqlc → oapi-codegen → orval 순), `migrate`, `dev`를 되살리고
 `AGENTS.md` 명령어 표를 함께 갱신한다. **Makefile이 유일한 진입점**이다.
+orval은 `web/` 안에서 실행되지만 진입점은 `make generate`다. `cd web && pnpm ...`을
+직접 치게 하지 않는다.
+
+**`make doctor`도 함께 고친다.** 지금은 go·docker·node·sqlc·golangci-lint만 본다.
+`pnpm`과 `oapi-codegen`이 빠져 있고, `sqlc`는 "(아직 불필요)"로 표시돼 있는데 이제 필요하다.
 
 ---
 
@@ -229,6 +245,7 @@ River는 다음다음 슬라이스다. 배포 단위가 둘이라는 것(ADR-001
 
 ## 6. 완료 조건
 
+- [ ] `make doctor`가 go·docker·node·**pnpm**·**sqlc**·**oapi-codegen**·golangci-lint를 확인한다
 - [ ] `make dev`로 Postgres가 뜨고 `make migrate`가 5테이블을 만든다
 - [ ] `make generate`가 sqlc · oapi-codegen · orval 산출물을 모두 만든다
 - [ ] `make build`가 `cmd/api`, `cmd/worker`, `cmd/parsecheck` 세 바이너리를 만든다

@@ -60,6 +60,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | HTML 파싱 | goquery | Gutenberg 원문 추출 |
 | 오브젝트 스토리지 | Cloudflare R2 | S3 호환. 원본 HTML 스냅샷 보관 |
 | 웹 | TanStack Start | 읽기 화면 SSR, 편집·검수 화면 CSR |
+| 프론트 패키지 | pnpm | Node 패키지는 `web/` 하나. 루트 `package.json` 없음 (ADR-019) |
 | API 계약 | OpenAPI → oapi-codegen(Go) + Orval(TS) | 스펙 우선 |
 | 배포 | Railway | 서비스: api / worker / postgres / web |
 
