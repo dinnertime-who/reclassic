@@ -82,10 +82,20 @@ func EvaluateHTML(raw []byte, extractors []Extractor) (*Evaluation, error) {
 			best = &cp
 		}
 	}
-	ev.Best = best
 	if best == nil {
 		return nil, fmt.Errorf("모든 전략이 실패함")
 	}
+
+	// 전략 선택은 후처리 전 점수. 저장·리포트 헤드라인은 후처리 후 재계산 (ADR-013 §5).
+	processed := Postprocess(doc, best.Result)
+	sig := ComputeSignals(processed, ev.BodyChars)
+	conf := Score(sig)
+	if best.Name == "single-chapter" && conf > SingleChapterCap {
+		conf = SingleChapterCap
+	}
+	processed.Confidence = conf
+	best = &Scored{Name: best.Name, Result: processed, Signals: sig}
+	ev.Best = best
 	return ev, nil
 }
 

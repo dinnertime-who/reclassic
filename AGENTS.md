@@ -20,9 +20,9 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
-**현재 작업은 파서 후처리 구현입니다 — ADR-013과 ADR-016을 함께 구현합니다.**
-둘 다 Accepted이고 아직 미구현입니다. 구현하면 golden 스냅샷 22권이 전부 바뀌므로,
-`make golden GOLDEN_UPDATE=1` 전에 `make parsecheck` 리포트로 눈 검증을 거치세요.
+**현재 작업:** ADR-013·016 파서 후처리는 구현됐다 (`internal/parse/postprocess.go`).
+다음은 스켈레톤(DB·API)이어도 된다. `stable_id`는 ADR-016을 따라야 한다.
+ADR-014(합본 크기 판정 → 관리자 큐)는 수집 파이프라인에 붙인다. ADR-015(희곡)는 아직 Proposed.
 
 ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹 금지")는 **해제됐습니다.**
 스파이크가 답을 냈고, 스키마 보정 레이어는 넣지 않기로 정해졌습니다(PARSER_REPORT 권고 2).

@@ -34,6 +34,5 @@ Claude Code, Codex, Cursor, Augment 등이 공통으로 읽는 파일이다.
 **파서 검증 스파이크 결과** — [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md).
 
 공식 신뢰도는 22/22 자동 구간이고 본문 커버리지는 높다.
-파서 후처리(ADR-013), 합본 제외(ADR-014), `stable_id` 충돌 정책(ADR-016)을 확정했다.
-**셋 다 아직 구현 전이다** — 다음 작업은 이 후처리 구현과 golden 갱신이다.
-희곡 지원 범위(ADR-015)만 제품 결정으로 열려 있다.
+파서 후처리(ADR-013)와 `stable_id` 등장 순서(ADR-016)는 구현됐다.
+합본 크기 판정(ADR-014)은 수집 파이프라인에 남는다. 희곡 지원(ADR-015)만 Proposed다.

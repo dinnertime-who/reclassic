@@ -3,12 +3,14 @@
   "title": "The Odyssey",
   "source_sha256": "d0da6659e3d32724669de186cc7dd8d80db32e92e195d718c1fc9ec17a3e7c36",
   "strategy": "section-chapter",
-  "confidence": 0.991,
+  "confidence": 0.9908,
   "coverage": 0.9971,
-  "chapter_count": 29,
+  "chapter_count": 28,
   "paragraph_count": 1285,
   "total_chars": 675976,
-  "warnings": [],
+  "warnings": [
+    "문단 0개 챕터 1개 제거"
+  ],
   "chapters": [
     {
       "idx": 0,
@@ -33,181 +35,174 @@
     },
     {
       "idx": 3,
-      "title": "THE ODYSSEY",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 4,
       "title": "BOOK I",
       "paragraph_count": 33,
       "chars": 21397,
       "text_sha256": "e9712b8e2bf73f8c04ae9b8454be1d6e6867b92b492ea006c02c02e39ad33834"
     },
     {
-      "idx": 5,
+      "idx": 4,
       "title": "BOOK II",
       "paragraph_count": 36,
       "chars": 21871,
       "text_sha256": "83cd1d3b49157854c4632c8b6dcea95317587b90ded1330c25b096d823162029"
     },
     {
-      "idx": 6,
+      "idx": 5,
       "title": "BOOK III",
       "paragraph_count": 39,
       "chars": 25035,
       "text_sha256": "35b31ca784a353ff8015693608fde7fc79252d17e3b45c043f42bb6eea7eb121"
     },
     {
-      "idx": 7,
+      "idx": 6,
       "title": "BOOK IV",
       "paragraph_count": 82,
       "chars": 41793,
       "text_sha256": "6296b46e57dc13eeac563a9a5dbc72b9fc234805798fc5cf440ec236fa529532"
     },
     {
-      "idx": 8,
+      "idx": 7,
       "title": "BOOK V",
       "paragraph_count": 38,
       "chars": 24018,
       "text_sha256": "6775c3723bc3d58d7578b8640767c5048610d7f828b16109a5d17931daa7112e"
     },
     {
-      "idx": 9,
+      "idx": 8,
       "title": "BOOK VI",
       "paragraph_count": 27,
       "chars": 17731,
       "text_sha256": "05a87791367ed389e53bf5fa573a4a0bbe01ad14e6d02577f2e6707eb0823b70"
     },
     {
-      "idx": 10,
+      "idx": 9,
       "title": "BOOK VII",
       "paragraph_count": 30,
       "chars": 17657,
       "text_sha256": "98412ba4d50ab5341787517bd1d415b7c0e0d1f2b17a71e48fa64b52d50680e6"
     },
     {
-      "idx": 11,
+      "idx": 10,
       "title": "BOOK VIII",
       "paragraph_count": 51,
       "chars": 29584,
       "text_sha256": "521803f68981eb15753c98dad1e3f3a6fa273b3aefe2833f1f86863e3f4b65cf"
     },
     {
-      "idx": 12,
+      "idx": 11,
       "title": "BOOK IX",
       "paragraph_count": 45,
       "chars": 29436,
       "text_sha256": "20ade6c254cd44ad54e01d10afebaf1fffe733bc28245ffaf36c2f7cd1a8a7bf"
     },
     {
-      "idx": 13,
+      "idx": 12,
       "title": "BOOK X",
       "paragraph_count": 50,
       "chars": 28960,
       "text_sha256": "bceb86a4696e28a0386e694175af19dd3cae5de5673dbaf77964400f3ad52d0a"
     },
     {
-      "idx": 14,
+      "idx": 13,
       "title": "BOOK XI",
       "paragraph_count": 55,
       "chars": 31041,
       "text_sha256": "4acedec9dc126e7584131ffadf900b7898c8ff2803c49b0f2368dbb4c46b3e8f"
     },
     {
-      "idx": 15,
+      "idx": 14,
       "title": "BOOK XII",
       "paragraph_count": 40,
       "chars": 23490,
       "text_sha256": "72fa0c55d9aeab438a177c02bbd37f3f02579d22f53085233f236133335d6ac4"
     },
     {
-      "idx": 16,
+      "idx": 15,
       "title": "BOOK XIII",
       "paragraph_count": 39,
       "chars": 21984,
       "text_sha256": "824fb6a889e7873c04c56331ab791befab206f984a2a4c541a3b65273fde4446"
     },
     {
-      "idx": 17,
+      "idx": 16,
       "title": "BOOK XIV",
       "paragraph_count": 36,
       "chars": 27395,
       "text_sha256": "aa91d7f2d97a82fd9e3cab1c7b58553aede40d65ba6689d2b710a47800d241a6"
     },
     {
-      "idx": 18,
+      "idx": 17,
       "title": "BOOK XV",
       "paragraph_count": 49,
       "chars": 27990,
       "text_sha256": "5c19f738eeb8f18cc48ee327b1129f2582f50bb75ece1f29d301f7f1ebf6ed5e"
     },
     {
-      "idx": 19,
+      "idx": 18,
       "title": "BOOK XVI",
       "paragraph_count": 46,
       "chars": 23356,
       "text_sha256": "81a29672c8116478309336464cc3190c8ecc0ac00a850b9e0659b7af29933d6b"
     },
     {
-      "idx": 20,
+      "idx": 19,
       "title": "BOOK XVII",
       "paragraph_count": 64,
       "chars": 30455,
       "text_sha256": "5b23d90d88e313810b417abebc5e76060f0bf125e2d1a309a23407508b00278c"
     },
     {
-      "idx": 21,
+      "idx": 20,
       "title": "BOOK XVIII",
       "paragraph_count": 42,
       "chars": 21673,
       "text_sha256": "3e28401d273d0d58e1b95b1f6ff4fb6902be5c37e557be4f00eabc85926cb993"
     },
     {
-      "idx": 22,
+      "idx": 21,
       "title": "BOOK XIX",
       "paragraph_count": 40,
       "chars": 31272,
       "text_sha256": "e27cf6eb7b3982526ddfda978225a9b5b4061be906f847d614eb9c7985ed8fb7"
     },
     {
-      "idx": 23,
+      "idx": 22,
       "title": "BOOK XX",
       "paragraph_count": 37,
       "chars": 20265,
       "text_sha256": "02054babbf1a6e77e91b00282035939a0ba1cfb28b31daa3a628bb093081fe75"
     },
     {
-      "idx": 24,
+      "idx": 23,
       "title": "BOOK XXI",
       "paragraph_count": 43,
       "chars": 21950,
       "text_sha256": "69f47b34452242af5b231893a4862292adc091a9fd303a512a9d1f1e4e297bb9"
     },
     {
-      "idx": 25,
+      "idx": 24,
       "title": "BOOK XXII",
       "paragraph_count": 53,
       "chars": 23975,
       "text_sha256": "604b5a2c597f437fae48851885a14c4d534cded355ecc7fc66f863cde753fabf"
     },
     {
-      "idx": 26,
+      "idx": 25,
       "title": "BOOK XXIII",
       "paragraph_count": 30,
       "chars": 19143,
       "text_sha256": "0536c80b3d1774d4360d8f482c07da17b33886e84b4766cfc9cc10c66baf0761"
     },
     {
-      "idx": 27,
+      "idx": 26,
       "title": "BOOK XXIV",
       "paragraph_count": 46,
       "chars": 27398,
       "text_sha256": "736fcf903d0b32fc9b5fd7d766c9314f0f8fdf092877d69ab2d52865ad7fcfc9"
     },
     {
-      "idx": 28,
+      "idx": 27,
       "title": "FOOTNOTES:",
       "paragraph_count": 204,
       "chars": 51830,

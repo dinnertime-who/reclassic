@@ -5,34 +5,15 @@
   "strategy": "heading-split",
   "confidence": 0.9947,
   "coverage": 0.9883,
-  "chapter_count": 4,
+  "chapter_count": 1,
   "paragraph_count": 33,
   "total_chars": 19228,
-  "warnings": [],
+  "warnings": [
+    "문단 0개 챕터 3개 제거"
+  ],
   "chapters": [
     {
       "idx": 0,
-      "title": "A Modest Proposal",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 1,
-      "title": "For preventing the children of poor people in Ireland, from being a burden on their parents or country, and for making them beneficial to the publick.",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 2,
-      "title": "by Dr. Jonathan Swift",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 3,
       "title": "1729",
       "paragraph_count": 33,
       "chars": 19228,

@@ -3,23 +3,26 @@
   "title": "The Adventures of Tom Sawyer",
   "source_sha256": "860b1c91c63e2c9a0d74d89a9f86844f15d710532db04c2f97f01553e72530e2",
   "strategy": "anchor-toc",
-  "confidence": 0.9572,
-  "coverage": 0.9775,
-  "chapter_count": 72,
-  "paragraph_count": 1858,
-  "total_chars": 381065,
-  "warnings": [],
+  "confidence": 0.9527,
+  "coverage": 0.9798,
+  "chapter_count": 38,
+  "paragraph_count": 1863,
+  "total_chars": 381950,
+  "warnings": [
+    "첫 챕터 앞 문단 5개를 front-matter로 보존",
+    "문단 0개 챕터 35개 제거"
+  ],
   "chapters": [
     {
       "idx": 0,
-      "title": "CHAPTER I",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "title": "",
+      "paragraph_count": 5,
+      "chars": 885,
+      "text_sha256": "b7d19644301ddb9f218883f3d71498e620a4f19fd6ab339ba9bf95168ad462b2"
     },
     {
       "idx": 1,
-      "title": "CHAPTER I.",
+      "title": "CHAPTER I",
       "paragraph_count": 110,
       "chars": 12603,
       "text_sha256": "9d451f841e6b841fd088cab5ac4c7d18f1385f5b13ea9cdfc7db56e6132072c4"
@@ -27,489 +30,251 @@
     {
       "idx": 2,
       "title": "CHAPTER II",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 3,
-      "title": "CHAPTER II.",
       "paragraph_count": 47,
       "chars": 10344,
       "text_sha256": "0358d90272f25f2defa40ea392397a01c28c521c8fd985c046906d2334808fdb"
     },
     {
-      "idx": 4,
+      "idx": 3,
       "title": "CHAPTER III",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 5,
-      "title": "CHAPTER III.",
       "paragraph_count": 28,
       "chars": 12191,
       "text_sha256": "fe3c7ea3a87122e63f156a3ebd6c94c0c1928d6ad3fa8894989d2ce136caec0d"
     },
     {
-      "idx": 6,
+      "idx": 4,
       "title": "CHAPTER IV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 7,
-      "title": "CHAPTER IV.",
       "paragraph_count": 58,
       "chars": 18888,
       "text_sha256": "5df20c66cc50a3407b26e6df27ccc570663fb7be1a3a34ec9b6335408d62668d"
     },
     {
-      "idx": 8,
+      "idx": 5,
       "title": "CHAPTER V",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 9,
-      "title": "CHAPTER V.",
       "paragraph_count": 12,
       "chars": 10513,
       "text_sha256": "a17758ae9002e4c137f0d999c68c2ad993d5577769563b2e47db528751dc48d4"
     },
     {
-      "idx": 10,
+      "idx": 6,
       "title": "CHAPTER VI",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 11,
-      "title": "CHAPTER VI.",
       "paragraph_count": 158,
       "chars": 18810,
       "text_sha256": "0526773cc794846a7376d9ed8422901ae9d9e53c136e77513d375a71dd64ae7f"
     },
     {
-      "idx": 12,
+      "idx": 7,
       "title": "CHAPTER VII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 13,
-      "title": "CHAPTER VII.",
       "paragraph_count": 78,
       "chars": 9902,
       "text_sha256": "5df011713ecabc98016eb9799c2d1556798a2bd19108fd79d8adf8d070a65a49"
     },
     {
-      "idx": 14,
+      "idx": 8,
       "title": "CHAPTER VIII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 15,
-      "title": "CHAPTER VIII.",
       "paragraph_count": 35,
       "chars": 9677,
       "text_sha256": "7ed9d43b5a37705c45ac4d0996d437e2c473869aaa4d6e3b41e3fc7e6d5c4837"
     },
     {
-      "idx": 16,
+      "idx": 9,
       "title": "CHAPTER IX",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 17,
-      "title": "CHAPTER IX.",
       "paragraph_count": 68,
       "chars": 11588,
       "text_sha256": "c08fdfbb3bdee78b89b209e1a5f060140e702bbe0e50f3fa447d50403ed5c99a"
     },
     {
-      "idx": 18,
+      "idx": 10,
       "title": "CHAPTER X",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 19,
-      "title": "CHAPTER X.",
       "paragraph_count": 77,
       "chars": 11069,
       "text_sha256": "cdb1071c41e88a6d936cc54857c343e29c208c1180b28df66d2cba4582d00171"
     },
     {
-      "idx": 20,
+      "idx": 11,
       "title": "CHAPTER XI",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 21,
-      "title": "CHAPTER XI.",
       "paragraph_count": 37,
       "chars": 8206,
       "text_sha256": "b2e687c9259bac4d581d7eef5ca78cd74ff442dbf44de2990e1f89940c3c9587"
     },
     {
-      "idx": 22,
+      "idx": 12,
       "title": "CHAPTER XII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 23,
-      "title": "CHAPTER XII.",
       "paragraph_count": 32,
       "chars": 9166,
       "text_sha256": "4c6a2b464e51ee818726b1b641888d407e47f04a6ebcd5a04920f75033390665"
     },
     {
-      "idx": 24,
+      "idx": 13,
       "title": "CHAPTER XIII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 25,
-      "title": "CHAPTER XIII.",
       "paragraph_count": 62,
       "chars": 13440,
       "text_sha256": "f145d99531d71edff4b0b41a646aee19e49d55d8fad9dfe7bdbda774fed2a1e1"
     },
     {
-      "idx": 26,
+      "idx": 14,
       "title": "CHAPTER XIV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 27,
-      "title": "CHAPTER XIV.",
       "paragraph_count": 29,
       "chars": 11528,
       "text_sha256": "a91652aaadda89e5134c303a35210e79dc1b0987c85a93626acb3bac606480cc"
     },
     {
-      "idx": 28,
+      "idx": 15,
       "title": "CHAPTER XV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 29,
-      "title": "CHAPTER XV.",
       "paragraph_count": 23,
       "chars": 9099,
       "text_sha256": "a4c24ae9e2e3b8e472b4bd1e0966b83035b724cb300bbfe93b49d145242548f3"
     },
     {
-      "idx": 30,
+      "idx": 16,
       "title": "CHAPTER XVI",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 31,
-      "title": "CHAPTER XVI.",
       "paragraph_count": 65,
       "chars": 17459,
       "text_sha256": "952892d78b4647033d33bbaf226cdd8e239226e7d6af882db6e3efc964da21ab"
     },
     {
-      "idx": 32,
+      "idx": 17,
       "title": "CHAPTER XVII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 33,
-      "title": "CHAPTER XVII.",
       "paragraph_count": 19,
       "chars": 6398,
       "text_sha256": "a97af1fd74af919c6d24000bd3487166544b82e55b470a3f0c0625365b470f77"
     },
     {
-      "idx": 34,
+      "idx": 18,
       "title": "CHAPTER XVIII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 35,
-      "title": "CHAPTER XVIII.",
       "paragraph_count": 87,
       "chars": 15311,
       "text_sha256": "d536d875dcec350ec2417a34faab23b74627a5ef94849c24ffdf8495b0e41269"
     },
     {
-      "idx": 36,
+      "idx": 19,
       "title": "CHAPTER XIX",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 37,
-      "title": "CHAPTER XIX.",
       "paragraph_count": 30,
       "chars": 3895,
       "text_sha256": "f24a3b951d0a08d8841ca2320ff78593da220fd57e4bff9cbb10dacbd1808df1"
     },
     {
-      "idx": 38,
+      "idx": 20,
       "title": "CHAPTER XX",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 39,
-      "title": "CHAPTER XX.",
       "paragraph_count": 7,
       "chars": 2947,
       "text_sha256": "44b799b01e4aed45e2d7a111056a47d3deb9d07f54a7b31e9274731130a2fe76"
     },
     {
-      "idx": 40,
+      "idx": 21,
       "title": "Caught in the Act",
       "paragraph_count": 25,
       "chars": 6168,
       "text_sha256": "3a3a349261eef5772c828bc0f0555da20d9012dfb193f93aefd59971cbc9e831"
     },
     {
-      "idx": 41,
+      "idx": 22,
       "title": "CHAPTER XXI",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 42,
-      "title": "CHAPTER XXI.",
       "paragraph_count": 26,
       "chars": 12557,
       "text_sha256": "a99dd8eda10b5cc2959c888eb8bc0a6a3b6cc9c486be73853e5a176c9856b1a3"
     },
     {
-      "idx": 43,
+      "idx": 23,
       "title": "CHAPTER XXII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 44,
-      "title": "CHAPTER XXII.",
       "paragraph_count": 16,
       "chars": 5571,
       "text_sha256": "875f8402ff02b60da6f8f52b8d15163a180f3aabc925d36896acdab6526cd3e5"
     },
     {
-      "idx": 45,
+      "idx": 24,
       "title": "CHAPTER XXIII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 46,
-      "title": "CHAPTER XXIII.",
       "paragraph_count": 73,
       "chars": 10735,
       "text_sha256": "4ec08cbd86398319f4de71f37f4277035ee9daef6e523001a63a2c238e1e86b5"
     },
     {
-      "idx": 47,
+      "idx": 25,
       "title": "CHAPTER XXIV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 48,
-      "title": "CHAPTER XXIV.",
       "paragraph_count": 7,
       "chars": 2236,
       "text_sha256": "605bc7ee5860656f295fcba52193e07ae06eed10588cba4f35fe9fde6cf06dba"
     },
     {
-      "idx": 49,
+      "idx": 26,
       "title": "CHAPTER XXV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 50,
-      "title": "CHAPTER XXV.",
       "paragraph_count": 109,
       "chars": 11016,
       "text_sha256": "a8370f5474af9de960bdee66eb376cb699d7bb77b1cca44ebe4244ff3ea04937"
     },
     {
-      "idx": 51,
+      "idx": 27,
       "title": "CHAPTER XXVI",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 52,
-      "title": "CHAPTER XXVI.",
       "paragraph_count": 94,
       "chars": 14247,
       "text_sha256": "98edba5dffdd01195d838153515d8b0966ef9d67308df10c3ca9f961e32b3df7"
     },
     {
-      "idx": 53,
+      "idx": 28,
       "title": "CHAPTER XXVII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 54,
-      "title": "CHAPTER XXVII.",
       "paragraph_count": 32,
       "chars": 5008,
       "text_sha256": "e49d1ced2cbb1e9bf5d49a58e60ff49bb3a74040a776f3eaaf009a70f2b59c8b"
     },
     {
-      "idx": 55,
+      "idx": 29,
       "title": "CHAPTER XXVIII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 56,
-      "title": "CHAPTER XXVIII.",
       "paragraph_count": 32,
       "chars": 5711,
       "text_sha256": "667e1844bea1d9ab47aef2e4f68b3e682590ca5fb0bd25fac678ebca2023d59c"
     },
     {
-      "idx": 57,
+      "idx": 30,
       "title": "CHAPTER XXIX",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 58,
-      "title": "CHAPTER XXIX.",
       "paragraph_count": 37,
       "chars": 12911,
       "text_sha256": "ea45ce1ef834943f9595bab1a56cfc16232ae31ce62875cddca791dc82e90e2a"
     },
     {
-      "idx": 59,
+      "idx": 31,
       "title": "A Rousing Act",
       "paragraph_count": 9,
       "chars": 1109,
       "text_sha256": "d7b2db17409b379cc723d0848460c1ae9ef3395aed071dfd53ec5485e6958011"
     },
     {
-      "idx": 60,
+      "idx": 32,
       "title": "CHAPTER XXX",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 61,
-      "title": "CHAPTER XXX.",
       "paragraph_count": 81,
       "chars": 16413,
       "text_sha256": "a7ae5867e7d0b19a601ca1398e4234cff41cb6fcd54c9de6fa3eb0f1726bf771"
     },
     {
-      "idx": 62,
+      "idx": 33,
       "title": "CHAPTER XXXI",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 63,
-      "title": "CHAPTER XXXI.",
       "paragraph_count": 67,
       "chars": 16228,
       "text_sha256": "ee750d4c28fc1d76dd75453b01ada9ad34f3d7cdab3635972b061e6e42c3e9e3"
     },
     {
-      "idx": 64,
+      "idx": 34,
       "title": "CHAPTER XXXII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 65,
-      "title": "CHAPTER XXXII.",
       "paragraph_count": 17,
       "chars": 5556,
       "text_sha256": "c8399654120f0a61c7e98ec64ab1cdc18c5c14f86e570797bfdc8e7ecb858a50"
     },
     {
-      "idx": 66,
+      "idx": 35,
       "title": "CHAPTER XXXIII",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 67,
-      "title": "CHAPTER XXXIII.",
       "paragraph_count": 105,
       "chars": 17872,
       "text_sha256": "7b597ff00c05c46ae66252e3f093978fc91a01b6edc05b907331de6280797425"
     },
     {
-      "idx": 68,
+      "idx": 36,
       "title": "CHAPTER XXXIV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 69,
-      "title": "CHAPTER XXXIV.",
       "paragraph_count": 29,
       "chars": 4701,
       "text_sha256": "0fde424661f6eaf9cd18e4d5122fdf8e4209c6d758c4f8fb99fb323763ea3c51"
     },
     {
-      "idx": 70,
+      "idx": 37,
       "title": "CHAPTER XXXV",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "idx": 71,
-      "title": "CHAPTER XXXV.",
       "paragraph_count": 37,
       "chars": 9992,
       "text_sha256": "abc75a4448d18b4577cba4dd96c93a70ba17957b9340e748325bb16489236174"

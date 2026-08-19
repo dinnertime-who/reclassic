@@ -388,5 +388,4 @@ ADR-004의 revision 전환 규칙에서 **"해시 일치 → 자동 승계"가 �
   영향이 그 텍스트에만 갇히고 건수도 작아서, ADR-004의 "유사 → 관리자 확인 큐"가 받아낸다.
 - 본문 자체가 바뀌면(예: ADR-013의 이미지 이니셜 복원 56문단) 어떤 방식으로도 id가 바뀐다.
   이는 ADR-004가 설계상 받아내기로 한 부분이다.
-- **아직 구현하지 않았다.** 순서 부여는 ADR-013의 파서 후처리 단계에서 함께 한다.
-  스파이크 코드(`internal/parse/normalize.go`)는 그대로 두었다.
+- 구현: `internal/parse/postprocess.go`의 `assignOccurrenceIDs`. `Normalize`는 순수 함수로 그대로다.

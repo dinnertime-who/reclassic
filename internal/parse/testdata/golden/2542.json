@@ -3,19 +3,22 @@
   "title": "A Doll's House",
   "source_sha256": "e8385715154db8da8d44b2ec690038701273b6340c42404bc3a2d421d53b08d4",
   "strategy": "section-chapter",
-  "confidence": 0.9757,
-  "coverage": 0.9885,
+  "confidence": 0.9263,
+  "coverage": 0.9898,
   "chapter_count": 4,
-  "paragraph_count": 1310,
-  "total_chars": 138478,
-  "warnings": [],
+  "paragraph_count": 1311,
+  "total_chars": 138665,
+  "warnings": [
+    "첫 챕터 앞 문단 1개를 front-matter로 보존",
+    "문단 0개 챕터 1개 제거"
+  ],
   "chapters": [
     {
       "idx": 0,
-      "title": "A DOLL'S HOUSE",
-      "paragraph_count": 0,
-      "chars": 0,
-      "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "title": "",
+      "paragraph_count": 1,
+      "chars": 187,
+      "text_sha256": "c3288fff73619d2e34623f52169366e0826321563d174d91e2d16cdfe0c4bcfa"
     },
     {
       "idx": 1,
