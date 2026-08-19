@@ -14,8 +14,9 @@ func (SingleChapter) Extract(doc *goquery.Document) (*Result, error) {
 	res := &Result{
 		Strategy: "single-chapter",
 		Chapters: []Chapter{{
-			Title:      title,
-			Paragraphs: collectParagraphs(doc.Selection),
+			Title:       title,
+			TitleSource: TitleFromHeading,
+			Paragraphs:  collectParagraphs(doc.Selection),
 		}},
 	}
 	if len(res.Chapters[0].Paragraphs) == 0 {

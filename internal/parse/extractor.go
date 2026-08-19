@@ -11,11 +11,17 @@ type Paragraph struct {
 	StableID string
 }
 
+const (
+	TitleFromHeading = "heading"
+	TitleFromTOC     = "toc"
+)
+
 type Chapter struct {
-	Idx        int
-	Title      string
-	Anchor     string
-	Paragraphs []Paragraph
+	Idx         int
+	Title       string
+	Anchor      string
+	TitleSource string // TitleFromHeading | TitleFromTOC. 후처리 제목 정리 기준 (ADR-013 §3)
+	Paragraphs  []Paragraph
 }
 
 type Result struct {

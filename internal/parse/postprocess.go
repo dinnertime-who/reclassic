@@ -9,7 +9,10 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-var pageMarkerTitle = regexp.MustCompile(`(?i)^\{[ivxlcdm0-9]+\}$`)
+var (
+	pageMarkerTitle = regexp.MustCompile(`(?i)^\{[ivxlcdm0-9]+\}$`)
+	pageNumInTitle  = regexp.MustCompile(`(?i)\{[ivxlcdm0-9]+\}`)
+)
 
 // Postprocess는 전략 선택 뒤에 적용한다 (ADR-013, ADR-016).
 // 원본 결과 점수는 그대로 두고, 반환된 결과만 고친다.
@@ -115,15 +118,27 @@ func recoverLeadingParagraphs(doc *goquery.Document, res *Result) {
 func cleanChapterTitles(doc *goquery.Document, res *Result) {
 	for i := range res.Chapters {
 		ch := &res.Chapters[i]
-		if ch.Anchor != "" && doc != nil {
-			if t, ok := titleFromAnchor(doc, ch.Anchor); ok {
-				ch.Title = t
+		switch ch.TitleSource {
+		case TitleFromHeading:
+			// 제목이 헤딩에서 왔으면 캡션·페이지 번호를 빼고 다시 읽는다 (1342).
+			if ch.Anchor != "" && doc != nil {
+				if t, ok := titleFromAnchor(doc, ch.Anchor); ok {
+					ch.Title = t
+				}
 			}
+		case TitleFromTOC:
+			// 목차 링크 텍스트를 헤딩으로 갈아치우지 않는다 (1524, 46).
+			ch.Title = stripTitleNoise(ch.Title)
 		}
 		if pageMarkerTitle.MatchString(strings.TrimSpace(ch.Title)) {
 			ch.Title = ""
 		}
 	}
+}
+
+func stripTitleNoise(title string) string {
+	title = pageNumInTitle.ReplaceAllString(title, " ")
+	return Normalize(title)
 }
 
 func titleFromAnchor(doc *goquery.Document, id string) (string, bool) {

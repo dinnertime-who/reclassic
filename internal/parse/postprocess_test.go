@@ -140,6 +140,83 @@ func TestPostprocessFrontMatterAndEmptyAndCaption(t *testing.T) {
 	}
 }
 
+func TestCleanTitlesKeepsTOCText(t *testing.T) {
+	t.Parallel()
+	raw := `<html><body>
+<nav class="toc">
+<a href="#s1">Scene I. Elsinore. A platform before the Castle</a>
+<a href="#s2">Scene II. A room of state</a>
+</nav>
+<h2>ACT I</h2>
+<a id="s1"></a>
+<p>Enter Francisco and Barnardo, two sentinels, who keep the watch upon the platform.</p>
+<p>Another speech of decent length so the scene is not empty after extraction.</p>
+<p>A third paragraph of similar length to keep chapter sanity signals healthy.</p>
+<h2>SCENE II</h2>
+<a id="s2"></a>
+<p>Enter Claudius King of Denmark, Gertrude the Queen, Hamlet, and the courtiers.</p>
+<p>Another reasonably long paragraph in the second scene of the play.</p>
+<p>A third paragraph so this chapter also has enough text to look like a scene.</p>
+</body></html>`
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	extracted, err := AnchorTOC{}.Extract(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := Postprocess(doc, extracted)
+	var titles []string
+	for _, ch := range got.Chapters {
+		if len(ch.Paragraphs) > 0 {
+			titles = append(titles, ch.Title)
+		}
+	}
+	joined := strings.Join(titles, " | ")
+	if strings.Contains(joined, "ACT I") && !strings.Contains(joined, "Scene I") {
+		t.Fatalf("TOC scene title overwritten by ACT heading: %v", titles)
+	}
+	found := false
+	for _, ttitle := range titles {
+		if strings.Contains(ttitle, "Scene I") && strings.Contains(ttitle, "Elsinore") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("want TOC scene title kept, got %v", titles)
+	}
+}
+
+func TestCleanTitlesRewritesHeadingCaption(t *testing.T) {
+	t.Parallel()
+	raw := `<html><body>
+<h2 id="ch2"><span class="caption">I hope Mr. Bingley will like it.</span> CHAPTER II.</h2>
+<p>Mr. Bennet was among the earliest of those who waited on Mr. Bingley at Netherfield.</p>
+<p>He had always intended to visit him, though to the last always assuring his wife that he should not go.</p>
+<p>Another paragraph of decent length so the chapter stays after postprocess.</p>
+</body></html>`
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	extracted, err := HeadingSplit{}.Extract(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := Postprocess(doc, extracted)
+	if len(got.Chapters) == 0 {
+		t.Fatal("no chapters")
+	}
+	title := got.Chapters[0].Title
+	if strings.Contains(title, "Bingley") || strings.Contains(title, "caption") {
+		t.Fatalf("caption remained in heading title: %q", title)
+	}
+	if !strings.Contains(strings.ToUpper(title), "CHAPTER II") {
+		t.Fatalf("want CHAPTER II, got %q", title)
+	}
+}
+
 func TestEvaluateAppliesPostprocessToBestOnly(t *testing.T) {
 	t.Parallel()
 	raw := []byte(`<html><body>

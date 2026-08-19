@@ -18,9 +18,10 @@ func (SectionChapter) Extract(doc *goquery.Document) (*Result, error) {
 		}
 		anchor, _ := s.Attr("id")
 		ch := Chapter{
-			Title:      title,
-			Anchor:     anchor,
-			Paragraphs: collectParagraphs(s),
+			Title:       title,
+			Anchor:      anchor,
+			TitleSource: TitleFromHeading,
+			Paragraphs:  collectParagraphs(s),
 		}
 		if len(ch.Paragraphs) == 0 && title == "" {
 			return

@@ -27,7 +27,11 @@ func (HeadingSplit) Extract(doc *goquery.Document) (*Result, error) {
 					anchor = id
 				}
 			}
-			res.Chapters = append(res.Chapters, Chapter{Title: title, Anchor: anchor})
+			res.Chapters = append(res.Chapters, Chapter{
+				Title:       title,
+				Anchor:      anchor,
+				TitleSource: TitleFromHeading,
+			})
 			cur = len(res.Chapters) - 1
 		case "p":
 			p, ok := paragraphFrom(s)

@@ -42,12 +42,18 @@ func (AnchorTOC) Extract(doc *goquery.Document) (*Result, error) {
 		id := elementAnchor(s)
 		if id != "" {
 			if title, ok := targets[id]; ok {
+				src := TitleFromTOC
 				if heading := nodeName(s); heading == "h1" || heading == "h2" || heading == "h3" {
 					if ht := headingText(s); ht != "" {
 						title = ht
+						src = TitleFromHeading
 					}
 				}
-				res.Chapters = append(res.Chapters, Chapter{Title: title, Anchor: id})
+				res.Chapters = append(res.Chapters, Chapter{
+					Title:       title,
+					Anchor:      id,
+					TitleSource: src,
+				})
 				cur = len(res.Chapters) - 1
 				return
 			}
