@@ -12,6 +12,14 @@ WEB     ?= web
 CACHE   ?= .cache/gutenberg
 CORPUS  ?= internal/parse/testdata/corpus.json
 
+# 같은 네트워크의 다른 기기에서 접속할 때 쓸 주소.
+# 인터페이스 이름을 넘겨짚지 않는다 — 기본 라우트가 쓰는 것을 찾는다 (en0일 수도 en1일 수도 있다).
+# 못 찾으면 LAN_IP=192.168.x.x 로 직접 지정한다.
+LAN_IP ?= $(shell \
+	iface=$$(route -n get default 2>/dev/null | awk '/interface:/{print $$2}'); \
+	[ -n "$$iface" ] && ipconfig getifaddr $$iface 2>/dev/null \
+	|| hostname -I 2>/dev/null | awk '{print $$1}')
+
 # 웹 프로세스에 넘길 환경변수. Go는 .env를 직접 읽지만(internal/config) Node는 읽지 않는다.
 # .env를 통째로 source하지 않는 이유는 User-Agent 값에 셸 메타문자가 있기 때문이다.
 WEB_ENV = $(shell test -f .env && grep -E '^(API_INTERNAL_HOST|API_PORT|VITE_API_URL)=' .env | tr '\n' ' ')
@@ -110,8 +118,23 @@ run-worker: ## 워커 실행 (아직 잡을 소비하지 않는다)
 	$(GO) run ./cmd/worker
 
 .PHONY: run-web
-run-web: web-install ## 웹 개발 서버 실행 (:3000, SSR)
-	cd $(WEB) && env $(WEB_ENV) $(PNPM) run dev
+run-web: web-install ## 웹 개발 서버 실행 (:3000, SSR). SSH 포워딩으로도 붙는다
+	@# 127.0.0.1에 붙인다. Vite 기본값은 localhost인데 macOS에서 [::1]로만 열려서
+	@# `ssh -L 3000:localhost:3000`이 IPv4로 붙을 때 연결이 거부된다.
+	@# 특정 주소이므로 v6only=0이어도 IPv4가 매핑되지 않는다 — Go 서버의 [::]와 다르다.
+	cd $(WEB) && env $(WEB_ENV) $(PNPM) run dev --host 127.0.0.1
+
+.PHONY: run-web-lan
+run-web-lan: web-install ## 웹 개발 서버를 LAN에 노출 (휴대폰 등에서 접속). LAN_IP=192.168.x.x 로 지정 가능
+	@test -n "$(LAN_IP)" || { echo "✗ LAN IP를 찾지 못했습니다. 'make run-web-lan LAN_IP=192.168.x.x' 로 지정하세요."; exit 1; }
+	@echo "── 같은 네트워크의 다른 기기에서 ──"
+	@echo "  웹  : http://$(LAN_IP):3000"
+	@echo "  API : http://$(LAN_IP):8080  (Go 서버는 [::] 바인딩이라 이미 열려 있습니다)"
+	@echo
+	@echo "⚠ 개발 서버입니다. ADMIN_TOKEN과 X-User-Handle 신원이 그대로 노출됩니다."
+	@echo "  신뢰하는 네트워크에서만 쓰세요."
+	@echo
+	cd $(WEB) && env $(WEB_ENV) VITE_API_URL=http://$(LAN_IP):8080 $(PNPM) run dev --host
 
 .PHONY: web-install
 web-install: ## web/ 의존성 설치 (없을 때만)

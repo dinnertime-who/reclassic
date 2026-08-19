@@ -108,6 +108,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 로컬 의존 서비스 정지 | `make dev-down` |
 | API 서버 실행 (:8080) | `make run-api` |
 | 웹 개발 서버 실행 (:3000, SSR) | `make run-web` |
+| 웹 개발 서버를 LAN에 노출 | `make run-web-lan` (주소 지정: `LAN_IP=192.168.x.x`) |
 | `web/` 의존성 설치 | `make web-install` |
 | 파서 결과 적재 (멱등) | `make ingest` (한 권만: `make ingest ONLY=1342`) |
 | `stable_id` 승계율 측정 | `make succession` |

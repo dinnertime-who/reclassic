@@ -167,8 +167,31 @@ func titleFromAnchor(doc *goquery.Document, id string) (string, bool) {
 
 func cleanedHeadingText(s *goquery.Selection) string {
 	clone := s.Clone()
-	clone.Find(".caption, .pagenum, img").Remove()
-	return Normalize(clone.Text())
+	clone.Find(".caption, " + InlineNoiseSelector + ", img").Remove()
+	if title := Normalize(clone.Text()); title != "" {
+		return title
+	}
+	// 텍스트가 없으면 제목이 이미지 안에 있는 경우다 (삽화본).
+	// 1342의 h2 65개 중 63개가 <img>를 갖고, 두 개는 제목이 alt에만 있다 —
+	// alt="PREFACE.", alt="List of Illustrations.".
+	// 이걸 복원하지 않으면 실제 서문이 "제목 없음"으로 남는다 (ADR-025).
+	return titleFromImageAlt(s)
+}
+
+// titleFromImageAlt는 헤딩 안 이미지의 alt에서 제목을 읽는다.
+// 여러 글자를 그대로 쓴다 — 한 글자만 허용하는 이미지 이니셜 복원(ADR-013 §4)과는
+// 목적이 다르다. 저기서는 드롭캡 한 글자였고 여기서는 제목 전체다.
+func titleFromImageAlt(s *goquery.Selection) string {
+	var title string
+	s.Find("img").EachWithBreak(func(_ int, img *goquery.Selection) bool {
+		alt := Normalize(img.AttrOr("alt", ""))
+		if alt == "" {
+			return true
+		}
+		title = alt
+		return false
+	})
+	return title
 }
 
 func restoreImageInitials(res *Result) {
