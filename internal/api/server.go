@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 
 	"github.com/dinnertime/reclassic/internal/api/gen"
 	"github.com/dinnertime/reclassic/internal/book"
@@ -41,6 +42,7 @@ type Server struct {
 	requester      BookRequester
 	translate      Translator
 	adminToken     string
+	allowedOrigins []string
 	indexThreshold float64
 	version        string
 	log            *slog.Logger
@@ -53,6 +55,9 @@ type Deps struct {
 	Translate Translator
 	// AdminToken은 관리자 엔드포인트를 막는 임시 가드다. 비어 있으면 안 된다.
 	AdminToken string
+	// AllowedOrigins는 브라우저가 이 API를 직접 부를 수 있는 출처다 (ADR-026).
+	// 웹과 API가 서로 다른 도메인에 있으므로 CORS가 필요하다.
+	AllowedOrigins []string
 	// IndexThreshold는 챕터 색인 기준이다 (ADR-023). 0이면 기본값 0.80.
 	IndexThreshold float64
 	Version        string
@@ -70,6 +75,7 @@ func NewServer(d Deps) *Server {
 		requester:      d.Requester,
 		translate:      d.Translate,
 		adminToken:     d.AdminToken,
+		allowedOrigins: d.AllowedOrigins,
 		indexThreshold: threshold,
 		version:        d.Version,
 		log:            d.Log,
@@ -148,16 +154,39 @@ func (s *Server) RequestBook(ctx context.Context, req gen.RequestBookRequestObje
 func (s *Server) Router() http.Handler {
 	r := chi.NewRouter()
 
-	// 미들웨어 3종. 전부 표준 http.Handler 래퍼다 (ADR-018).
+	// 미들웨어. 전부 표준 http.Handler 래퍼다 (ADR-018).
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
 	r.Use(requestLogger(s.log))
+	r.Use(s.corsMiddleware())
 	// 임시 신원 헤더를 컨텍스트로 옮긴다. 인증이 아니다 — 슬라이스 5에서 걷어낸다.
 	r.Use(withUserHandle)
 
 	// 사용자 세션 인증 자리. 제안·검수 권한 분리는 번역 슬라이스다.
 	// 지금은 관리자 오퍼레이션만 임시 토큰으로 막는다.
 	return gen.HandlerFromMux(gen.NewStrictHandler(s, []gen.StrictMiddlewareFunc{s.adminGuard}), r)
+}
+
+// corsMiddleware는 브라우저가 다른 출처에서 이 API를 부를 수 있게 한다 (ADR-026).
+//
+// 프로덕션에서도 필요하다 — 웹은 공개 도메인, API는 별도 도메인이고
+// 브라우저는 SSR이 아니라 자기가 직접 API를 부른다 (ARCHITECTURE "핵심 불변식 4").
+//
+// 와일드카드를 쓰지 않는다. credentials를 함께 보내므로 규격상 허용되지 않고,
+// 허용해서도 안 된다 — 아무 사이트나 사용자 세션으로 이 API를 부르게 된다.
+func (s *Server) corsMiddleware() func(http.Handler) http.Handler {
+	return cors.Handler(cors.Options{
+		AllowedOrigins: s.allowedOrigins,
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodOptions},
+		AllowedHeaders: []string{
+			"Content-Type",
+			// 커스텀 헤더는 preflight 대상이다. 빠뜨리면 OPTIONS에서 막힌다.
+			"X-Admin-Token",
+			"X-User-Handle",
+		},
+		AllowCredentials: true,
+		MaxAge:           300,
+	})
 }
 
 // adminOperations는 관리자 토큰이 필요한 오퍼레이션이다.

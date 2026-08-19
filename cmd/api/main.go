@@ -51,6 +51,12 @@ func run(log *slog.Logger) error {
 	if err != nil {
 		return err
 	}
+	// 브라우저가 이 API를 직접 부를 수 있는 출처. 쉼표로 구분한다 (ADR-026).
+	// 기본값을 조용히 채우지 않는다 — 비어 있으면 교차 출처 호출이 전부 막힌다.
+	origins, err := config.RequireList("CORS_ALLOWED_ORIGINS")
+	if err != nil {
+		return err
+	}
 
 	// SIGINT/SIGTERM에서 취소되는 컨텍스트. Railway는 배포 교체 시 SIGTERM을 보낸다.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -73,13 +79,14 @@ func run(log *slog.Logger) error {
 		// 0.0.0.0에 바인딩하면 서비스 간 내부 호출을 받지 못한다.
 		Addr: "[::]:" + port,
 		Handler: api.NewServer(api.Deps{
-			DB:         pool,
-			Reader:     book.NewReader(pool),
-			Requester:  book.NewRequester(pool, jobs.NewEnqueuer(riverClient)),
-			Translate:  translate.NewService(pool),
-			AdminToken: adminToken,
-			Version:    version,
-			Log:        log,
+			DB:             pool,
+			Reader:         book.NewReader(pool),
+			Requester:      book.NewRequester(pool, jobs.NewEnqueuer(riverClient)),
+			Translate:      translate.NewService(pool),
+			AdminToken:     adminToken,
+			AllowedOrigins: origins,
+			Version:        version,
+			Log:            log,
 		}).Router(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}

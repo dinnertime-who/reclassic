@@ -43,3 +43,21 @@ func Require(key string) (string, error) {
 	}
 	return v, nil
 }
+
+// RequireList는 쉼표로 구분된 값을 읽는다. 빈 항목은 버린다.
+func RequireList(key string) ([]string, error) {
+	raw, err := Require(key)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	for _, part := range strings.Split(raw, ",") {
+		if v := strings.TrimSpace(part); v != "" {
+			out = append(out, v)
+		}
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("환경변수 %s에 값이 없다", key)
+	}
+	return out, nil
+}
