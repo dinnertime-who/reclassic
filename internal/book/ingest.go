@@ -12,6 +12,7 @@ import (
 
 	gen "github.com/dinnertime/reclassic/internal/db/gen"
 	"github.com/dinnertime/reclassic/internal/parse"
+	"github.com/dinnertime/reclassic/internal/translate"
 )
 
 // Source는 적재할 원문 한 건이다. 어디서 왔는지는 호출부가 정한다 —
@@ -40,6 +41,8 @@ type IngestResult struct {
 	// Skipped는 같은 (book, source, parser_version) revision이 이미 있어
 	// 아무것도 하지 않았다는 뜻이다. 적재는 멱등이어야 한다.
 	Skipped bool
+	// Succession은 revision 전환 기록이다. 활성화하지 않았으면 nil이다.
+	Succession *translate.SuccessionOutcome
 }
 
 // Ingester는 파싱 결과를 Postgres에 적재한다.
@@ -151,6 +154,18 @@ func (in *Ingester) Ingest(ctx context.Context, src Source) (*IngestResult, erro
 	// needs_review여도 revision은 남긴다 — 관리자가 보고 판단해야 하므로 버리지 않는다.
 	out.Status = StatusNeedsReview
 	if out.Gate.Passed {
+		// 전환 전에 기존 활성 revision의 stable_id를 읽어 둔다. 승계 기록에 쓴다.
+		var prevID int64
+		var prevIDs []string
+		if prev, err := q.GetActiveRevision(ctx, int32(src.GutenbergID)); err == nil {
+			prevID = prev.ID
+			if prevIDs, err = q.ListStableIDs(ctx, prev.ID); err != nil {
+				return nil, fmt.Errorf("list previous stable ids: %w", err)
+			}
+		} else if !isNoRows(err) {
+			return nil, fmt.Errorf("get previous active revision: %w", err)
+		}
+
 		if err := q.DeactivateRevisions(ctx, book.ID); err != nil {
 			return nil, fmt.Errorf("deactivate revisions %d: %w", src.GutenbergID, err)
 		}
@@ -158,6 +173,24 @@ func (in *Ingester) Ingest(ctx context.Context, src Source) (*IngestResult, erro
 			return nil, fmt.Errorf("activate revision %d: %w", src.GutenbergID, err)
 		}
 		out.Status = StatusReady
+
+		// 번역 승계. 실제로는 아무것도 옮기지 않는다 —
+		// paragraph_translations가 stable_id를 참조하므로 본문이 같으면 그대로 조회된다.
+		// 여기서 하는 일은 무엇이 갈 곳을 잃었는지 기록하는 것이다 (ADR-004).
+		diff := diffStableIDs(src.GutenbergID, src.Title, prevIDs, currentStableIDs(res))
+		succession, err := translate.ExecuteSuccession(ctx, tx,
+			book.ID, prevID, rev.ID, diff.Matched, diff.Added, diff.Lost)
+		if err != nil {
+			return nil, fmt.Errorf("execute succession %d: %w", src.GutenbergID, err)
+		}
+		out.Succession = succession
+
+		if succession.Orphaned > 0 {
+			in.log.WarnContext(ctx, "번역이 갈 곳을 잃었다 — 관리자 확인 필요",
+				slog.Int("gutenberg_id", src.GutenbergID),
+				slog.Int("orphaned", succession.Orphaned),
+			)
+		}
 	}
 
 	if err := q.SetBookStatus(ctx, gen.SetBookStatusParams{ID: book.ID, Status: out.Status}); err != nil {

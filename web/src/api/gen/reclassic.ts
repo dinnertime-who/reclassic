@@ -12,7 +12,14 @@ import type {
   BookRequestAccepted,
   ChapterView,
   Error,
-  Health
+  Health,
+  Project,
+  ProjectChapterView,
+  ProjectInput,
+  Proposal,
+  ProposalInput,
+  ReviewInput,
+  ReviewResult
 } from './model';
 
 import { apiFetch } from '../http.ts';
@@ -147,5 +154,253 @@ export const requestBook = async (bookRequest: BookRequest, options?: Parameters
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(bookRequest)
+  }
+);}
+
+
+
+export type getProjectChapterResponse200 = {
+  data: ProjectChapterView
+  status: 200
+}
+
+export type getProjectChapterResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type getProjectChapterResponseSuccess = (getProjectChapterResponse200) & {
+  headers: Headers;
+};
+export type getProjectChapterResponseError = (getProjectChapterResponse404) & {
+  headers: Headers;
+};
+
+export type getProjectChapterResponse = (getProjectChapterResponseSuccess | getProjectChapterResponseError)
+
+export const getGetProjectChapterUrl = (projectId: number,
+    idx: number,) => {
+
+
+
+
+  return `/projects/${projectId}/chapters/${idx}`
+}
+
+/**
+ * ARCHITECTURE의 최종 계약이다. 잠정 엔드포인트 /books/{gutenbergId}/chapters/{idx}는
+ * 번역 프로젝트가 없는 책을 위해 남겨 둔다.
+ *
+ * 한 요청에 필요한 것을 다 조인해 내려준다. 문단마다 따로 요청하면
+ * N+1이 그대로 네트워크로 나간다.
+ * @summary 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
+ */
+export const getProjectChapter = async (projectId: number,
+    idx: number, options?: Parameters<typeof apiFetch>[1]): Promise<getProjectChapterResponse> => {
+
+  return apiFetch<getProjectChapterResponse>(getGetProjectChapterUrl(projectId,idx),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type listProposalsResponse200 = {
+  data: Proposal[]
+  status: 200
+}
+
+export type listProposalsResponseSuccess = (listProposalsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listProposalsResponse = (listProposalsResponseSuccess)
+
+export const getListProposalsUrl = (projectId: number,
+    stableId: string,) => {
+
+
+
+
+  return `/projects/${projectId}/paragraphs/${stableId}/proposals`
+}
+
+/**
+ * @summary 문단의 제안 목록
+ */
+export const listProposals = async (projectId: number,
+    stableId: string, options?: Parameters<typeof apiFetch>[1]): Promise<listProposalsResponse> => {
+
+  return apiFetch<listProposalsResponse>(getListProposalsUrl(projectId,stableId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type createProposalResponse201 = {
+  data: Proposal
+  status: 201
+}
+
+export type createProposalResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type createProposalResponse409 = {
+  data: Error
+  status: 409
+}
+
+export type createProposalResponseSuccess = (createProposalResponse201) & {
+  headers: Headers;
+};
+export type createProposalResponseError = (createProposalResponse401 | createProposalResponse409) & {
+  headers: Headers;
+};
+
+export type createProposalResponse = (createProposalResponseSuccess | createProposalResponseError)
+
+export const getCreateProposalUrl = (projectId: number,
+    stableId: string,) => {
+
+
+
+
+  return `/projects/${projectId}/paragraphs/${stableId}/proposals`
+}
+
+/**
+ * @summary 문단 번역 제안
+ */
+export const createProposal = async (projectId: number,
+    stableId: string,
+    proposalInput: ProposalInput, options?: Parameters<typeof apiFetch>[1]): Promise<createProposalResponse> => {
+
+  return apiFetch<createProposalResponse>(getCreateProposalUrl(projectId,stableId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(proposalInput)
+  }
+);}
+
+
+
+export type reviewProposalResponse200 = {
+  data: ReviewResult
+  status: 200
+}
+
+export type reviewProposalResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type reviewProposalResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type reviewProposalResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type reviewProposalResponse409 = {
+  data: Error
+  status: 409
+}
+
+export type reviewProposalResponseSuccess = (reviewProposalResponse200) & {
+  headers: Headers;
+};
+export type reviewProposalResponseError = (reviewProposalResponse401 | reviewProposalResponse403 | reviewProposalResponse404 | reviewProposalResponse409) & {
+  headers: Headers;
+};
+
+export type reviewProposalResponse = (reviewProposalResponseSuccess | reviewProposalResponseError)
+
+export const getReviewProposalUrl = (proposalId: number,) => {
+
+
+
+
+  return `/proposals/${proposalId}/review`
+}
+
+/**
+ * 승인은 한 트랜잭션 안에서 세 가지를 함께 한다 (ARCHITECTURE 불변식 3).
+ * 같은 문단의 동시 승인은 자문 잠금으로 직렬화된다 (ADR-024).
+ * @summary 제안 검수 — 승인 또는 거절
+ */
+export const reviewProposal = async (proposalId: number,
+    reviewInput: ReviewInput, options?: Parameters<typeof apiFetch>[1]): Promise<reviewProposalResponse> => {
+
+  return apiFetch<reviewProposalResponse>(getReviewProposalUrl(proposalId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(reviewInput)
+  }
+);}
+
+
+
+export type createProjectResponse201 = {
+  data: Project
+  status: 201
+}
+
+export type createProjectResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type createProjectResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type createProjectResponseSuccess = (createProjectResponse201) & {
+  headers: Headers;
+};
+export type createProjectResponseError = (createProjectResponse401 | createProjectResponse404) & {
+  headers: Headers;
+};
+
+export type createProjectResponse = (createProjectResponseSuccess | createProjectResponseError)
+
+export const getCreateProjectUrl = () => {
+
+
+
+
+  return `/admin/projects`
+}
+
+/**
+ * @summary 번역 프로젝트 생성
+ */
+export const createProject = async (projectInput: ProjectInput, options?: Parameters<typeof apiFetch>[1]): Promise<createProjectResponse> => {
+
+  return apiFetch<createProjectResponse>(getCreateProjectUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(projectInput)
   }
 );}

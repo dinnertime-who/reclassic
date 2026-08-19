@@ -105,7 +105,179 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /projects/{projectId}/chapters/{idx}:
+    get:
+      operationId: getProjectChapter
+      summary: 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
+      description: |
+        ARCHITECTURE의 최종 계약이다. 잠정 엔드포인트 /books/{gutenbergId}/chapters/{idx}는
+        번역 프로젝트가 없는 책을 위해 남겨 둔다.
+
+        한 요청에 필요한 것을 다 조인해 내려준다. 문단마다 따로 요청하면
+        N+1이 그대로 네트워크로 나간다.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: idx
+          in: path
+          required: true
+          schema: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: 챕터와 문단
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectChapterView"
+        "404":
+          description: 프로젝트나 챕터가 없다
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /projects/{projectId}/paragraphs/{stableId}/proposals:
+    get:
+      operationId: listProposals
+      summary: 문단의 제안 목록
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/StableId"
+      responses:
+        "200":
+          description: 제안 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Proposal"
+    post:
+      operationId: createProposal
+      summary: 문단 번역 제안
+      security:
+        - userHandle: []
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/StableId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProposalInput"
+      responses:
+        "201":
+          description: 제안됨
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+        "401":
+          description: 신원 없음
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "409":
+          description: 이미 대기 중인 제안이 있다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /proposals/{proposalId}/review:
+    post:
+      operationId: reviewProposal
+      summary: 제안 검수 — 승인 또는 거절
+      description: |
+        승인은 한 트랜잭션 안에서 세 가지를 함께 한다 (ARCHITECTURE 불변식 3).
+        같은 문단의 동시 승인은 자문 잠금으로 직렬화된다 (ADR-024).
+      security:
+        - userHandle: []
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "200":
+          description: 처리됨
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewResult"
+        "401":
+          description: 신원 없음
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 검수 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: 제안이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "409":
+          description: 다른 검수자가 먼저 처리했다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/projects:
+    post:
+      operationId: createProject
+      summary: 번역 프로젝트 생성
+      security:
+        - adminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: 생성됨
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          description: 관리자 토큰이 없거나 틀렸다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: 그런 책이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
 components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+    StableId:
+      name: stableId
+      in: path
+      required: true
+      description: 번역이 붙는 키 (ADR-004/016)
+      schema: { type: string }
+
   securitySchemes:
     # 임시 운영 가드다. 세션 인증은 아직 열린 질문이라(AGENTS.md)
     # 그때까지 관리자 엔드포인트를 무인증으로 열어 두지 않기 위한 것뿐이다.
@@ -114,6 +286,13 @@ components:
       type: apiKey
       in: header
       name: X-Admin-Token
+
+    # 임시 신원이다. 인증이 아니다 — 위조가 자명하게 가능하다.
+    # 슬라이스 5(세션 인증)에서 걷어낸다. 그 전에는 프로덕션에 배포하지 않는다.
+    userHandle:
+      type: apiKey
+      in: header
+      name: X-User-Handle
 
   schemas:
     Health:
@@ -198,3 +377,108 @@ components:
         status:
           type: string
           enum: [pending]
+
+    ProjectChapterView:
+      type: object
+      required: [chapter, paragraphs, totalChapters, coverage, indexable]
+      properties:
+        chapter:
+          $ref: "#/components/schemas/Chapter"
+        paragraphs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranslatedParagraph"
+        totalChapters:
+          type: integer
+        coverage:
+          $ref: "#/components/schemas/Coverage"
+        indexable:
+          type: boolean
+          description: 색인 대상인지 (ADR-023, 커버리지 80%)
+
+    TranslatedParagraph:
+      type: object
+      required: [stableId, sourceText, proposalCount]
+      properties:
+        stableId:
+          type: string
+        sourceText:
+          type: string
+        approvedTranslation:
+          type: string
+          nullable: true
+          description: 확정본이 없으면 null. 읽기 화면은 원문을 대신 보여준다
+        proposalCount:
+          type: integer
+          description: 대기 중인 제안 수
+
+    Coverage:
+      type: object
+      required: [total, approved, ratio]
+      properties:
+        total:
+          type: integer
+        approved:
+          type: integer
+        ratio:
+          type: number
+          format: double
+
+    Proposal:
+      type: object
+      required: [id, projectId, stableId, text, authorHandle, status, createdAt]
+      properties:
+        id: { type: integer, format: int64 }
+        projectId: { type: integer, format: int64 }
+        stableId: { type: string }
+        text: { type: string }
+        authorHandle: { type: string }
+        status:
+          type: string
+          enum: [pending, approved, rejected, superseded, withdrawn]
+        createdAt: { type: string, format: date-time }
+
+    ProposalInput:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+
+    ReviewInput:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          enum: [approve, reject]
+        note:
+          type: string
+
+    ReviewResult:
+      type: object
+      required: [proposalId, status]
+      properties:
+        proposalId: { type: integer, format: int64 }
+        status:
+          type: string
+          enum: [approved, rejected]
+
+    ProjectInput:
+      type: object
+      required: [gutenbergId, targetLang]
+      properties:
+        gutenbergId: { type: integer, minimum: 1 }
+        targetLang: { type: string, minLength: 2 }
+
+    Project:
+      type: object
+      required: [id, bookId, targetLang, status]
+      properties:
+        id: { type: integer, format: int64 }
+        bookId: { type: integer, format: int64 }
+        targetLang: { type: string }
+        status:
+          type: string
+          enum: [open, published, archived]

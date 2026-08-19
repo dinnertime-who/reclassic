@@ -70,7 +70,6 @@
 | `internal/jobs/parse_book.go` | ParseBook 잡 |
 | `internal/jobs/client.go` | River 클라이언트 조립 |
 | `internal/book/enqueue.go` | 트랜잭션 안에서 books 행 + 잡 등록 |
-| `internal/db/migrations/00002_*.sql` | `books.requested_by` 등 필요한 컬럼 |
 | `openapi.yaml` | `POST /admin/books` |
 | `cmd/worker/main.go` | River 워커 기동 |
 | `docker-compose.yml` | MinIO 추가 |

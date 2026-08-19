@@ -19,6 +19,14 @@ type Book struct {
 	UpdatedAt   pgtype.Timestamptz
 }
 
+type BookGlossary struct {
+	ID         int64
+	BookID     int64
+	SourceTerm string
+	TargetTerm string
+	Note       string
+}
+
 type BookRevision struct {
 	ID            int64
 	BookID        int64
@@ -56,4 +64,56 @@ type Paragraph struct {
 	StableID   string
 	Text       string
 	Html       string
+}
+
+type ParagraphTranslation struct {
+	ProjectID         int64
+	ParagraphStableID string
+	Text              string
+	ProposalID        int64
+	ApprovedBy        int64
+	ApprovedAt        pgtype.Timestamptz
+}
+
+type RevisionSuccession struct {
+	ID             int64
+	BookID         int64
+	FromRevisionID pgtype.Int8
+	ToRevisionID   int64
+	Matched        int32
+	Added          int32
+	Lost           int32
+	Orphaned       int32
+	OrphanIds      []byte
+	CreatedAt      pgtype.Timestamptz
+}
+
+type TranslationProject struct {
+	ID          int64
+	BookID      int64
+	TargetLang  string
+	Status      string
+	PublishedAt pgtype.Timestamptz
+	CreatedAt   pgtype.Timestamptz
+}
+
+type TranslationProposal struct {
+	ID                int64
+	ProjectID         int64
+	ParagraphStableID string
+	Text              string
+	AuthorID          int64
+	Status            string
+	ReviewedBy        pgtype.Int8
+	ReviewedAt        pgtype.Timestamptz
+	ReviewNote        string
+	CreatedAt         pgtype.Timestamptz
+}
+
+type User struct {
+	ID          int64
+	Handle      string
+	DisplayName string
+	Role        string
+	CreatedAt   pgtype.Timestamptz
 }

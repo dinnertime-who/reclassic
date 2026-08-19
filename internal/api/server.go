@@ -15,6 +15,7 @@ import (
 
 	"github.com/dinnertime/reclassic/internal/api/gen"
 	"github.com/dinnertime/reclassic/internal/book"
+	"github.com/dinnertime/reclassic/internal/translate"
 )
 
 // Pinger는 헬스체크가 DB에 대해 알아야 하는 전부다.
@@ -35,32 +36,43 @@ type BookRequester interface {
 
 // Server는 생성된 StrictServerInterface를 구현한다.
 type Server struct {
-	db         Pinger
-	reader     ChapterReader
-	requester  BookRequester
-	adminToken string
-	version    string
-	log        *slog.Logger
+	db             Pinger
+	reader         ChapterReader
+	requester      BookRequester
+	translate      Translator
+	adminToken     string
+	indexThreshold float64
+	version        string
+	log            *slog.Logger
 }
 
 type Deps struct {
 	DB        Pinger
 	Reader    ChapterReader
 	Requester BookRequester
+	Translate Translator
 	// AdminToken은 관리자 엔드포인트를 막는 임시 가드다. 비어 있으면 안 된다.
 	AdminToken string
-	Version    string
-	Log        *slog.Logger
+	// IndexThreshold는 챕터 색인 기준이다 (ADR-023). 0이면 기본값 0.80.
+	IndexThreshold float64
+	Version        string
+	Log            *slog.Logger
 }
 
 func NewServer(d Deps) *Server {
+	threshold := d.IndexThreshold
+	if threshold == 0 {
+		threshold = translate.DefaultIndexThreshold
+	}
 	return &Server{
-		db:         d.DB,
-		reader:     d.Reader,
-		requester:  d.Requester,
-		adminToken: d.AdminToken,
-		version:    d.Version,
-		log:        d.Log,
+		db:             d.DB,
+		reader:         d.Reader,
+		requester:      d.Requester,
+		translate:      d.Translate,
+		adminToken:     d.AdminToken,
+		indexThreshold: threshold,
+		version:        d.Version,
+		log:            d.Log,
 	}
 }
 
@@ -128,7 +140,7 @@ func (s *Server) RequestBook(ctx context.Context, req gen.RequestBookRequestObje
 
 	return gen.RequestBook202JSONResponse{
 		BookId: bookID,
-		Status: gen.Pending,
+		Status: gen.BookRequestAcceptedStatusPending,
 	}, nil
 }
 
@@ -140,6 +152,8 @@ func (s *Server) Router() http.Handler {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
 	r.Use(requestLogger(s.log))
+	// 임시 신원 헤더를 컨텍스트로 옮긴다. 인증이 아니다 — 슬라이스 5에서 걷어낸다.
+	r.Use(withUserHandle)
 
 	// 사용자 세션 인증 자리. 제안·검수 권한 분리는 번역 슬라이스다.
 	// 지금은 관리자 오퍼레이션만 임시 토큰으로 막는다.
@@ -149,7 +163,8 @@ func (s *Server) Router() http.Handler {
 // adminOperations는 관리자 토큰이 필요한 오퍼레이션이다.
 // openapi.yaml의 security 선언과 같아야 한다 — 여기 넣는 것을 잊으면 무인증으로 열린다.
 var adminOperations = map[string]bool{
-	"RequestBook": true,
+	"RequestBook":   true,
+	"CreateProject": true,
 }
 
 // adminGuard는 임시 운영 가드다. 세션 인증이 붙으면 걷어낸다.
@@ -166,7 +181,7 @@ func (s *Server) adminGuard(next gen.StrictHandlerFunc, operationID string) gen.
 				slog.String("operation", operationID),
 				slog.String("request_id", middleware.GetReqID(ctx)),
 			)
-			return gen.RequestBook401JSONResponse{Message: "관리자 토큰이 없거나 틀렸다"}, nil
+			return adminUnauthorized(operationID), nil
 		}
 		return next(ctx, w, r, request)
 	}
@@ -191,5 +206,16 @@ func requestLogger(log *slog.Logger) func(http.Handler) http.Handler {
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
 		})
+	}
+}
+
+// adminUnauthorized는 오퍼레이션별 401 응답 타입을 고른다.
+// 생성 코드가 오퍼레이션마다 다른 응답 타입을 만들기 때문이다.
+func adminUnauthorized(operationID string) any {
+	switch operationID {
+	case "CreateProject":
+		return gen.CreateProject401JSONResponse{Message: "관리자 토큰이 없거나 틀렸다"}
+	default:
+		return gen.RequestBook401JSONResponse{Message: "관리자 토큰이 없거나 틀렸다"}
 	}
 }

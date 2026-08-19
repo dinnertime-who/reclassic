@@ -32,8 +32,9 @@ func NewInsertOnlyClient(pool *pgxpool.Pool) (*river.Client[pgx.Tx], error) {
 
 // Workers는 워커 등록을 모아 둔다.
 type Workers struct {
-	Fetch *FetchSourceWorker
-	Parse *ParseBookWorker
+	Fetch   *FetchSourceWorker
+	Parse   *ParseBookWorker
+	Sitemap *SitemapWorker
 }
 
 // NewWorkerClient는 실제로 잡을 소비하는 클라이언트다. cmd/worker가 쓴다.
@@ -47,6 +48,9 @@ func NewWorkerClient(pool *pgxpool.Pool, w Workers, parseConcurrency int, log *s
 	}
 	if err := river.AddWorkerSafely(workers, w.Parse); err != nil {
 		return nil, fmt.Errorf("register parse worker: %w", err)
+	}
+	if err := river.AddWorkerSafely(workers, w.Sitemap); err != nil {
+		return nil, fmt.Errorf("register sitemap worker: %w", err)
 	}
 
 	client, err := river.NewClient(riverpgxv5.New(pool), &river.Config{

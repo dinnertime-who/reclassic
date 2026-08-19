@@ -23,6 +23,7 @@ make help     # 사용 가능한 명령
 | [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md) | 프로젝트 골격 명세 (완료) |
 | [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 읽기 경로 명세 (완료) |
 | [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md) | 수집 자동화 명세 (완료) |
+| [`docs/SLICE_TRANSLATION.md`](docs/SLICE_TRANSLATION.md) | 번역(제안·검수) 명세 (완료) |
 
 ## AI 에이전트 지침
 
@@ -71,4 +72,9 @@ curl -X POST localhost:8080/admin/books \
   -d '{"gutenbergId":11,"title":"Alice'"'"'s Adventures in Wonderland"}'
 ```
 
-**다음은 번역(제안·검수)이다. 여기서 SEO 값어치가 나온다.**
+**번역 슬라이스 완료** — [`docs/SLICE_TRANSLATION.md`](docs/SLICE_TRANSLATION.md).
+제안 → 검수 → 확정본이 흐르고, 승인 커버리지 80%를 넘으면 읽기 화면이 `index`로 바뀐다(ADR-023).
+미확정 문단은 원문으로 노출하고 진행률을 표시한다.
+
+**다음은 세션 인증이다.** 지금 신원은 `X-User-Handle` 헤더이고 **인증이 아니다** —
+위조가 자명하게 가능하다. 걷어내기 전까지 프로덕션에 배포하지 않는다.

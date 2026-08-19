@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
@@ -16,13 +17,13 @@ import (
 
 // Defines values for BookRequestAcceptedStatus.
 const (
-	Pending BookRequestAcceptedStatus = "pending"
+	BookRequestAcceptedStatusPending BookRequestAcceptedStatus = "pending"
 )
 
 // Valid indicates whether the value is a known member of the BookRequestAcceptedStatus enum.
 func (e BookRequestAcceptedStatus) Valid() bool {
 	switch e {
-	case Pending:
+	case BookRequestAcceptedStatusPending:
 		return true
 	default:
 		return false
@@ -56,6 +57,90 @@ const (
 func (e HealthStatus) Valid() bool {
 	switch e {
 	case HealthStatusOk:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ProjectStatus.
+const (
+	Archived  ProjectStatus = "archived"
+	Open      ProjectStatus = "open"
+	Published ProjectStatus = "published"
+)
+
+// Valid indicates whether the value is a known member of the ProjectStatus enum.
+func (e ProjectStatus) Valid() bool {
+	switch e {
+	case Archived:
+		return true
+	case Open:
+		return true
+	case Published:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ProposalStatus.
+const (
+	ProposalStatusApproved   ProposalStatus = "approved"
+	ProposalStatusPending    ProposalStatus = "pending"
+	ProposalStatusRejected   ProposalStatus = "rejected"
+	ProposalStatusSuperseded ProposalStatus = "superseded"
+	ProposalStatusWithdrawn  ProposalStatus = "withdrawn"
+)
+
+// Valid indicates whether the value is a known member of the ProposalStatus enum.
+func (e ProposalStatus) Valid() bool {
+	switch e {
+	case ProposalStatusApproved:
+		return true
+	case ProposalStatusPending:
+		return true
+	case ProposalStatusRejected:
+		return true
+	case ProposalStatusSuperseded:
+		return true
+	case ProposalStatusWithdrawn:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ReviewInputAction.
+const (
+	Approve ReviewInputAction = "approve"
+	Reject  ReviewInputAction = "reject"
+)
+
+// Valid indicates whether the value is a known member of the ReviewInputAction enum.
+func (e ReviewInputAction) Valid() bool {
+	switch e {
+	case Approve:
+		return true
+	case Reject:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ReviewResultStatus.
+const (
+	ReviewResultStatusApproved ReviewResultStatus = "approved"
+	ReviewResultStatusRejected ReviewResultStatus = "rejected"
+)
+
+// Valid indicates whether the value is a known member of the ReviewResultStatus enum.
+func (e ReviewResultStatus) Valid() bool {
+	switch e {
+	case ReviewResultStatusApproved:
+		return true
+	case ReviewResultStatusRejected:
 		return true
 	default:
 		return false
@@ -97,6 +182,13 @@ type ChapterView struct {
 	TotalChapters int `json:"totalChapters"`
 }
 
+// Coverage defines model for Coverage.
+type Coverage struct {
+	Approved int     `json:"approved"`
+	Ratio    float64 `json:"ratio"`
+	Total    int     `json:"total"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
@@ -128,20 +220,126 @@ type Paragraph struct {
 	StableId string `json:"stableId"`
 }
 
+// Project defines model for Project.
+type Project struct {
+	BookId     int64         `json:"bookId"`
+	Id         int64         `json:"id"`
+	Status     ProjectStatus `json:"status"`
+	TargetLang string        `json:"targetLang"`
+}
+
+// ProjectStatus defines model for Project.Status.
+type ProjectStatus string
+
+// ProjectChapterView defines model for ProjectChapterView.
+type ProjectChapterView struct {
+	Chapter  Chapter  `json:"chapter"`
+	Coverage Coverage `json:"coverage"`
+
+	// Indexable 색인 대상인지 (ADR-023, 커버리지 80%)
+	Indexable     bool                  `json:"indexable"`
+	Paragraphs    []TranslatedParagraph `json:"paragraphs"`
+	TotalChapters int                   `json:"totalChapters"`
+}
+
+// ProjectInput defines model for ProjectInput.
+type ProjectInput struct {
+	GutenbergId int    `json:"gutenbergId"`
+	TargetLang  string `json:"targetLang"`
+}
+
+// Proposal defines model for Proposal.
+type Proposal struct {
+	AuthorHandle string         `json:"authorHandle"`
+	CreatedAt    time.Time      `json:"createdAt"`
+	Id           int64          `json:"id"`
+	ProjectId    int64          `json:"projectId"`
+	StableId     string         `json:"stableId"`
+	Status       ProposalStatus `json:"status"`
+	Text         string         `json:"text"`
+}
+
+// ProposalStatus defines model for Proposal.Status.
+type ProposalStatus string
+
+// ProposalInput defines model for ProposalInput.
+type ProposalInput struct {
+	Text string `json:"text"`
+}
+
+// ReviewInput defines model for ReviewInput.
+type ReviewInput struct {
+	Action ReviewInputAction `json:"action"`
+	Note   *string           `json:"note,omitempty"`
+}
+
+// ReviewInputAction defines model for ReviewInput.Action.
+type ReviewInputAction string
+
+// ReviewResult defines model for ReviewResult.
+type ReviewResult struct {
+	ProposalId int64              `json:"proposalId"`
+	Status     ReviewResultStatus `json:"status"`
+}
+
+// ReviewResultStatus defines model for ReviewResult.Status.
+type ReviewResultStatus string
+
+// TranslatedParagraph defines model for TranslatedParagraph.
+type TranslatedParagraph struct {
+	// ApprovedTranslation 확정본이 없으면 null. 읽기 화면은 원문을 대신 보여준다
+	ApprovedTranslation *string `json:"approvedTranslation,omitempty"`
+
+	// ProposalCount 대기 중인 제안 수
+	ProposalCount int    `json:"proposalCount"`
+	SourceText    string `json:"sourceText"`
+	StableId      string `json:"stableId"`
+}
+
+// ProjectId defines model for ProjectId.
+type ProjectId = int64
+
+// StableId defines model for StableId.
+type StableId = string
+
 // RequestBookJSONRequestBody defines body for RequestBook for application/json ContentType.
 type RequestBookJSONRequestBody = BookRequest
+
+// CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
+type CreateProjectJSONRequestBody = ProjectInput
+
+// CreateProposalJSONRequestBody defines body for CreateProposal for application/json ContentType.
+type CreateProposalJSONRequestBody = ProposalInput
+
+// ReviewProposalJSONRequestBody defines body for ReviewProposal for application/json ContentType.
+type ReviewProposalJSONRequestBody = ReviewInput
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// RequestBook 도서 수집 지시
 	// (POST /admin/books)
 	RequestBook(w http.ResponseWriter, r *http.Request)
+	// CreateProject 번역 프로젝트 생성
+	// (POST /admin/projects)
+	CreateProject(w http.ResponseWriter, r *http.Request)
 	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 	// (GET /books/{gutenbergId}/chapters/{idx})
 	GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int)
 	// GetHealthz 서비스와 DB 연결 상태
 	// (GET /healthz)
 	GetHealthz(w http.ResponseWriter, r *http.Request)
+	// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
+	// (GET /projects/{projectId}/chapters/{idx})
+	GetProjectChapter(w http.ResponseWriter, r *http.Request, projectId int64, idx int)
+	// ListProposals 문단의 제안 목록
+	// (GET /projects/{projectId}/paragraphs/{stableId}/proposals)
+	ListProposals(w http.ResponseWriter, r *http.Request, projectId ProjectId, stableId StableId)
+	// CreateProposal 문단 번역 제안
+	// (POST /projects/{projectId}/paragraphs/{stableId}/proposals)
+	CreateProposal(w http.ResponseWriter, r *http.Request, projectId ProjectId, stableId StableId)
+	// ReviewProposal 제안 검수 — 승인 또는 거절
+	// (POST /proposals/{proposalId}/review)
+	ReviewProposal(w http.ResponseWriter, r *http.Request, proposalId int64)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -154,6 +352,12 @@ func (_ Unimplemented) RequestBook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// CreateProject 번역 프로젝트 생성
+// (POST /admin/projects)
+func (_ Unimplemented) CreateProject(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 // (GET /books/{gutenbergId}/chapters/{idx})
 func (_ Unimplemented) GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int) {
@@ -163,6 +367,30 @@ func (_ Unimplemented) GetBookChapter(w http.ResponseWriter, r *http.Request, gu
 // GetHealthz 서비스와 DB 연결 상태
 // (GET /healthz)
 func (_ Unimplemented) GetHealthz(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
+// (GET /projects/{projectId}/chapters/{idx})
+func (_ Unimplemented) GetProjectChapter(w http.ResponseWriter, r *http.Request, projectId int64, idx int) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListProposals 문단의 제안 목록
+// (GET /projects/{projectId}/paragraphs/{stableId}/proposals)
+func (_ Unimplemented) ListProposals(w http.ResponseWriter, r *http.Request, projectId ProjectId, stableId StableId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// CreateProposal 문단 번역 제안
+// (POST /projects/{projectId}/paragraphs/{stableId}/proposals)
+func (_ Unimplemented) CreateProposal(w http.ResponseWriter, r *http.Request, projectId ProjectId, stableId StableId) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ReviewProposal 제안 검수 — 승인 또는 거절
+// (POST /proposals/{proposalId}/review)
+func (_ Unimplemented) ReviewProposal(w http.ResponseWriter, r *http.Request, proposalId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -180,6 +408,20 @@ func (siw *ServerInterfaceWrapper) RequestBook(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.RequestBook(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateProject operation middleware
+func (siw *ServerInterfaceWrapper) CreateProject(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateProject(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -229,6 +471,137 @@ func (siw *ServerInterfaceWrapper) GetHealthz(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetHealthz(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetProjectChapter operation middleware
+func (siw *ServerInterfaceWrapper) GetProjectChapter(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "idx" -------------
+	var idx int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "idx", chi.URLParam(r, "idx"), &idx, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "idx", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProjectChapter(w, r, projectId, idx)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListProposals operation middleware
+func (siw *ServerInterfaceWrapper) ListProposals(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "stableId" -------------
+	var stableId StableId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "stableId", chi.URLParam(r, "stableId"), &stableId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "stableId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProposals(w, r, projectId, stableId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// CreateProposal operation middleware
+func (siw *ServerInterfaceWrapper) CreateProposal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "stableId" -------------
+	var stableId StableId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "stableId", chi.URLParam(r, "stableId"), &stableId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "stableId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateProposal(w, r, projectId, stableId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ReviewProposal operation middleware
+func (siw *ServerInterfaceWrapper) ReviewProposal(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "proposalId" -------------
+	var proposalId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "proposalId", chi.URLParam(r, "proposalId"), &proposalId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "proposalId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ReviewProposal(w, r, proposalId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -360,6 +733,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/books", wrapper.RequestBook)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/chapters/{idx}", wrapper.GetProjectChapter)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/paragraphs/{stableId}/proposals", wrapper.ListProposals)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/projects/{projectId}/paragraphs/{stableId}/proposals", wrapper.CreateProposal)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/proposals/{proposalId}/review", wrapper.ReviewProposal)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/projects", wrapper.CreateProject)
+	})
 
 	return r
 }
@@ -410,6 +798,56 @@ func (response RequestBook409JSONResponse) VisitRequestBookResponse(w http.Respo
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateProjectRequestObject struct {
+	Body *CreateProjectJSONRequestBody
+}
+
+type CreateProjectResponseObject interface {
+	VisitCreateProjectResponse(w http.ResponseWriter) error
+}
+
+type CreateProject201JSONResponse Project
+
+func (response CreateProject201JSONResponse) VisitCreateProjectResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateProject401JSONResponse Error
+
+func (response CreateProject401JSONResponse) VisitCreateProjectResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateProject404JSONResponse Error
+
+func (response CreateProject404JSONResponse) VisitCreateProjectResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -472,17 +910,223 @@ func (response GetHealthz200JSONResponse) VisitGetHealthzResponse(w http.Respons
 	return err
 }
 
+type GetProjectChapterRequestObject struct {
+	ProjectId int64 `json:"projectId"`
+	Idx       int   `json:"idx"`
+}
+
+type GetProjectChapterResponseObject interface {
+	VisitGetProjectChapterResponse(w http.ResponseWriter) error
+}
+
+type GetProjectChapter200JSONResponse ProjectChapterView
+
+func (response GetProjectChapter200JSONResponse) VisitGetProjectChapterResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetProjectChapter404JSONResponse Error
+
+func (response GetProjectChapter404JSONResponse) VisitGetProjectChapterResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListProposalsRequestObject struct {
+	ProjectId ProjectId `json:"projectId"`
+	StableId  StableId  `json:"stableId"`
+}
+
+type ListProposalsResponseObject interface {
+	VisitListProposalsResponse(w http.ResponseWriter) error
+}
+
+type ListProposals200JSONResponse []Proposal
+
+func (response ListProposals200JSONResponse) VisitListProposalsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateProposalRequestObject struct {
+	ProjectId ProjectId `json:"projectId"`
+	StableId  StableId  `json:"stableId"`
+	Body      *CreateProposalJSONRequestBody
+}
+
+type CreateProposalResponseObject interface {
+	VisitCreateProposalResponse(w http.ResponseWriter) error
+}
+
+type CreateProposal201JSONResponse Proposal
+
+func (response CreateProposal201JSONResponse) VisitCreateProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateProposal401JSONResponse Error
+
+func (response CreateProposal401JSONResponse) VisitCreateProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type CreateProposal409JSONResponse Error
+
+func (response CreateProposal409JSONResponse) VisitCreateProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReviewProposalRequestObject struct {
+	ProposalId int64 `json:"proposalId"`
+	Body       *ReviewProposalJSONRequestBody
+}
+
+type ReviewProposalResponseObject interface {
+	VisitReviewProposalResponse(w http.ResponseWriter) error
+}
+
+type ReviewProposal200JSONResponse ReviewResult
+
+func (response ReviewProposal200JSONResponse) VisitReviewProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReviewProposal401JSONResponse Error
+
+func (response ReviewProposal401JSONResponse) VisitReviewProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReviewProposal403JSONResponse Error
+
+func (response ReviewProposal403JSONResponse) VisitReviewProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReviewProposal404JSONResponse Error
+
+func (response ReviewProposal404JSONResponse) VisitReviewProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ReviewProposal409JSONResponse Error
+
+func (response ReviewProposal409JSONResponse) VisitReviewProposalResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// RequestBook 도서 수집 지시
 	// (POST /admin/books)
 	RequestBook(ctx context.Context, request RequestBookRequestObject) (RequestBookResponseObject, error)
+	// CreateProject 번역 프로젝트 생성
+	// (POST /admin/projects)
+	CreateProject(ctx context.Context, request CreateProjectRequestObject) (CreateProjectResponseObject, error)
 	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 	// (GET /books/{gutenbergId}/chapters/{idx})
 	GetBookChapter(ctx context.Context, request GetBookChapterRequestObject) (GetBookChapterResponseObject, error)
 	// GetHealthz 서비스와 DB 연결 상태
 	// (GET /healthz)
 	GetHealthz(ctx context.Context, request GetHealthzRequestObject) (GetHealthzResponseObject, error)
+	// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
+	// (GET /projects/{projectId}/chapters/{idx})
+	GetProjectChapter(ctx context.Context, request GetProjectChapterRequestObject) (GetProjectChapterResponseObject, error)
+	// ListProposals 문단의 제안 목록
+	// (GET /projects/{projectId}/paragraphs/{stableId}/proposals)
+	ListProposals(ctx context.Context, request ListProposalsRequestObject) (ListProposalsResponseObject, error)
+	// CreateProposal 문단 번역 제안
+	// (POST /projects/{projectId}/paragraphs/{stableId}/proposals)
+	CreateProposal(ctx context.Context, request CreateProposalRequestObject) (CreateProposalResponseObject, error)
+	// ReviewProposal 제안 검수 — 승인 또는 거절
+	// (POST /proposals/{proposalId}/review)
+	ReviewProposal(ctx context.Context, request ReviewProposalRequestObject) (ReviewProposalResponseObject, error)
 }
 
 type StrictHandlerFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error)
@@ -555,6 +1199,37 @@ func (sh *strictHandler) RequestBook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CreateProject operation middleware
+func (sh *strictHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
+	var request CreateProjectRequestObject
+
+	var body CreateProjectJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateProject(ctx, request.(CreateProjectRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateProject")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateProjectResponseObject); ok {
+		if err := validResponse.VisitCreateProjectResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetBookChapter operation middleware
 func (sh *strictHandler) GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int) {
 	var request GetBookChapterRequestObject
@@ -599,6 +1274,127 @@ func (sh *strictHandler) GetHealthz(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetHealthzResponseObject); ok {
 		if err := validResponse.VisitGetHealthzResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// GetProjectChapter operation middleware
+func (sh *strictHandler) GetProjectChapter(w http.ResponseWriter, r *http.Request, projectId int64, idx int) {
+	var request GetProjectChapterRequestObject
+
+	request.ProjectId = projectId
+	request.Idx = idx
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetProjectChapter(ctx, request.(GetProjectChapterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetProjectChapter")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetProjectChapterResponseObject); ok {
+		if err := validResponse.VisitGetProjectChapterResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListProposals operation middleware
+func (sh *strictHandler) ListProposals(w http.ResponseWriter, r *http.Request, projectId ProjectId, stableId StableId) {
+	var request ListProposalsRequestObject
+
+	request.ProjectId = projectId
+	request.StableId = stableId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListProposals(ctx, request.(ListProposalsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListProposals")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListProposalsResponseObject); ok {
+		if err := validResponse.VisitListProposalsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CreateProposal operation middleware
+func (sh *strictHandler) CreateProposal(w http.ResponseWriter, r *http.Request, projectId ProjectId, stableId StableId) {
+	var request CreateProposalRequestObject
+
+	request.ProjectId = projectId
+	request.StableId = stableId
+
+	var body CreateProposalJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.CreateProposal(ctx, request.(CreateProposalRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CreateProposal")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(CreateProposalResponseObject); ok {
+		if err := validResponse.VisitCreateProposalResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReviewProposal operation middleware
+func (sh *strictHandler) ReviewProposal(w http.ResponseWriter, r *http.Request, proposalId int64) {
+	var request ReviewProposalRequestObject
+
+	request.ProposalId = proposalId
+
+	var body ReviewProposalJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ReviewProposal(ctx, request.(ReviewProposalRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReviewProposal")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ReviewProposalResponseObject); ok {
+		if err := validResponse.VisitReviewProposalResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

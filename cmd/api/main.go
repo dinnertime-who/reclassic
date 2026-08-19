@@ -17,6 +17,7 @@ import (
 	"github.com/dinnertime/reclassic/internal/config"
 	"github.com/dinnertime/reclassic/internal/db"
 	"github.com/dinnertime/reclassic/internal/jobs"
+	"github.com/dinnertime/reclassic/internal/translate"
 )
 
 // version은 빌드 시 -ldflags로 주입한다. 개발 중에는 dev.
@@ -75,6 +76,7 @@ func run(log *slog.Logger) error {
 			DB:         pool,
 			Reader:     book.NewReader(pool),
 			Requester:  book.NewRequester(pool, jobs.NewEnqueuer(riverClient)),
+			Translate:  translate.NewService(pool),
 			AdminToken: adminToken,
 			Version:    version,
 			Log:        log,

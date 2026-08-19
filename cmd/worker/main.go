@@ -18,6 +18,7 @@ import (
 	"github.com/dinnertime/reclassic/internal/gutenberg"
 	"github.com/dinnertime/reclassic/internal/jobs"
 	"github.com/dinnertime/reclassic/internal/storage"
+	"github.com/dinnertime/reclassic/internal/translate"
 )
 
 var version = "dev"
@@ -71,9 +72,17 @@ func run(log *slog.Logger) error {
 		}
 	}
 
+	// 사이트맵의 공개 URL. 로컬에서는 웹 개발 서버 주소다.
+	publicBaseURL, err := config.Require("PUBLIC_BASE_URL")
+	if err != nil {
+		return err
+	}
+
 	client, err := jobs.NewWorkerClient(pool, jobs.Workers{
 		Fetch: jobs.NewFetchSourceWorker(gutenberg.NewClient(userAgent, interval), store, log),
 		Parse: jobs.NewParseBookWorker(store, book.NewIngester(pool, log), log),
+		Sitemap: jobs.NewSitemapWorker(translate.NewService(pool), store,
+			publicBaseURL, translate.DefaultIndexThreshold, log),
 	}, parseConcurrency(), log)
 	if err != nil {
 		return err
