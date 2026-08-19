@@ -243,5 +243,4 @@ GET /books/{gutenbergId}/chapters/{idx}
 | 수집 자동화 (River + R2 + FetchSource) | `internal/book/ingest.go`를 잡 핸들러가 호출 |
 | 번역 (테이블 4개 + 제안·검수 화면 + 승계 실행) | §4.4 승계율 숫자를 보고 설계. 여기서 SEO 값어치가 나온다 |
 | 도서 목록·검색 화면, 인증 | |
-| ADR-015 (희곡 지원 범위) | 제품 결정 |
 | 파서 잔여 3건 | 76 목차 제외, 중간 삽입 경고, `alt` 2글자 복원 |
