@@ -8,10 +8,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './chapter.ts';
-export * from './chapterView.ts';
-export * from './error.ts';
-export * from './health.ts';
-export * from './healthDb.ts';
-export * from './healthStatus.ts';
-export * from './paragraph.ts';
+export interface Paragraph {
+  /** 번역이 붙는 키 (ADR-004/016). paragraphs.id가 아니다 */
+  stableId: string;
+  sourceText: string;
+}

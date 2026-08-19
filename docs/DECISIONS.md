@@ -566,3 +566,29 @@ Makefile은 `go tool sqlc` / `go tool oapi-codegen`으로 부른다.
 - `go.mod`의 indirect 블록이 커진다. **런타임 의존성은 늘지 않는다** —
   tool 디렉티브의 패키지는 `cmd/api`·`cmd/worker` 바이너리에 들어가지 않는다.
 - 도구 버전을 올릴 때는 `go get -tool <path>@<version>` 뒤에 `make generate`로 diff를 확인한다.
+
+---
+
+## ADR-021 — `oapi-codegen/runtime`은 생성 코드가 강제하는 런타임 의존성이다
+**상태:** Accepted (2026-08-19). ADR-009의 귀결이며 새 선택이 아니다.
+
+**맥락:** 읽기 경로 슬라이스에서 첫 경로 파라미터 엔드포인트
+(`GET /books/{gutenbergId}/chapters/{idx}`)가 생겼다. oapi-codegen이 생성한 chi 바인딩이
+`runtime.BindStyledParameterWithOptions`를 부르므로 `github.com/oapi-codegen/runtime`이
+`go.mod`에 들어간다. 헬스체크 하나뿐일 때는 파라미터가 없어 드러나지 않았다.
+
+슬라이스 명세는 "의존성을 새로 추가하지 않는다. 필요하면 `Proposed` ADR로 남기고 확인할 것"이라고
+적었다. 그래서 남긴다 — ADR-012(`x/text`)와 같은 성격의 기록이다.
+
+**결정:** 추가한다. 선택지가 없다.
+
+- oapi-codegen에는 이 런타임을 쓰지 않는 생성 모드가 없다. 경로·쿼리 파라미터 바인딩이
+  전부 이 패키지를 거친다.
+- 손으로 파라미터를 파싱하면 **생성 코드를 손으로 고치지 말라**는 규약(작업 규칙 4)을 어긴다.
+- 라우터를 바꿔도(chi → 표준 `ServeMux`) 이 의존성은 남는다. 라우터가 아니라 생성기에 딸린 것이다.
+
+**결과:**
+
+- 런타임 직접 의존성이 여섯이 된다: goquery / x/text / pgx / goose / chi / oapi-codegen-runtime.
+- ADR-009를 뒤집지 않는 한 제거할 수 없다. 스펙 우선을 포기하면 사라지지만 그럴 이유가 없다.
+- 앞으로 파라미터가 있는 엔드포인트를 추가할 때 이 항목을 다시 열 필요는 없다.

@@ -8,10 +8,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './chapter.ts';
-export * from './chapterView.ts';
-export * from './error.ts';
-export * from './health.ts';
-export * from './healthDb.ts';
-export * from './healthStatus.ts';
-export * from './paragraph.ts';
+export interface Chapter {
+  idx: number;
+  /** 비어 있을 수 있다. 파서가 제목을 못 찾거나 후처리로 비운 경우다 */
+  title: string;
+}

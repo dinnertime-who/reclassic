@@ -7,6 +7,8 @@ package gen
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countBooks = `-- name: CountBooks :one
@@ -25,7 +27,7 @@ const getBookByGutenbergID = `-- name: GetBookByGutenbergID :one
 SELECT id, gutenberg_id, title, author, language, status, created_at, updated_at FROM books WHERE gutenberg_id = $1
 `
 
-// 골격 슬라이스의 최소 쿼리. 적재 쿼리는 SLICE_READ_PATH.md에서 추가한다.
+// 도서와 원본 스냅샷.
 func (q *Queries) GetBookByGutenbergID(ctx context.Context, gutenbergID int32) (Book, error) {
 	row := q.db.QueryRow(ctx, getBookByGutenbergID, gutenbergID)
 	var i Book
@@ -38,6 +40,89 @@ func (q *Queries) GetBookByGutenbergID(ctx context.Context, gutenbergID int32) (
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const setBookStatus = `-- name: SetBookStatus :exec
+UPDATE books SET status = $2, updated_at = now() WHERE id = $1
+`
+
+type SetBookStatusParams struct {
+	ID     int64
+	Status string
+}
+
+func (q *Queries) SetBookStatus(ctx context.Context, arg SetBookStatusParams) error {
+	_, err := q.db.Exec(ctx, setBookStatus, arg.ID, arg.Status)
+	return err
+}
+
+const upsertBook = `-- name: UpsertBook :one
+INSERT INTO books (gutenberg_id, title, author, language, status)
+VALUES ($1, $2, $3, $4, 'pending')
+ON CONFLICT (gutenberg_id) DO UPDATE
+   SET title      = EXCLUDED.title,
+       author     = COALESCE(EXCLUDED.author, books.author),
+       language   = EXCLUDED.language,
+       updated_at = now()
+RETURNING id, gutenberg_id, title, author, language, status, created_at, updated_at
+`
+
+type UpsertBookParams struct {
+	GutenbergID int32
+	Title       string
+	Author      pgtype.Text
+	Language    string
+}
+
+// 적재는 멱등이어야 하므로 upsert다.
+// status는 갱신하지 않는다 — 게이트 판정 결과로 뒤에서 따로 정한다.
+func (q *Queries) UpsertBook(ctx context.Context, arg UpsertBookParams) (Book, error) {
+	row := q.db.QueryRow(ctx, upsertBook,
+		arg.GutenbergID,
+		arg.Title,
+		arg.Author,
+		arg.Language,
+	)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.GutenbergID,
+		&i.Title,
+		&i.Author,
+		&i.Language,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const upsertBookSource = `-- name: UpsertBookSource :one
+INSERT INTO book_sources (book_id, s3_key, content_hash)
+VALUES ($1, $2, $3)
+ON CONFLICT (book_id, content_hash) DO UPDATE
+   SET s3_key = COALESCE(EXCLUDED.s3_key, book_sources.s3_key)
+RETURNING id, book_id, s3_key, content_hash, fetched_at
+`
+
+type UpsertBookSourceParams struct {
+	BookID      int64
+	S3Key       pgtype.Text
+	ContentHash string
+}
+
+// 같은 원문을 두 번 저장하지 않는다. content_hash가 같으면 기존 행을 돌려준다.
+func (q *Queries) UpsertBookSource(ctx context.Context, arg UpsertBookSourceParams) (BookSource, error) {
+	row := q.db.QueryRow(ctx, upsertBookSource, arg.BookID, arg.S3Key, arg.ContentHash)
+	var i BookSource
+	err := row.Scan(
+		&i.ID,
+		&i.BookID,
+		&i.S3Key,
+		&i.ContentHash,
+		&i.FetchedAt,
 	)
 	return i, err
 }

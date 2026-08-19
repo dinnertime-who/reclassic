@@ -4,6 +4,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/dinnertime/reclassic/internal/api/gen"
+	"github.com/dinnertime/reclassic/internal/book"
 )
 
 // Pinger는 헬스체크가 DB에 대해 알아야 하는 전부다.
@@ -20,15 +22,21 @@ type Pinger interface {
 	Ping(ctx context.Context) error
 }
 
+// ChapterReader는 읽기 핸들러가 도메인에 대해 알아야 하는 전부다.
+type ChapterReader interface {
+	Chapter(ctx context.Context, gutenbergID, idx int) (*book.ChapterView, error)
+}
+
 // Server는 생성된 StrictServerInterface를 구현한다.
 type Server struct {
 	db      Pinger
+	reader  ChapterReader
 	version string
 	log     *slog.Logger
 }
 
-func NewServer(database Pinger, version string, log *slog.Logger) *Server {
-	return &Server{db: database, version: version, log: log}
+func NewServer(database Pinger, reader ChapterReader, version string, log *slog.Logger) *Server {
+	return &Server{db: database, reader: reader, version: version, log: log}
 }
 
 // GetHealthz는 실제 Ping 결과를 돌려준다.
@@ -45,6 +53,32 @@ func (s *Server) GetHealthz(ctx context.Context, _ gen.GetHealthzRequestObject) 
 		Status:  gen.HealthStatusOk,
 		Db:      dbState,
 		Version: s.version,
+	}, nil
+}
+
+// GetBookChapter는 활성 revision의 챕터 하나를 돌려준다.
+// 활성 revision이 없으면 404다 — 게이트에 걸린 책은 읽기에 노출되지 않는다.
+func (s *Server) GetBookChapter(ctx context.Context, req gen.GetBookChapterRequestObject) (gen.GetBookChapterResponseObject, error) {
+	view, err := s.reader.Chapter(ctx, req.GutenbergId, req.Idx)
+	if err != nil {
+		if errors.Is(err, book.ErrNotFound) {
+			return gen.GetBookChapter404JSONResponse{Message: "그 챕터를 찾을 수 없다"}, nil
+		}
+		return nil, err
+	}
+
+	paragraphs := make([]gen.Paragraph, 0, len(view.Paragraphs))
+	for _, p := range view.Paragraphs {
+		paragraphs = append(paragraphs, gen.Paragraph{
+			StableId:   p.StableID,
+			SourceText: p.SourceText,
+		})
+	}
+
+	return gen.GetBookChapter200JSONResponse{
+		Chapter:       gen.Chapter{Idx: view.Idx, Title: view.Title},
+		Paragraphs:    paragraphs,
+		TotalChapters: view.TotalChapters,
 	}, nil
 }
 

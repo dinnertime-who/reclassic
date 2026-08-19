@@ -222,17 +222,17 @@ GET /books/{gutenbergId}/chapters/{idx}
 
 ## 6. 완료 조건
 
-- [ ] `make ingest`가 22권을 적재하고, DB에서 읽은 챕터·문단 수가 `golden/*.json`과 일치한다
-- [ ] 같은 명령을 두 번 돌려도 revision이 중복 생성되지 않는다 (멱등)
-- [ ] 100번(셰익스피어)이 ADR-014 게이트에 걸려 `needs_review` + `is_active=false`이고,
+- [x] `make ingest`가 22권을 적재하고, DB에서 읽은 챕터·문단 수가 `golden/*.json`과 일치한다
+- [x] 같은 명령을 두 번 돌려도 revision이 중복 생성되지 않는다 (멱등)
+- [x] 100번(셰익스피어)이 ADR-014 게이트에 걸려 `needs_review` + `is_active=false`이고,
       그 책의 챕터 조회가 **404**를 준다
-- [ ] 책당 활성 revision이 최대 하나임을 DB 제약이 강제한다 (중복 삽입 시도가 실패한다)
-- [ ] `make succession`이 22권 승계율을 출력하고, 파서 미변경 상태에서 **100%**가 나온다
-- [ ] **`curl`로 받은 읽기 화면 HTML에 문단 본문이 들어 있다** (자바스크립트 없이 = SSR)
-- [ ] **그 HTML에 `noindex` 메타가 있다** (ADR-007)
-- [ ] `DATABASE_URL` 없이 `make test`가 통과한다
-- [ ] `AGENTS.md` 명령어 표에 새 명령이 추가됐다
-- [ ] `make lint && make test` 통과
+- [x] 책당 활성 revision이 최대 하나임을 DB 제약이 강제한다 (중복 삽입 시도가 실패한다)
+- [x] `make succession`이 22권 승계율을 출력하고, 파서 미변경 상태에서 **100%**가 나온다
+- [x] **`curl`로 받은 읽기 화면 HTML에 문단 본문이 들어 있다** (자바스크립트 없이 = SSR)
+- [x] **그 HTML에 `noindex` 메타가 있다** (ADR-007)
+- [x] `DATABASE_URL` 없이 `make test`가 통과한다
+- [x] `AGENTS.md` 명령어 표에 새 명령이 추가됐다
+- [x] `make lint && make test` 통과
 
 ---
 

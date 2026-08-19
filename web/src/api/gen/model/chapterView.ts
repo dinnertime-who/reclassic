@@ -7,11 +7,12 @@
  *
  * OpenAPI spec version: 0.1.0
  */
+import type { Chapter } from './chapter.ts';
+import type { Paragraph } from './paragraph.ts';
 
-export * from './chapter.ts';
-export * from './chapterView.ts';
-export * from './error.ts';
-export * from './health.ts';
-export * from './healthDb.ts';
-export * from './healthStatus.ts';
-export * from './paragraph.ts';
+export interface ChapterView {
+  chapter: Chapter;
+  paragraphs: Paragraph[];
+  /** 이 revision의 전체 챕터 수. 이전·다음 링크 판단에 쓴다 */
+  totalChapters: number;
+}

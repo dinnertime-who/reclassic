@@ -18,7 +18,7 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/SPIKE_PARSER.md` | 파서 검증 스파이크 명세 (완료) |
 | `docs/PARSER_REPORT.md` | 스파이크 결과와 권고 — 파서 판단의 근거 |
 | `docs/SLICE_SKELETON.md` | 프로젝트 골격 명세 (완료) |
-| `docs/SLICE_READ_PATH.md` | **현재 작업 — 읽기 경로(적재 → API → 화면) 명세** |
+| `docs/SLICE_READ_PATH.md` | 읽기 경로 명세 (완료) |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
@@ -27,23 +27,30 @@ TanStack Start)이 한 저장소에서 맞물려 돌고, `GET /healthz` 하나�
 흐르는 것을 확인했습니다. ADR-009("계약 변경이 양쪽에서 컴파일 에러로 드러난다")와
 ADR-006(SSR)의 전제도 실물로 검증했습니다.
 
-**현재 작업은 `docs/SLICE_READ_PATH.md`입니다 — 읽기 경로(적재 → API → SSR 화면).**
-골격의 빈 테이블에 실제 파서 결과를 흘리고, `stable_id` 승계 매칭률을 처음으로 측정합니다.
+**슬라이스 2(읽기 경로)도 끝났습니다.** 22권이 DB에 적재되고 golden과 수가 일치하며,
+책 한 권이 브라우저에 자바스크립트 없이 뜹니다. 셰익스피어 전집은 ADR-014 게이트에 걸려
+`needs_review`이고 읽기 조회는 404입니다.
+
+**`stable_id` 승계율은 파서 미변경 상태에서 21권 37,125문단 100%입니다.**
+ADR-004가 전제한 "해시 일치 → 자동 승계"가 처음으로 수치로 확인됐습니다.
+파서를 고친 뒤 `make succession`을 돌려 이 수치가 얼마나 떨어지는지 보는 것이 사용법입니다.
+
+**현재 작업은 슬라이스 3 — 수집 자동화(River + R2)입니다.**
 
 계획된 순서:
 
 | | 슬라이스 | 명세 |
 |---|---|---|
 | 1 | 골격 (walking skeleton) | `docs/SLICE_SKELETON.md` — **완료** |
-| 2 | 읽기 경로 — 적재 → API → SSR 화면 | `docs/SLICE_READ_PATH.md` ← **지금** |
-| 3 | 수집 자동화 (River + R2) | 미작성 |
+| 2 | 읽기 경로 — 적재 → API → SSR 화면 | `docs/SLICE_READ_PATH.md` — **완료** |
+| 3 | 수집 자동화 (River + R2) | 미작성 ← **지금** |
 | 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | 미작성 |
 
 슬라이스 2에서 책이 브라우저에 뜨지만 **원문 전용 페이지라 `noindex`입니다**(ADR-007).
 색인 대상이 되는 것은 번역 페이지이고 그건 슬라이스 4입니다.
 
 파서 쪽(ADR-013·016)은 구현·검증이 끝났습니다 (`internal/parse/postprocess.go`).
-ADR-014(합본 크기 판정 → 관리자 큐)는 슬라이스 2의 적재 게이트에서 처리합니다.
+ADR-014(합본 크기 판정 → 관리자 큐)는 `internal/book/gate.go`에 구현돼 있습니다.
 ADR-015에 따라 **희곡은 초기 지원 범위에서 제외**합니다. 코드 게이트가 아니라
 도서 선정 단계의 운영 정책이므로, 파서나 적재 코드에 장르 판별을 넣지 마세요.
 
@@ -84,6 +91,8 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 워커 실행 | `make run-worker` |
 | 웹 개발 서버 실행 (:3000, SSR) | `make run-web` |
 | `web/` 의존성 설치 | `make web-install` |
+| 파서 결과 적재 (멱등) | `make ingest` (한 권만: `make ingest ONLY=1342`) |
+| `stable_id` 승계율 측정 | `make succession` |
 | 검증용 도서 내려받기 | `make fetch-corpus` |
 | 파서 검증 리포트 | `make parsecheck` |
 | golden 스냅샷 비교 | `make golden` |

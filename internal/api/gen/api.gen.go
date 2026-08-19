@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/oapi-codegen/runtime"
 )
 
 // Defines values for HealthDb.
@@ -46,6 +47,28 @@ func (e HealthStatus) Valid() bool {
 	}
 }
 
+// Chapter defines model for Chapter.
+type Chapter struct {
+	Idx int `json:"idx"`
+
+	// Title 비어 있을 수 있다. 파서가 제목을 못 찾거나 후처리로 비운 경우다
+	Title string `json:"title"`
+}
+
+// ChapterView defines model for ChapterView.
+type ChapterView struct {
+	Chapter    Chapter     `json:"chapter"`
+	Paragraphs []Paragraph `json:"paragraphs"`
+
+	// TotalChapters 이 revision의 전체 챕터 수. 이전·다음 링크 판단에 쓴다
+	TotalChapters int `json:"totalChapters"`
+}
+
+// Error defines model for Error.
+type Error struct {
+	Message string `json:"message"`
+}
+
 // Health defines model for Health.
 type Health struct {
 	// Db Postgres Ping 결과
@@ -64,8 +87,19 @@ type HealthDb string
 // HealthStatus 프로세스가 살아 있으면 항상 ok
 type HealthStatus string
 
+// Paragraph defines model for Paragraph.
+type Paragraph struct {
+	SourceText string `json:"sourceText"`
+
+	// StableId 번역이 붙는 키 (ADR-004/016). paragraphs.id가 아니다
+	StableId string `json:"stableId"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
+	// (GET /books/{gutenbergId}/chapters/{idx})
+	GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int)
 	// GetHealthz 서비스와 DB 연결 상태
 	// (GET /healthz)
 	GetHealthz(w http.ResponseWriter, r *http.Request)
@@ -74,6 +108,12 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
+// (GET /books/{gutenbergId}/chapters/{idx})
+func (_ Unimplemented) GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // GetHealthz 서비스와 DB 연결 상태
 // (GET /healthz)
@@ -89,6 +129,41 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// GetBookChapter operation middleware
+func (siw *ServerInterfaceWrapper) GetBookChapter(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "gutenbergId" -------------
+	var gutenbergId int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "gutenbergId", chi.URLParam(r, "gutenbergId"), &gutenbergId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "gutenbergId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "idx" -------------
+	var idx int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "idx", chi.URLParam(r, "idx"), &idx, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "idx", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBookChapter(w, r, gutenbergId, idx)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
 
 // GetHealthz operation middleware
 func (siw *ServerInterfaceWrapper) GetHealthz(w http.ResponseWriter, r *http.Request) {
@@ -220,8 +295,48 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/healthz", wrapper.GetHealthz)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/books/{gutenbergId}/chapters/{idx}", wrapper.GetBookChapter)
+	})
 
 	return r
+}
+
+type GetBookChapterRequestObject struct {
+	GutenbergId int `json:"gutenbergId"`
+	Idx         int `json:"idx"`
+}
+
+type GetBookChapterResponseObject interface {
+	VisitGetBookChapterResponse(w http.ResponseWriter) error
+}
+
+type GetBookChapter200JSONResponse ChapterView
+
+func (response GetBookChapter200JSONResponse) VisitGetBookChapterResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type GetBookChapter404JSONResponse Error
+
+func (response GetBookChapter404JSONResponse) VisitGetBookChapterResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
 }
 
 type GetHealthzRequestObject struct {
@@ -247,6 +362,9 @@ func (response GetHealthz200JSONResponse) VisitGetHealthzResponse(w http.Respons
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
+	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
+	// (GET /books/{gutenbergId}/chapters/{idx})
+	GetBookChapter(ctx context.Context, request GetBookChapterRequestObject) (GetBookChapterResponseObject, error)
 	// GetHealthz 서비스와 DB 연결 상태
 	// (GET /healthz)
 	GetHealthz(ctx context.Context, request GetHealthzRequestObject) (GetHealthzResponseObject, error)
@@ -289,6 +407,33 @@ type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
 	options     StrictHTTPServerOptions
+}
+
+// GetBookChapter operation middleware
+func (sh *strictHandler) GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int) {
+	var request GetBookChapterRequestObject
+
+	request.GutenbergId = gutenbergId
+	request.Idx = idx
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.GetBookChapter(ctx, request.(GetBookChapterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetBookChapter")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(GetBookChapterResponseObject); ok {
+		if err := validResponse.VisitGetBookChapterResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // GetHealthz operation middleware

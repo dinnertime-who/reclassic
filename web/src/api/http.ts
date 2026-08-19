@@ -4,6 +4,17 @@
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 
+// 상태 코드를 들고 다니는 에러. 라우트가 404와 그 밖의 실패를 구분해야 한다.
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
 // 본문이 없는 응답. JSON.parse를 시도하면 깨진다.
 const NO_BODY_STATUS = new Set([204, 205, 304])
 
@@ -55,7 +66,7 @@ export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     // 실패를 조용히 삼키지 않는다. 라우트 로더가 에러 경계로 올린다.
-    throw new Error(`${init?.method ?? 'GET'} ${url} → ${response.status}`)
+    throw new ApiError(response.status, `${init?.method ?? 'GET'} ${url} → ${response.status}`)
   }
 
   return { data, status: response.status, headers: response.headers } as T

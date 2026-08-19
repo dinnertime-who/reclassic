@@ -117,6 +117,16 @@ web-install: ## web/ 의존성 설치 (없을 때만)
 	$(call need,$(PNPM),corepack enable)
 	@test -d $(WEB)/node_modules || { cd $(WEB) && $(PNPM) install --frozen-lockfile; }
 
+.PHONY: ingest
+ingest: ## 캐시된 원문을 파싱해 DB에 적재 (멱등). ONLY=1342 로 한 권만
+	$(call need,$(GO),brew install go)
+	$(GO) run ./cmd/ingest run -corpus=$(CORPUS) -cache=$(CACHE) $(if $(ONLY),-only=$(ONLY))
+
+.PHONY: succession
+succession: ## stable_id 승계 매칭률 측정 (읽기 전용). ONLY=1342 로 한 권만
+	$(call need,$(GO),brew install go)
+	$(GO) run ./cmd/ingest succession -corpus=$(CORPUS) -cache=$(CACHE) $(if $(ONLY),-only=$(ONLY))
+
 .PHONY: fetch-corpus
 fetch-corpus: ## 검증용 Gutenberg 도서를 .cache/ 로 내려받기 (커밋 안 함)
 	$(call need,$(GO),brew install go)

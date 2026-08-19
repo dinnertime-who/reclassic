@@ -21,7 +21,7 @@ make help     # 사용 가능한 명령
 | [`docs/SPIKE_PARSER.md`](docs/SPIKE_PARSER.md) | 파서 검증 스파이크 명세 |
 | [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md) | 파서 검증 결과와 권고 |
 | [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md) | 프로젝트 골격 명세 (완료) |
-| [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 현재 작업 — 읽기 경로 명세 |
+| [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 읽기 경로 명세 (완료) |
 
 ## AI 에이전트 지침
 
@@ -49,6 +49,16 @@ make run-api    # :8080
 make run-web    # :3000 (SSR)
 ```
 
-**다음은 읽기 경로다** — [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md).
-골격의 빈 테이블에 파서 결과를 흘리고 `stable_id` 승계 매칭률을 처음 측정한다.
-그다음이 수집 자동화, 번역 순이다.
+**읽기 경로 슬라이스 완료** — [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md).
+22권이 DB에 적재되고 golden과 수가 일치한다. 책 한 권이 자바스크립트 없이 브라우저에 뜬다.
+
+```bash
+make ingest       # 캐시된 22권 적재 (멱등)
+make succession   # stable_id 승계율 측정
+# http://localhost:3000/books/1342/chapters/5
+```
+
+**`stable_id` 승계율은 파서 미변경 상태에서 21권 37,125문단 100%다.**
+ADR-004가 전제한 "해시 일치 → 자동 승계"가 처음으로 수치로 확인됐다.
+
+**다음은 수집 자동화(River + R2)이고, 그다음이 번역이다.**

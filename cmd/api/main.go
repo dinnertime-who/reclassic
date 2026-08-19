@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/dinnertime/reclassic/internal/api"
+	"github.com/dinnertime/reclassic/internal/book"
 	"github.com/dinnertime/reclassic/internal/config"
 	"github.com/dinnertime/reclassic/internal/db"
 )
@@ -57,7 +58,7 @@ func run(log *slog.Logger) error {
 		// Railway 프라이빗 네트워크는 IPv6 전용이다 (불변식 4).
 		// 0.0.0.0에 바인딩하면 서비스 간 내부 호출을 받지 못한다.
 		Addr:              "[::]:" + port,
-		Handler:           api.NewServer(pool, version, log).Router(),
+		Handler:           api.NewServer(pool, book.NewReader(pool), version, log).Router(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 

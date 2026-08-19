@@ -8,6 +8,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
+  ChapterView,
+  Error,
   Health
 } from './model';
 
@@ -39,6 +41,53 @@ export const getGetHealthzUrl = () => {
 export const getHealthz = async ( options?: Parameters<typeof apiFetch>[1]): Promise<getHealthzResponse> => {
 
   return apiFetch<getHealthzResponse>(getGetHealthzUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getBookChapterResponse200 = {
+  data: ChapterView
+  status: 200
+}
+
+export type getBookChapterResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type getBookChapterResponseSuccess = (getBookChapterResponse200) & {
+  headers: Headers;
+};
+export type getBookChapterResponseError = (getBookChapterResponse404) & {
+  headers: Headers;
+};
+
+export type getBookChapterResponse = (getBookChapterResponseSuccess | getBookChapterResponseError)
+
+export const getGetBookChapterUrl = (gutenbergId: number,
+    idx: number,) => {
+
+
+
+
+  return `/books/${gutenbergId}/chapters/${idx}`
+}
+
+/**
+ * 활성 revision이 없으면(수집 실패, 게이트에 걸려 needs_review인 경우) 404다.
+ * 읽기 화면은 챕터 단위로 자른다 — 책 하나에 문단이 5,000개를 넘길 수 있다.
+ * @summary 활성 revision의 챕터 하나와 그 문단들
+ */
+export const getBookChapter = async (gutenbergId: number,
+    idx: number, options?: Parameters<typeof apiFetch>[1]): Promise<getBookChapterResponse> => {
+
+  return apiFetch<getBookChapterResponse>(getGetBookChapterUrl(gutenbergId,idx),
   {
     ...options,
     method: 'GET'
