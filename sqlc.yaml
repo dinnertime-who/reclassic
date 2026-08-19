@@ -1,0 +1,12 @@
+# sqlc 설정. 스키마는 goose 마이그레이션을 그대로 읽는다 (단일 원본).
+# 산출물(internal/db/gen)은 손으로 고치지 않는다.
+version: "2"
+sql:
+  - engine: postgresql
+    schema: internal/db/migrations
+    queries: internal/db/queries
+    gen:
+      go:
+        package: gen
+        out: internal/db/gen
+        sql_package: pgx/v5

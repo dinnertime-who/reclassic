@@ -17,23 +17,25 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/CONVENTIONS.md` | 코딩 규약 |
 | `docs/SPIKE_PARSER.md` | 파서 검증 스파이크 명세 (완료) |
 | `docs/PARSER_REPORT.md` | 스파이크 결과와 권고 — 파서 판단의 근거 |
-| `docs/SLICE_SKELETON.md` | **현재 작업 — 프로젝트 골격 명세** |
-| `docs/SLICE_READ_PATH.md` | 다음 작업 — 읽기 경로(적재 → API → 화면) 명세 |
+| `docs/SLICE_SKELETON.md` | 프로젝트 골격 명세 (완료) |
+| `docs/SLICE_READ_PATH.md` | **현재 작업 — 읽기 경로(적재 → API → 화면) 명세** |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
-**현재 작업은 `docs/SLICE_SKELETON.md`입니다 — 프로젝트 골격.**
-지금 서 있는 것은 파서뿐입니다. `ARCHITECTURE.md`가 예고한 디렉토리 8개가 없고
-`make generate` / `migrate` / `dev`가 죽어 있습니다. 도구 여섯(goose·sqlc·oapi-codegen·
-orval·docker compose·TanStack Start)이 맞물려 도는지 엔드포인트 하나로 확인하는 슬라이스입니다.
-**기능은 만들지 않습니다. 배선만 합니다.**
+**슬라이스 1(골격)은 끝났습니다.** 도구 여섯(goose·sqlc·oapi-codegen·orval·docker compose·
+TanStack Start)이 한 저장소에서 맞물려 돌고, `GET /healthz` 하나가 Go API → SSR 화면까지
+흐르는 것을 확인했습니다. ADR-009("계약 변경이 양쪽에서 컴파일 에러로 드러난다")와
+ADR-006(SSR)의 전제도 실물로 검증했습니다.
+
+**현재 작업은 `docs/SLICE_READ_PATH.md`입니다 — 읽기 경로(적재 → API → SSR 화면).**
+골격의 빈 테이블에 실제 파서 결과를 흘리고, `stable_id` 승계 매칭률을 처음으로 측정합니다.
 
 계획된 순서:
 
 | | 슬라이스 | 명세 |
 |---|---|---|
-| 1 | 골격 (walking skeleton) | `docs/SLICE_SKELETON.md` ← **지금** |
-| 2 | 읽기 경로 — 적재 → API → SSR 화면 | `docs/SLICE_READ_PATH.md` |
+| 1 | 골격 (walking skeleton) | `docs/SLICE_SKELETON.md` — **완료** |
+| 2 | 읽기 경로 — 적재 → API → SSR 화면 | `docs/SLICE_READ_PATH.md` ← **지금** |
 | 3 | 수집 자동화 (River + R2) | 미작성 |
 | 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | 미작성 |
 
@@ -63,6 +65,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 웹 | TanStack Start | 읽기 화면 SSR, 편집·검수 화면 CSR |
 | 프론트 패키지 | pnpm | Node 패키지는 `web/` 하나. 루트 `package.json` 없음 (ADR-019) |
 | API 계약 | OpenAPI → oapi-codegen(Go) + Orval(TS) | 스펙 우선 |
+| 빌드 타임 도구 | sqlc·oapi-codegen은 `go.mod` tool 디렉티브 | 별도 설치 없음 (ADR-020) |
 | 배포 | Railway | 서비스: api / worker / postgres / web |
 
 ## 명령어 — 이것만 사용하세요
@@ -75,7 +78,12 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 포맷 | `make fmt` |
 | 코드 생성 (sqlc / oapi-codegen / orval) | `make generate` |
 | 마이그레이션 적용 | `make migrate` |
-| 로컬 실행 | `make dev` |
+| 로컬 의존 서비스 기동 (Postgres) | `make dev` |
+| 로컬 의존 서비스 정지 | `make dev-down` |
+| API 서버 실행 (:8080) | `make run-api` |
+| 워커 실행 | `make run-worker` |
+| 웹 개발 서버 실행 (:3000, SSR) | `make run-web` |
+| `web/` 의존성 설치 | `make web-install` |
 | 검증용 도서 내려받기 | `make fetch-corpus` |
 | 파서 검증 리포트 | `make parsecheck` |
 | golden 스냅샷 비교 | `make golden` |

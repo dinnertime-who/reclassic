@@ -1,0 +1,11 @@
+# oapi-codegen 설정. 생성 대상은 chi-server (ADR-018).
+# 산출물은 손으로 고치지 않는다. openapi.yaml을 고치고 다시 생성한다.
+package: gen
+output: internal/api/gen/api.gen.go
+generate:
+  models: true
+  chi-server: true
+  strict-server: true
+  embedded-spec: false
+output-options:
+  skip-fmt: false

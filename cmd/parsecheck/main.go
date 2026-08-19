@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dinnertime/reclassic/internal/config"
 	"github.com/dinnertime/reclassic/internal/gutenberg"
 	"github.com/dinnertime/reclassic/internal/parse"
 )
@@ -16,7 +17,7 @@ func main() {
 		usage()
 		os.Exit(2)
 	}
-	loadDotEnv(".env")
+	config.LoadDotEnv(".env")
 
 	var err error
 	switch os.Args[1] {
@@ -200,63 +201,4 @@ func minInterval() (time.Duration, error) {
 		return 0, fmt.Errorf("GUTENBERG_MIN_INTERVAL_MS=%d — 1000 미만으로 낮추지 말 것", ms)
 	}
 	return time.Duration(ms) * time.Millisecond, nil
-}
-
-func loadDotEnv(path string) {
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		return
-	}
-	for _, line := range splitLines(string(raw)) {
-		if line == "" || line[0] == '#' {
-			continue
-		}
-		k, v, ok := splitKV(line)
-		if !ok {
-			continue
-		}
-		if os.Getenv(k) == "" {
-			_ = os.Setenv(k, v)
-		}
-	}
-}
-
-func splitLines(s string) []string {
-	var out []string
-	start := 0
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\n' {
-			line := trimSpace(s[start:i])
-			if line != "" {
-				out = append(out, line)
-			}
-			start = i + 1
-		}
-	}
-	if start < len(s) {
-		if line := trimSpace(s[start:]); line != "" {
-			out = append(out, line)
-		}
-	}
-	return out
-}
-
-func splitKV(line string) (string, string, bool) {
-	for i := 0; i < len(line); i++ {
-		if line[i] == '=' {
-			return trimSpace(line[:i]), trimSpace(line[i+1:]), true
-		}
-	}
-	return "", "", false
-}
-
-func trimSpace(s string) string {
-	i, j := 0, len(s)
-	for i < j && (s[i] == ' ' || s[i] == '\t' || s[i] == '\r') {
-		i++
-	}
-	for j > i && (s[j-1] == ' ' || s[j-1] == '\t' || s[j-1] == '\r') {
-		j--
-	}
-	return s[i:j]
 }

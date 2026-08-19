@@ -1,0 +1,4 @@
+# pnpm 10은 빌드 스크립트를 기본 차단한다. 필요한 것만 허용한다.
+allowBuilds:
+  esbuild: true
+  lightningcss: true

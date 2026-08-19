@@ -1,0 +1,21 @@
+# 로컬 개발용 Postgres. 프로덕션은 Railway 관리형이다.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: reclassic-postgres
+    environment:
+      POSTGRES_USER: reclassic
+      POSTGRES_PASSWORD: reclassic
+      POSTGRES_DB: reclassic
+    ports:
+      - "5432:5432"
+    volumes:
+      - reclassic-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reclassic -d reclassic"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  reclassic-pgdata:

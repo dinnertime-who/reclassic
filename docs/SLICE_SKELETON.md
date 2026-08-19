@@ -245,19 +245,19 @@ orval은 `web/` 안에서 실행되지만 진입점은 `make generate`다. `cd w
 
 ## 6. 완료 조건
 
-- [ ] `make doctor`가 go·docker·node·**pnpm**·**sqlc**·**oapi-codegen**·golangci-lint를 확인한다
-- [ ] `make dev`로 Postgres가 뜨고 `make migrate`가 5테이블을 만든다
-- [ ] `make generate`가 sqlc · oapi-codegen · orval 산출물을 모두 만든다
-- [ ] `make build`가 `cmd/api`, `cmd/worker`, `cmd/parsecheck` 세 바이너리를 만든다
-- [ ] `cmd/api`가 `[::]`에 바인딩하고 `GET /healthz`가 실제 DB Ping 결과를 돌려준다
-- [ ] `cmd/worker`가 기동하고 SIGTERM에 정상 종료한다
-- [ ] `web/`이 SSR로 `/healthz`를 호출하고, **`curl`로 받은 HTML에 그 값이 들어 있다**
+- [x] `make doctor`가 go·docker·node·**pnpm**·**sqlc**·**oapi-codegen**·golangci-lint를 확인한다
+- [x] `make dev`로 Postgres가 뜨고 `make migrate`가 5테이블을 만든다
+- [x] `make generate`가 sqlc · oapi-codegen · orval 산출물을 모두 만든다
+- [x] `make build`가 `cmd/api`, `cmd/worker`, `cmd/parsecheck` 세 바이너리를 만든다
+- [x] `cmd/api`가 `[::]`에 바인딩하고 `GET /healthz`가 실제 DB Ping 결과를 돌려준다
+- [x] `cmd/worker`가 기동하고 SIGTERM에 정상 종료한다
+- [x] `web/`이 SSR로 `/healthz`를 호출하고, **`curl`로 받은 HTML에 그 값이 들어 있다**
       (자바스크립트 실행 없이 보여야 SSR이다)
-- [ ] **`openapi.yaml`의 응답 필드 하나를 지우면 Go와 TS 양쪽이 컴파일 에러가 난다** (ADR-009 검증)
-- [ ] `DATABASE_URL` 없이 `make test` 통과
-- [ ] `ARCHITECTURE.md`에 `internal/api/`와 §4.3의 스키마 두 변경이 반영됐다
-- [ ] `AGENTS.md` 기술 스택 표에 chi가, 명령어 표에 새 명령이 반영됐다
-- [ ] `make lint && make test` 통과
+- [x] **`openapi.yaml`의 응답 필드 하나를 지우면 Go와 TS 양쪽이 컴파일 에러가 난다** (ADR-009 검증)
+- [x] `DATABASE_URL` 없이 `make test` 통과
+- [x] `ARCHITECTURE.md`에 `internal/api/`와 §4.3의 스키마 두 변경이 반영됐다
+- [x] `AGENTS.md` 기술 스택 표에 chi가, 명령어 표에 새 명령이 반영됐다
+- [x] `make lint && make test` 통과
 
 ---
 

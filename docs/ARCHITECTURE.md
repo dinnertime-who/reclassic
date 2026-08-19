@@ -31,7 +31,10 @@ MSA로 더 쪼개지 않는다. 워커 부하가 커지면 **같은 바이너리
 cmd/api/            HTTP 서버 진입점
 cmd/worker/         잡 컨슈머 진입점
 cmd/parsecheck/     파서 검증 스파이크 실행기
+tools/migrate/      `make migrate` 진입점. 배포되지 않는 개발 도구
 internal/
+  api/              라우터 조립과 핸들러. gen/ 은 oapi-codegen 산출물
+  config/           .env 로딩과 필수 환경변수 확인
   gutenberg/        카탈로그 조회, 원문 fetch (레이트리밋 포함)
   parse/            DOM → 장·문단 추출. 전략 체인
   book/             도서 도메인
@@ -40,9 +43,13 @@ internal/
   db/
     migrations/     순번 SQL. 기존 파일 수정 금지
     queries/        sqlc 입력
+    gen/            sqlc 산출물
 web/                TanStack Start 앱
 openapi.yaml        API 계약 단일 원본
 ```
+
+`cmd/`에는 배포 단위(api·worker)와 스파이크 실행기만 둔다.
+`make build`가 만드는 바이너리는 그 셋뿐이고, 개발 전용 러너는 `tools/`에서 `go run`으로 돈다.
 
 ## 수집 파이프라인
 
@@ -92,10 +99,27 @@ type Extractor interface {
 ```
 books            id, gutenberg_id UNIQUE, title, author, language, status
 book_sources     id, book_id, s3_key, content_hash, fetched_at
-book_revisions   id, book_id, source_id, parser_version, confidence, is_active
-chapters         id, revision_id, idx, title
-paragraphs       id, chapter_id, idx, stable_id, text, html
+                 UNIQUE (book_id, content_hash)
+book_revisions   id, book_id, source_id, parser_version,
+                 strategy, confidence, coverage, warnings, is_active
+                 UNIQUE (book_id, source_id, parser_version)
+                 UNIQUE INDEX (book_id) WHERE is_active   -- 활성 revision은 책당 하나
+chapters         id, revision_id, idx, title, anchor
+                 UNIQUE (revision_id, idx)
+paragraphs       id, revision_id, chapter_id, idx, stable_id, text, html
+                 UNIQUE (chapter_id, idx)
+                 UNIQUE (revision_id, stable_id)          -- ADR-016을 스키마가 강제한다
 ```
+
+확정본은 `internal/db/migrations/00001_books.sql`이다. 위는 요약이다.
+
+두 곳은 초안과 다르다.
+
+- **`paragraphs.revision_id`는 비정규화다.** `chapter_id`만으로는
+  `UNIQUE (revision_id, stable_id)`를 표현할 수 없다. ADR-016이 "한 revision 안에서
+  `stable_id`는 유일"을 보장하는데, 불변식 2의 원칙대로 DB가 강제해야 한다.
+- **`book_revisions`의 `strategy` / `coverage` / `warnings`는 관리자 확인 큐용이다.**
+  "왜 이 책이 걸렸는지"를 저장해 두지 않으면 판단할 때마다 다시 파싱해야 한다.
 
 ### 번역 — 사용자가 만드는 가변 데이터
 
@@ -206,6 +230,10 @@ SSR을 쓰는 이유는 검색 노출이다. 그래서 색인 정책이 프레�
 openapi.yaml ─┬─→ oapi-codegen → Go 서버 인터페이스 + 타입
               └─→ orval        → TS 클라이언트 + react-query 훅
 ```
+
+지금 orval은 **fetch 클라이언트만** 만든다. react-query 훅은 소비할 CSR 화면(편집·검수)이
+생길 때 켠다 — 쓰는 곳 없이 훅과 의존성부터 늘리지 않는다.
+베이스 URL 분기와 SSR 쿠키 전달은 `web/src/api/http.ts` 한 곳에만 있다.
 
 읽기 화면은 챕터 단위로 자르고, 한 요청에 필요한 것을 다 조인해 내려준다.
 책 하나에 문단이 5,000개를 넘길 수 있어 전체를 한 번에 보내면 안 되고,

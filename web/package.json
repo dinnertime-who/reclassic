@@ -1,0 +1,33 @@
+{
+  "name": "reclassic-web",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.28.1",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs",
+    "typecheck": "tsc --noEmit",
+    "generate-api": "orval --config orval.config.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "^1.170.30",
+    "@tanstack/react-start": "^1.168.47",
+    "nitro": "3.0.260610-beta",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tanstack/router-cli": "^1.132.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "orval": "^8.24.0",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.0"
+  }
+}
