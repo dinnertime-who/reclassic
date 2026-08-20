@@ -63,9 +63,10 @@ ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 �
 
 빌드는 Nixpacks가 아니라 Dockerfile이고(ADR-029),
 마이그레이션은 pre-deploy 명령으로 돕니다(ADR-030).
+빌드·배포 설정은 서비스별 `railway.json`에 둡니다 — `.railway/railway.ts`가 아닙니다 (ADR-031).
 
-**사람이 직접 해야 하는 작업은 `SLICE_DEPLOY.md` §5에 모여 있습니다** —
-도메인·R2·Google 프로덕션 클라이언트·Railway 대시보드.
+**Railway 설정은 대부분 `railway` CLI로 합니다** — 명령은 `SLICE_DEPLOY.md` §5에 있습니다.
+**사람이 직접 해야 하는 것은 §6입니다** — 도메인 발급과 DNS 레코드, R2, Google 프로덕션 클라이언트.
 **남은 블로커는 도메인 하나입니다.**
 
 계획된 순서:
@@ -132,6 +133,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 파서 검증 리포트 | `make parsecheck` |
 | golden 스냅샷 비교 | `make golden` |
 | golden 스냅샷 갱신 | `make golden GOLDEN_UPDATE=1` |
+| PR 생성 | `make pr` (또는 `./scripts/gh pr create ...`) |
 
 `go test ./...`나 `npm run ...`을 직접 추론해서 실행하지 마세요.
 **Makefile이 유일한 진입점입니다.** 필요한 명령이 없으면 Makefile에 추가하고 이 표도 같이 갱신하세요.
@@ -169,6 +171,12 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 - **프로덕션에서 `COOKIE_SECURE=true`를 잊지 마세요.** 로컬에서만 false입니다.
 - **CORS 허용 출처에 `*`를 넣지 마세요.** credentials와 함께 쓸 수 없고, 써서도 안 됩니다 (ADR-026).
   LAN·Tailscale로 접속하려면 그 출처를 `CORS_ALLOWED_ORIGINS`에 추가하세요.
+- **시크릿을 `railway.json`에 넣지 마세요.** 커밋되는 파일입니다. 값은 Railway 변수로 갑니다.
+  CLI로 넣을 때는 `--stdin`을 쓰세요 — 인자로 주면 셸 히스토리에 남습니다 (ADR-031).
+- **`gh`를 직접 부르지 마세요. `./scripts/gh`를 쓰세요.** `gh`의 활성 계정은 머신 전역이라
+  다른 저장소를 오가면 바뀌고, 이 저장소의 협업자가 아니면 `must be a collaborator`로 막힙니다.
+  래퍼가 keyring에서 토큰을 꺼내 계정을 고정합니다 — **`gh auth switch`를 쓰지 마세요.**
+  전역 상태를 바꾸고 되돌리는 것을 잊습니다.
 - 시크릿을 커밋하지 마세요. 새 환경변수는 `.env.example`에 이름과 설명만 추가합니다.
 
 ## 열려 있는 질문

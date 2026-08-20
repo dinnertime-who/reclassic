@@ -973,8 +973,12 @@ distroless든 Nixpacks든 같다. 실제로 이 서비스의 메모리를 정하
 3. **이미지 크기와 공격 표면.** Go는 multi-stage + distroless static으로 20~30MB다.
    `web`은 런타임 이미지에서 devDependencies를 뺀다.
 
-**구성:** Go 둘은 코드가 거의 같아 **Dockerfile 하나에 빌드 인자**로 가른다
-(`--build-arg CMD=api|worker`). `web`은 별도다.
+**구성:** Go 둘은 코드가 거의 같아 **Dockerfile 하나**로 낸다. `web`은 별도다.
+
+> **개정 (ADR-031, 2026-08-20):** 원문은 여기서 `--build-arg CMD=api|worker`로 갈랐다.
+> **Railway의 설정 표면에 빌드 인자가 없다.** 그 방법은 못 쓴다.
+> 이미지 하나에 `api`·`worker`·`migrate`를 함께 빌드해 넣고 서비스별 `startCommand`로 가른다.
+> Dockerfile을 쓴다는 결정 자체는 그대로다.
 
 **주의점 둘:**
 
@@ -1027,3 +1031,64 @@ Railway에는 그 자리가 없다 — 서비스를 띄우는 것만 하지
   goose가 멱등이라 사고는 안 나지만 의미 없는 실행이고, 어느 쪽이 먼저인지 헷갈린다.
 - 로컬은 `make migrate` 그대로다. 진입점이 둘로 갈리지만 같은 바이너리를 부른다.
 - River 마이그레이션도 같은 진입점에서 이어 돈다 (ADR-022). 순서가 코드에 있다.
+
+---
+
+## ADR-031 — Railway 설정은 서비스별 `railway.json`에 둔다. 이미지는 하나로 합친다
+**상태:** Accepted (2026-08-20). ADR-029의 "구성" 절을 개정한다. ADR-030은 그대로다.
+
+**맥락:** Railway CLI(5.41.3)를 깔고 실제 설정 표면을 확인했다. 두 가지가 드러났다.
+
+**1. 설정을 코드로 두는 방법이 둘인데, 하나는 이 슬라이스에 필요한 것을 못 담는다.**
+
+| 모델 | 범위 |
+|---|---|
+| `.railway/railway.ts` (TypeScript IaC) | 프로젝트 전체 — 서비스·DB·버킷·볼륨·환경변수·replicas·도메인 |
+| `railway.json` | 서비스 하나의 build·deploy 설정 |
+
+이 슬라이스에 필요한 것은 셋이다 — 서비스별 **`dockerfilePath`**,
+`api`에만 거는 **`preDeployCommand`**(ADR-030), 실측으로 정한 **메모리 상한**(ADR-029).
+**셋 다 `railway.ts` DSL에 없다.** `railway.json` 스키마에는 셋 다 있다
+(`build.dockerfilePath` · `deploy.preDeployCommand` · `deploy.limitOverride.containers.memoryBytes`).
+
+그리고 **두 모델은 같은 서비스를 함께 관리할 수 없다.** 하나를 골라야 한다.
+
+**2. Railway에는 Docker 빌드 인자를 넣을 자리가 없다.**
+`railway.schema.json`의 `build` 섹션은 `builder`·`buildCommand`·`dockerfilePath`·
+`watchPatterns`·`nixpacks*`·`railpackVersion`이 전부다. `args`가 없다.
+**ADR-029가 정한 `--build-arg CMD=api|worker`는 Railway에서 성립하지 않는다.**
+
+**결정 둘:**
+
+1. **설정 모델은 `railway.json`.** 서비스마다 파일을 따로 둔다 —
+   `railway.api.json` · `railway.worker.json` · `railway.web.json`.
+2. **Go 이미지 하나에 `api`·`worker`·`migrate` 셋을 빌드해 넣고,
+   서비스별 `deploy.startCommand`로 가른다.** 빌드 인자를 쓰지 않는다.
+
+**대안과 기각 사유:**
+
+- **`.railway/railway.ts`** — 프로젝트 전체를 한 파일로 기술하고 `plan`/`apply`로
+  드리프트까지 잡는다. 이쪽이 상위 도구다. 그런데 **이 슬라이스가 필요한 설정 셋을 못 담는다.**
+  담을 수 있게 되면 그때 옮긴다. 그전에 쓰면 나머지를 대시보드에 흩어 두게 된다.
+- **설정 파일 없이 CLI로만** (`railway environment edit --service-config <svc> <경로> <값>`) —
+  동작은 확인된 방법이고 실제로 `build.dockerfilePath`·`deploy.startCommand`·
+  `source.rootDirectory`를 점 경로로 넣을 수 있다. 그런데 **그러면 설정이 저장소 밖에만 있다.**
+  이 저장소는 생성기 버전을 `go.mod` tool로 박고(ADR-020) pnpm을 `packageManager`로
+  고정한다(ADR-019). 재현 가능성을 이만큼 챙겨 놓고 빌드·배포 설정만 대시보드에 두는 것은 앞뒤가 안 맞는다.
+- **서비스마다 Dockerfile을 따로** — 빌드 인자 없이도 가를 수 있지만 Go 빌드 단계가 복제된다.
+  **ADR-030이 이미 한 이미지에 바이너리 둘을 넣기로 했다.** 셋으로 느는 것은 그 연장이지 새 방향이 아니다.
+
+**결과:**
+
+- **런타임 이미지에 바이너리 셋.** distroless static이라 10MB 안팎 차이다.
+  `api`는 `/api`, `worker`는 `/worker`, pre-deploy는 `/migrate`를 부른다.
+- **`preDeployCommand`는 문자열 하나 또는 원소 하나짜리 배열이다** (스키마 `maxItems: 1`).
+  명령을 여럿 엮을 수 없다. `tools/migrate`가 goose와 River를 이어 도는 이유가 여기서도 산다 (ADR-022).
+- **시크릿을 `railway.json`에 넣지 않는다.** 이 파일은 커밋된다. 값은 Railway 변수로 간다.
+- **미확인 둘.** 정직하게 남긴다.
+  - **서비스별 설정 파일 경로 지정.** Railway 서비스 설정 항목이다.
+    CLI 점 경로 목록에 없다 — 대시보드에서 서비스당 한 번 지정해야 할 수 있다.
+  - **`deploy.limitOverride`.** JSON 스키마에는 있는데 Railway 공개 문서에는 없고
+    CLI 점 경로 목록에도 없다. 안 먹으면 메모리는 대시보드로 간다.
+
+  둘 다 서비스당 한 번뿐이라 막히지 않는다. 배포할 때 확인하고 이 ADR에 결과를 적는다.
