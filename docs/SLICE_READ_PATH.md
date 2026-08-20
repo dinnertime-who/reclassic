@@ -5,6 +5,7 @@
 테이블·sqlc·`openapi.yaml`·`web/`는 거기서 만들어진다. 이 슬라이스는 그 배선에 실제 데이터를 흘린다.
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`
 (특히 ADR-004 / 005 / 006 / 007 / 009 / 013 / 014 / 016), `docs/PARSER_REPORT.md`
+**다음 슬라이스:** `docs/SLICE_INGEST_AUTOMATION.md`
 **작업 시작 전에 위 문서를 읽을 것.** 특히 ARCHITECTURE의 "핵심 불변식"과 "공개와 SEO" 절.
 
 ---
@@ -240,7 +241,8 @@ GET /books/{gutenbergId}/chapters/{idx}
 
 | 항목 | 조건 |
 |---|---|
-| 수집 자동화 (River + R2 + FetchSource) | `internal/book/ingest.go`를 잡 핸들러가 호출 |
-| 번역 (테이블 4개 + 제안·검수 화면 + 승계 실행) | §4.4 승계율 숫자를 보고 설계. 여기서 SEO 값어치가 나온다 |
-| 도서 목록·검색 화면, 인증 | |
+| 수집 자동화 (River + R2 + FetchSource) → `docs/SLICE_INGEST_AUTOMATION.md` | `internal/book/ingest.go`를 잡 핸들러가 호출 |
+| 번역 (테이블 4개 + 제안·검수 화면 + 승계 실행) → `docs/SLICE_TRANSLATION.md` | §4.4 승계율 숫자를 보고 설계. 여기서 SEO 값어치가 나온다 |
+| 인증 → `docs/SLICE_AUTH.md` | |
+| 도서 목록·검색 화면 | 아직 명세 없음 |
 | 파서 잔여 3건 | 76 목차 제외, 중간 삽입 경고, `alt` 2글자 복원 |

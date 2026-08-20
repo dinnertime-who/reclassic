@@ -73,7 +73,7 @@
 | `openapi.yaml` | `POST /admin/books` |
 | `cmd/worker/main.go` | River 워커 기동 |
 | `docker-compose.yml` | MinIO 추가 |
-| `.env.example` | MinIO 로컬 값, `ADMIN_TOKEN` |
+| `.env.example` | MinIO 로컬 값, `ADMIN_TOKEN` (ADR-027에서 제거됨) |
 | Makefile · `AGENTS.md` | 함께 갱신 |
 
 ---
@@ -140,6 +140,10 @@ POST /admin/books  { gutenbergId, title, language? }
 ### 4.6 관리자 인증 — 임시
 
 세션 인증은 열린 질문이다(`AGENTS.md`). 그렇다고 무인증으로 열어 둘 수는 없다.
+
+> **이 절은 이미 걷어냈다 (ADR-027).** `ADMIN_TOKEN`과 `X-Admin-Token`은
+> 코드·계약·환경변수에 없다. 관리자 엔드포인트는 세션 + `role='admin'`이다.
+> 아래는 당시 기록이다.
 
 **`ADMIN_TOKEN` 환경변수와 `X-Admin-Token` 헤더를 비교하는 미들웨어를 둔다.**
 없으면 기동 실패. 틀리면 401.

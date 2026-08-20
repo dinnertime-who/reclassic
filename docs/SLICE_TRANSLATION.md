@@ -154,6 +154,9 @@ GET /projects/{projectId}/chapters/{idx}      ← 최종 계약 (ARCHITECTURE)
 
 ### 4.7 신원 — 임시
 
+> **이 절은 이미 걷어냈다 (ADR-027).** `X-User-Handle`은 코드에 없다.
+> 신원은 Google 로그인 세션 쿠키에서 온다. 아래는 당시 기록이다.
+
 세션 인증은 다음 슬라이스다. 이번엔 `X-User-Handle` 헤더로 신원을 받고
 `users`에서 조회한다. 없으면 401.
 
