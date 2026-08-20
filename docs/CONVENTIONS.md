@@ -4,8 +4,7 @@
 
 - 들여쓰기·개행은 `.editorconfig`를 따른다.
 - 주석과 문서는 한국어. 식별자·커밋 메시지 타입은 영어.
-- 커밋 메시지는 Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`
-  본문은 "왜"를 쓴다. "무엇"은 diff가 이미 말해준다.
+- 커밋·브랜치·PR 규칙은 아래 "기여 흐름" 절에 있다.
 
 ## Go
 
@@ -60,3 +59,74 @@ const baseURL = typeof window === 'undefined'
 
 - 새 변수는 `.env.example`에 이름과 한 줄 설명을 추가한다. 실제 값은 커밋하지 않는다.
 - 코드에서 읽을 때 기본값을 조용히 채우지 않는다. 없으면 기동 시점에 실패시킨다.
+
+## 기여 흐름
+
+`main`은 보호 브랜치다. 직접 push하지 않고 PR로 들어간다.
+
+### 브랜치 이름
+
+`<타입>/<한두-단어-요약>`. 타입은 커밋 타입과 같은 집합을 쓴다.
+
+```
+feat/session-auth
+fix/inline-page-markers
+docs/deploy-slice
+chore/bump-pnpm
+```
+
+### 커밋 메시지
+
+Conventional Commits. 타입은 여섯이다:
+`feat` · `fix` · `refactor` · `docs` · `chore` · `test`
+
+```
+<타입>: <제목 — 한국어, 마침표 없음, 명령형>
+
+<본문 — "왜"를 쓴다. "무엇"은 diff가 이미 말해준다.>
+```
+
+- **제목에 "무엇을 했다"를 쓰지 않는다.** 그건 diff에 있다.
+  왜 그렇게 했는지, 무엇을 고르지 않았는지가 남아야 할 것이다.
+- 본문에는 **검증한 수치**를 적는다. "테스트 통과"가 아니라 "22권 golden 일치",
+  "승계율 100%", "40라운드 중 0건 실패"처럼.
+- 설계 판단이 섞였으면 **ADR 번호를 적는다** (`(ADR-024)`).
+- 되돌리기 어려운 결정이나 남는 위험은 본문에 남긴다. 나중에 그것만 읽게 된다.
+
+### PR
+
+**머지는 squash다.** PR 하나가 `main`에 커밋 하나로 들어간다.
+
+- **PR 제목이 곧 커밋 제목이다.** 따라서 PR 제목도 Conventional Commits를 따른다.
+- PR 본문이 곧 커밋 본문이 된다. 위 커밋 규칙을 그대로 적용한다.
+- 작업 중 커밋은 지저분해도 된다. squash되므로 정리에 시간 쓰지 않는다.
+- 슬라이스 하나 = PR 하나를 기본으로 한다. 슬라이스가 크면 나누되,
+  **각 PR이 그 자체로 동작하는 상태여야 한다.**
+
+### PR 전 체크리스트
+
+`.github/pull_request_template.md`가 같은 내용을 담고 있다.
+
+1. `make lint && make test` 통과
+2. **`DATABASE_URL` 없이도** `make test` 통과 (CI가 DB 없이 돈다)
+3. 아키텍처에 영향을 주는 판단이 있었으면 `docs/DECISIONS.md`에 ADR 추가
+4. `openapi.yaml`을 고쳤으면 `make generate`를 돌리고 산출물까지 커밋
+5. 마이그레이션을 추가했으면 **기존 파일은 건드리지 않았는지** 확인
+6. 파서를 고쳤으면 `make parsecheck`로 눈 검증 후 golden 갱신,
+   `make succession`으로 승계 영향 측정
+7. 환경변수를 추가했으면 `.env.example`에 이름과 한 줄 설명 추가
+8. 명령을 추가했으면 Makefile과 `AGENTS.md` 명령어 표를 함께 갱신
+
+### `main` 브랜치 보호 — 권장 설정
+
+| 설정 | 값 | 이유 |
+|---|---|---|
+| Require a pull request before merging | 켬 | 직접 push를 막는다 |
+| Require approvals | **끔** | 1인 개발이라 자기 PR을 승인할 수 없어 막힌다 |
+| Require status checks | CI를 붙인 뒤 켬 | 지금은 CI가 없다 |
+| Require linear history | 켬 | squash 머지와 맞는다 |
+| Do not allow bypassing | 취향 | 켜면 관리자도 우회 못 한다. 혼자면 과할 수 있다 |
+| Allow force pushes / deletions | **끔** | 사고는 대개 자기 손에서 난다 |
+
+저장소 Settings → General → Pull Requests에서 **Allow squash merging만 켜고
+나머지 둘은 끄는 것**을 권한다. 실수로 다른 방식으로 머지되는 것을 막는다.

@@ -145,7 +145,9 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 4. **생성 코드는 손으로 고치지 않습니다.** `sqlc`, `oapi-codegen`, `orval` 산출물이 잘못됐으면 원본(SQL / `openapi.yaml`)을 고치고 `make generate`를 다시 돌립니다.
 5. **API 변경은 `openapi.yaml`부터 고칩니다.** Go 핸들러나 TS 클라이언트를 먼저 고치면 다음 `make generate`에서 덮어써집니다.
 6. **작업을 끝내기 전에 `make lint && make test`가 통과해야 합니다.**
-7. 커밋 메시지는 Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`
+7. **`main`은 보호 브랜치입니다. 직접 push하지 말고 PR로 넣으세요.**
+   브랜치 이름·커밋 메시지·PR 규칙은 `docs/CONVENTIONS.md` "기여 흐름" 절에 있습니다.
+   머지는 squash라 **PR 제목이 곧 커밋 제목**입니다 — 제목도 Conventional Commits를 따르세요.
 
 ## 하지 말 것
 
