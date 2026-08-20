@@ -22,6 +22,7 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/SLICE_INGEST_AUTOMATION.md` | 수집 자동화 명세 (완료) |
 | `docs/SLICE_TRANSLATION.md` | 번역(제안·검수) 명세 (완료) |
 | `docs/SLICE_AUTH.md` | 세션 인증 명세 (완료) |
+| `docs/SLICE_DEPLOY.md` | **현재 작업 — 배포(Railway) 명세** |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
@@ -56,8 +57,12 @@ FetchSource → R2 → ParseBook → 적재가 자동으로 돕니다.
 임시 헤더(`X-User-Handle`·`X-Admin-Token`)는 코드·계약·환경변수에서 전부 사라졌습니다.
 관리자는 `ADMIN_EMAIL`과 일치하는 Google 계정입니다 (ADR-027).
 
-**현재 작업은 배포(Railway)입니다.** ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 —
-`[::]` 바인딩, `railway.internal`, pnpm 빌드 전제가 전부 미확인입니다.
+**현재 작업은 배포(Railway)입니다** — `docs/SLICE_DEPLOY.md`.
+ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 —
+`[::]` 바인딩, `railway.internal`, 서브도메인 간 쿠키 공유가 전부 미확인입니다.
+
+빌드는 Nixpacks가 아니라 Dockerfile입니다 (ADR-029).
+**착수 블로커 둘이 남아 있습니다: 도메인, 마이그레이션 실행 위치.**
 
 계획된 순서:
 
@@ -68,7 +73,7 @@ FetchSource → R2 → ParseBook → 적재가 자동으로 돕니다.
 | 3 | 수집 자동화 (River + R2) | `docs/SLICE_INGEST_AUTOMATION.md` — **완료** |
 | 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | `docs/SLICE_TRANSLATION.md` — **완료** |
 | 5 | 세션 인증 — 임시 헤더를 걷어낸다 | `docs/SLICE_AUTH.md` — **완료** |
-| 6 | 배포 (Railway) | 미작성 ← **지금** |
+| 6 | 배포 (Railway) | `docs/SLICE_DEPLOY.md` ← **지금** |
 | 7 | 편집·검수 화면, 도서 목록, 관리자 확인 큐 | 미작성 |
 
 슬라이스 2에서 책이 브라우저에 뜨지만 **원문 전용 페이지라 `noindex`입니다**(ADR-007).
@@ -146,6 +151,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
   공격적으로 긁으면 IP가 차단되고 복구가 어렵습니다.
 - **수집 큐(`fetch`)의 동시성을 1보다 올리지 마세요.** Gutenberg에 병렬 요청이 나갑니다.
   파싱 큐(`parse`)는 올려도 됩니다. 큐를 나눈 이유가 그것입니다.
+- **`PARSE_CONCURRENCY`를 메모리 확인 없이 올리지 마세요.** 셰익스피어 전집 파싱이 힙 310MB를 씁니다 (ADR-029).
 - **`0.0.0.0`에 바인딩하지 마세요.** Railway 프라이빗 네트워크는 IPv6 전용이라 `[::]`를 써야 서비스 간 호출이 됩니다.
 - **비즈니스 로직을 TanStack Start의 server function에 넣지 마세요.**
   권한 검사·DB 접근·도메인 로직은 전부 Go. server function은 SSR 데이터 페칭과 쿠키 전달 전용입니다.

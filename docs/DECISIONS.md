@@ -940,3 +940,53 @@ Workers + Hyperdrive + 관리형 Postgres(Neon 등) + `graphile-worker`/`pg-boss
 - **배포 슬라이스를 먼저 해보고 판단하는 것이 옳다.** 지금 운영 부담은 추정이고,
   Railway 4서비스가 실물로 돌아본 적이 없다. 아프다는 것이 확인되면 안 C를 꺼낸다.
 - 전환하기로 하면 **D1이 아니라 안 C**다. 위 둘을 다시 푸는 비용이 이전 이득보다 크다.
+
+---
+
+## ADR-029 — 빌드는 Nixpacks가 아니라 서비스별 Dockerfile로 한다
+**상태:** Accepted (2026-08-20)
+
+**맥락:** Railway는 Nixpacks 자동 감지로도 배포된다. 설정 파일이 없어도 되니 편하다.
+그럼에도 Dockerfile을 쓰기로 했다.
+
+처음 제기된 근거는 "메모리 최적화"였는데 **그것은 틀렸다.**
+이미지 크기와 런타임 RSS는 다른 축이다. Go 바이너리의 상주 메모리는
+distroless든 Nixpacks든 같다. 실제로 이 서비스의 메모리를 정하는 것은 파서다:
+
+| 도서 | 입력 | 최대 힙 |
+|---|---|---|
+| 100 셰익스피어 전집 | 7.3MB | **310MB** |
+| 4300 율리시스 | 1.7MB | 58MB |
+| 1342 오만과 편견 | 0.9MB | 29MB |
+
+전략 넷을 모두 돌리고 각각 DOM을 순회하므로 입력의 40배가 넘는 힙을 쓴다.
+베이스 이미지를 아무리 줄여도 이 숫자는 안 변한다.
+
+**결정:** Dockerfile을 쓴다. 근거는 셋이고, 메모리는 그중에 없다.
+
+1. **결정성.** 이 저장소는 생성기 버전을 `go.mod` tool 디렉티브로 박고(ADR-020),
+   pnpm을 `packageManager` 필드로 고정하고(ADR-019), 골든 스냅샷으로 회귀를 잡는다.
+   Nixpacks 자동 감지는 블랙박스라 배포 시점에 따라 달라질 수 있다.
+   **재현 가능성을 이만큼 챙긴 저장소에서 빌드만 추론에 맡길 이유가 없다.**
+2. **어느 바이너리를 띄우는지 코드에 남는다.** `cmd/`에 넷이 있어
+   Nixpacks에도 어차피 알려줘야 한다. 그럴 바에 Dockerfile이 낫다.
+3. **이미지 크기와 공격 표면.** Go는 multi-stage + distroless static으로 20~30MB다.
+   `web`은 런타임 이미지에서 devDependencies를 뺀다.
+
+**구성:** Go 둘은 코드가 거의 같아 **Dockerfile 하나에 빌드 인자**로 가른다
+(`--build-arg CMD=api|worker`). `web`은 별도다.
+
+**주의점 둘:**
+
+- **Go 런타임 이미지에 마이그레이션 SQL을 싣지 않는다.** 이미 `embed`로 바이너리 안에 있다
+  (`internal/db/migrate.go`). distroless static을 쓰므로 `CGO_ENABLED=0`이어야 한다.
+- **`web` 빌드 컨텍스트는 저장소 루트다.** `orval.config.ts`가 `../openapi.yaml`을
+  참조하므로 `web/`만 컨텍스트로 잡으면 생성이 깨진다.
+
+**결과:**
+
+- 메모리 산정은 Dockerfile과 무관하게 실측으로 한다 —
+  `worker` 1GB / `api`·`web` 512MB. `PARSE_CONCURRENCY`를 올리면 배수로 는다.
+- Nixpacks로 돌아갈 이유가 생긴다면 그것은 "Dockerfile 유지가 부담"일 때다.
+  지금 규모(서비스 셋, Dockerfile 둘)에서는 부담이 아니다.
+- `.dockerignore`로 `.cache/`를 반드시 제외한다. Gutenberg 원본 수십 MB가 빌드 컨텍스트에 들어간다.

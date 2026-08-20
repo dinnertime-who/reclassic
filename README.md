@@ -25,6 +25,7 @@ make help     # 사용 가능한 명령
 | [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md) | 수집 자동화 명세 (완료) |
 | [`docs/SLICE_TRANSLATION.md`](docs/SLICE_TRANSLATION.md) | 번역(제안·검수) 명세 (완료) |
 | [`docs/SLICE_AUTH.md`](docs/SLICE_AUTH.md) | 세션 인증 명세 (완료) |
+| [`docs/SLICE_DEPLOY.md`](docs/SLICE_DEPLOY.md) | 현재 작업 — 배포(Railway) 명세 |
 
 ## AI 에이전트 지침
 
@@ -85,4 +86,6 @@ Google 로그인 + Postgres 세션. 비밀번호를 다루지 않는다. 관리�
 Google Cloud Console에서 OAuth 클라이언트를 만들고 승인된 리디렉션 URI에
 `GOOGLE_REDIRECT_URL` 값을 그대로 등록한다.
 
-**다음은 배포(Railway)다.** ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없다.
+**다음은 배포(Railway)다** — [`docs/SLICE_DEPLOY.md`](docs/SLICE_DEPLOY.md).
+ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없다.
+빌드는 Nixpacks가 아니라 Dockerfile이다 (ADR-029).
