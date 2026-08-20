@@ -95,6 +95,11 @@ Conventional Commits. 타입은 여섯이다:
 
 ### PR
 
+**PR은 `make pr`로 만든다.** `gh`를 직접 부르면 머신 전역 활성 계정이 쓰이는데,
+그 계정이 이 저장소 협업자가 아니면 `must be a collaborator`로 막힌다.
+`scripts/gh`가 keyring에서 토큰을 꺼내 계정을 고정한다. `gh auth switch`는 쓰지 않는다 —
+전역 상태를 바꾸므로 되돌리는 것을 잊는다.
+
 **머지는 squash다.** PR 하나가 `main`에 커밋 하나로 들어간다.
 
 - **PR 제목이 곧 커밋 제목이다.** 따라서 PR 제목도 Conventional Commits를 따른다.

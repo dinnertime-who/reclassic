@@ -29,6 +29,10 @@ WEB_ENV = $(shell test -f .env && grep -E '^(API_INTERNAL_HOST|API_PORT|VITE_API
 SQLC    := $(GO) tool sqlc
 OAPI    := $(GO) tool oapi-codegen
 
+# GitHub 작업(PR·이슈)은 계정을 고정한다. git push는 SSH 키를 쓰지만
+# gh는 머신 전역 활성 계정의 HTTPS 토큰을 쓰기 때문이다. 이유 전문은 scripts/gh 주석.
+GH      := ./scripts/gh
+
 # 필수 도구가 없으면 설치 방법을 알려주고 멈춘다
 define need
 	@command -v $(1) >/dev/null 2>&1 || { \
@@ -52,6 +56,7 @@ doctor: ## 개발 환경 점검
 	@$(SQLC) version >/dev/null 2>&1 && echo "✓ sqlc    $$($(SQLC) version) (go tool)" || echo "✗ sqlc    — go.mod tool 디렉티브 확인 (ADR-020)"
 	@$(OAPI) --version >/dev/null 2>&1 && echo "✓ oapi-codegen $$($(OAPI) --version | tail -1) (go tool)" || echo "✗ oapi-codegen — go.mod tool 디렉티브 확인 (ADR-020)"
 	@command -v golangci-lint >/dev/null 2>&1 && echo "✓ golangci-lint" || echo "· golangci-lint — 미설치 시 go vet 으로 대체. brew install golangci-lint"
+	@gh auth token --user dinnertime-who >/dev/null 2>&1 && echo "✓ gh      dinnertime-who (scripts/gh 로 고정)" || echo "✗ gh      — brew install gh && gh auth login (dinnertime-who)"
 
 .PHONY: build
 build: ## 바이너리 빌드 (bin/)
@@ -172,6 +177,11 @@ golden: ## golden 스냅샷 비교 (GOLDEN_UPDATE=1 이면 갱신)
 	else \
 		$(GO) run ./cmd/parsecheck golden -corpus=$(CORPUS) -cache=$(CACHE); \
 	fi
+
+.PHONY: pr
+pr: ## PR 생성 (계정 고정, .github/pull_request_template.md 사용)
+	$(call need,gh,brew install gh)
+	$(GH) pr create --base main
 
 .PHONY: clean
 clean: ## 빌드 산출물 삭제 (.cache는 남김)

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# 이 저장소의 GitHub 작업은 항상 GH_USER 계정으로 한다.
+#
+# 왜 필요한가: git push는 SSH 키를 쓰지만 PR 생성·이슈 등은 gh의 HTTPS 토큰을 쓴다.
+# gh의 활성 계정은 머신 전역이라 다른 저장소를 오가면 바뀐다.
+# 활성 계정이 이 저장소의 협업자가 아니면 `must be a collaborator`로 막힌다.
+#
+# 어떻게: gh는 GH_TOKEN 환경변수를 활성 계정보다 우선한다.
+# 토큰은 호출할 때마다 keyring에서 꺼내므로 저장소에 남는 값이 없다.
+# `gh auth switch`와 달리 전역 상태를 건드리지 않는다 — 되돌릴 것이 없다.
+set -euo pipefail
+
+GH_USER="${GH_USER:-dinnertime-who}"
+
+if ! command -v gh >/dev/null 2>&1; then
+	echo "✗ 'gh' 가 필요합니다. 설치: brew install gh" >&2
+	exit 1
+fi
+
+if ! token=$(gh auth token --user "$GH_USER" 2>/dev/null); then
+	echo "✗ gh 계정 '$GH_USER' 로 인증돼 있지 않습니다." >&2
+	echo "  확인: gh auth status" >&2
+	echo "  로그인: gh auth login" >&2
+	exit 1
+fi
+
+GH_TOKEN="$token" exec gh "$@"
