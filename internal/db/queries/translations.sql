@@ -148,3 +148,44 @@ LEFT JOIN paragraph_translations pt
        ON pt.project_id = tp.id AND pt.paragraph_stable_id = p.stable_id
 GROUP BY c.idx
 ORDER BY c.idx;
+
+-- 인증 (슬라이스 5).
+
+-- google_sub으로 찾는다. 이메일은 바뀌므로 식별자로 쓰지 않는다.
+-- name: GetUserByGoogleSub :one
+SELECT * FROM users WHERE google_sub = $1;
+
+-- name: CreateGoogleUser :one
+INSERT INTO users (handle, display_name, role, email, google_sub)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *;
+
+-- name: UpdateUserFromGoogle :one
+UPDATE users
+   SET display_name = $2, email = $3, role = $4
+ WHERE id = $1
+RETURNING *;
+
+-- handle 충돌 확인용.
+-- name: HandleExists :one
+SELECT EXISTS (SELECT 1 FROM users WHERE handle = $1);
+
+-- name: CreateSession :one
+INSERT INTO sessions (id, user_id, expires_at, user_agent)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+
+-- 만료된 세션은 조회 단계에서 걸러낸다. 정리 잡을 기다리지 않는다.
+-- name: GetSessionUser :one
+SELECT sqlc.embed(u) FROM sessions s
+JOIN users u ON u.id = s.user_id
+WHERE s.id = $1 AND s.expires_at > now();
+
+-- name: DeleteSession :exec
+DELETE FROM sessions WHERE id = $1;
+
+-- name: DeleteUserSessions :exec
+DELETE FROM sessions WHERE user_id = $1;
+
+-- name: DeleteExpiredSessions :exec
+DELETE FROM sessions WHERE expires_at <= now();

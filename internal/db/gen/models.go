@@ -88,6 +88,14 @@ type RevisionSuccession struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type Session struct {
+	ID        string
+	UserID    int64
+	ExpiresAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
+	UserAgent string
+}
+
 type TranslationProject struct {
 	ID          int64
 	BookID      int64
@@ -116,4 +124,6 @@ type User struct {
 	DisplayName string
 	Role        string
 	CreatedAt   pgtype.Timestamptz
+	Email       pgtype.Text
+	GoogleSub   pgtype.Text
 }

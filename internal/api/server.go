@@ -4,7 +4,6 @@ package api
 
 import (
 	"context"
-	"crypto/subtle"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -41,7 +40,8 @@ type Server struct {
 	reader         ChapterReader
 	requester      BookRequester
 	translate      Translator
-	adminToken     string
+	sessions       SessionStore
+	google         GoogleLogin
 	allowedOrigins []string
 	indexThreshold float64
 	version        string
@@ -53,8 +53,8 @@ type Deps struct {
 	Reader    ChapterReader
 	Requester BookRequester
 	Translate Translator
-	// AdminToken은 관리자 엔드포인트를 막는 임시 가드다. 비어 있으면 안 된다.
-	AdminToken string
+	Sessions  SessionStore
+	Google    GoogleLogin
 	// AllowedOrigins는 브라우저가 이 API를 직접 부를 수 있는 출처다 (ADR-026).
 	// 웹과 API가 서로 다른 도메인에 있으므로 CORS가 필요하다.
 	AllowedOrigins []string
@@ -74,7 +74,8 @@ func NewServer(d Deps) *Server {
 		reader:         d.Reader,
 		requester:      d.Requester,
 		translate:      d.Translate,
-		adminToken:     d.AdminToken,
+		sessions:       d.Sessions,
+		google:         d.Google,
 		allowedOrigins: d.AllowedOrigins,
 		indexThreshold: threshold,
 		version:        d.Version,
@@ -159,12 +160,15 @@ func (s *Server) Router() http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(requestLogger(s.log))
 	r.Use(s.corsMiddleware())
-	// 임시 신원 헤더를 컨텍스트로 옮긴다. 인증이 아니다 — 슬라이스 5에서 걷어낸다.
-	r.Use(withUserHandle)
 
-	// 사용자 세션 인증 자리. 제안·검수 권한 분리는 번역 슬라이스다.
-	// 지금은 관리자 오퍼레이션만 임시 토큰으로 막는다.
-	return gen.HandlerFromMux(gen.NewStrictHandler(s, []gen.StrictMiddlewareFunc{s.adminGuard}), r)
+	// 세션이 있으면 사용자를 컨텍스트에 싣는다. 거부는 오퍼레이션별로 authGuard가 한다.
+	r.Use(withHTTP)
+	r.Use(s.withSession)
+
+	// OAuth 리다이렉트는 JSON 계약이 아니라 라우터에 직접 단다.
+	s.mountOAuth(r)
+
+	return gen.HandlerFromMux(gen.NewStrictHandler(s, []gen.StrictMiddlewareFunc{s.authGuard}), r)
 }
 
 // corsMiddleware는 브라우저가 다른 출처에서 이 API를 부를 수 있게 한다 (ADR-026).
@@ -176,44 +180,12 @@ func (s *Server) Router() http.Handler {
 // 허용해서도 안 된다 — 아무 사이트나 사용자 세션으로 이 API를 부르게 된다.
 func (s *Server) corsMiddleware() func(http.Handler) http.Handler {
 	return cors.Handler(cors.Options{
-		AllowedOrigins: s.allowedOrigins,
-		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodOptions},
-		AllowedHeaders: []string{
-			"Content-Type",
-			// 커스텀 헤더는 preflight 대상이다. 빠뜨리면 OPTIONS에서 막힌다.
-			"X-Admin-Token",
-			"X-User-Handle",
-		},
+		AllowedOrigins:   s.allowedOrigins,
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodOptions},
+		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           300,
 	})
-}
-
-// adminOperations는 관리자 토큰이 필요한 오퍼레이션이다.
-// openapi.yaml의 security 선언과 같아야 한다 — 여기 넣는 것을 잊으면 무인증으로 열린다.
-var adminOperations = map[string]bool{
-	"RequestBook":   true,
-	"CreateProject": true,
-}
-
-// adminGuard는 임시 운영 가드다. 세션 인증이 붙으면 걷어낸다.
-// 사용자 인증(제안자·검수자)은 이 방식으로 하지 않는다.
-func (s *Server) adminGuard(next gen.StrictHandlerFunc, operationID string) gen.StrictHandlerFunc {
-	return func(ctx context.Context, w http.ResponseWriter, r *http.Request, request any) (any, error) {
-		if !adminOperations[operationID] {
-			return next(ctx, w, r, request)
-		}
-		// 상수 시간 비교. 토큰 길이가 짧아 타이밍 차이가 의미 있다.
-		given := r.Header.Get("X-Admin-Token")
-		if subtle.ConstantTimeCompare([]byte(given), []byte(s.adminToken)) != 1 {
-			s.log.WarnContext(ctx, "관리자 토큰 불일치",
-				slog.String("operation", operationID),
-				slog.String("request_id", middleware.GetReqID(ctx)),
-			)
-			return adminUnauthorized(operationID), nil
-		}
-		return next(ctx, w, r, request)
-	}
 }
 
 // requestLogger는 요청 한 건을 구조화 필드로 남긴다.
@@ -235,16 +207,5 @@ func requestLogger(log *slog.Logger) func(http.Handler) http.Handler {
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
 		})
-	}
-}
-
-// adminUnauthorized는 오퍼레이션별 401 응답 타입을 고른다.
-// 생성 코드가 오퍼레이션마다 다른 응답 타입을 만들기 때문이다.
-func adminUnauthorized(operationID string) any {
-	switch operationID {
-	case "CreateProject":
-		return gen.CreateProject401JSONResponse{Message: "관리자 토큰이 없거나 틀렸다"}
-	default:
-		return gen.RequestBook401JSONResponse{Message: "관리자 토큰이 없거나 틀렸다"}
 	}
 }

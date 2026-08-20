@@ -22,7 +22,7 @@ LAN_IP ?= $(shell \
 
 # 웹 프로세스에 넘길 환경변수. Go는 .env를 직접 읽지만(internal/config) Node는 읽지 않는다.
 # .env를 통째로 source하지 않는 이유는 User-Agent 값에 셸 메타문자가 있기 때문이다.
-WEB_ENV = $(shell test -f .env && grep -E '^(API_INTERNAL_HOST|API_PORT|VITE_API_URL)=' .env | tr '\n' ' ')
+WEB_ENV = $(shell test -f .env && grep -E '^(API_INTERNAL_HOST|API_PORT|VITE_API_URL|VITE_LOGIN_URL)=' .env | tr '\n' ' ')
 
 # 빌드 타임 도구는 go.mod의 tool 디렉티브로 고정한다 (ADR-020).
 # 별도 설치가 필요 없고 버전이 저장소에 박힌다.

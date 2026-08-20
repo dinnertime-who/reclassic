@@ -68,6 +68,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      summary: 현재 로그인한 사용자
+      security:
+        - session: []
+      responses:
+        "200":
+          description: 로그인 상태
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: 로그아웃 — 세션을 즉시 무효화한다
+      security:
+        - session: []
+      responses:
+        "204":
+          description: 로그아웃됨
+
   /admin/books:
     post:
       operationId: requestBook
@@ -78,7 +107,7 @@ paths:
 
         수집은 비동기라 202다. 결과는 books.status로 확인한다.
       security:
-        - adminToken: []
+        - session: []
       requestBody:
         required: true
         content:
@@ -93,7 +122,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BookRequestAccepted"
         "401":
-          description: 관리자 토큰이 없거나 틀렸다
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 관리자 권한이 없다
           content:
             application/json:
               schema:
@@ -158,7 +193,7 @@ paths:
       operationId: createProposal
       summary: 문단 번역 제안
       security:
-        - userHandle: []
+        - session: []
       parameters:
         - $ref: "#/components/parameters/ProjectId"
         - $ref: "#/components/parameters/StableId"
@@ -176,7 +211,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Proposal"
         "401":
-          description: 신원 없음
+          description: 로그인이 필요하다
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -194,7 +229,7 @@ paths:
         승인은 한 트랜잭션 안에서 세 가지를 함께 한다 (ARCHITECTURE 불변식 3).
         같은 문단의 동시 승인은 자문 잠금으로 직렬화된다 (ADR-024).
       security:
-        - userHandle: []
+        - session: []
       parameters:
         - name: proposalId
           in: path
@@ -214,7 +249,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ReviewResult"
         "401":
-          description: 신원 없음
+          description: 로그인이 필요하다
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -239,7 +274,7 @@ paths:
       operationId: createProject
       summary: 번역 프로젝트 생성
       security:
-        - adminToken: []
+        - session: []
       requestBody:
         required: true
         content:
@@ -254,7 +289,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/Project"
         "401":
-          description: 관리자 토큰이 없거나 틀렸다
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -279,20 +319,13 @@ components:
       schema: { type: string }
 
   securitySchemes:
-    # 임시 운영 가드다. 세션 인증은 아직 열린 질문이라(AGENTS.md)
-    # 그때까지 관리자 엔드포인트를 무인증으로 열어 두지 않기 위한 것뿐이다.
-    # 사용자 인증(제안자·검수자)은 이 방식으로 하지 않는다.
-    adminToken:
+    # Google 로그인으로 발급된 세션 쿠키 (ADR-027).
+    # 관리자 조작도 같은 세션을 쓰고 role='admin'으로 갈린다 —
+    # 별도 토큰을 두면 우회로가 하나 생긴다.
+    session:
       type: apiKey
-      in: header
-      name: X-Admin-Token
-
-    # 임시 신원이다. 인증이 아니다 — 위조가 자명하게 가능하다.
-    # 슬라이스 5(세션 인증)에서 걷어낸다. 그 전에는 프로덕션에 배포하지 않는다.
-    userHandle:
-      type: apiKey
-      in: header
-      name: X-User-Handle
+      in: cookie
+      name: reclassic_session
 
   schemas:
     Health:
@@ -482,3 +515,15 @@ components:
         status:
           type: string
           enum: [open, published, archived]
+
+    CurrentUser:
+      type: object
+      required: [handle, displayName, role]
+      properties:
+        handle:
+          type: string
+        displayName:
+          type: string
+        role:
+          type: string
+          enum: [member, reviewer, admin]

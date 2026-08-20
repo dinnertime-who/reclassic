@@ -3,10 +3,9 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
-	"net/http"
 
 	"github.com/dinnertime/reclassic/internal/api/gen"
+	"github.com/dinnertime/reclassic/internal/auth"
 	gendb "github.com/dinnertime/reclassic/internal/db/gen"
 	"github.com/dinnertime/reclassic/internal/translate"
 )
@@ -18,13 +17,8 @@ type Translator interface {
 	Propose(ctx context.Context, projectID int64, stableID, text string, authorID int64) (*gendb.TranslationProposal, error)
 	Approve(ctx context.Context, proposalID, reviewerID int64, note string) (*gendb.ParagraphTranslation, error)
 	Reject(ctx context.Context, proposalID, reviewerID int64, note string) error
-	UserByHandle(ctx context.Context, handle string) (*gendb.User, error)
 	CreateProject(ctx context.Context, gutenbergID int, targetLang string) (*gendb.TranslationProject, error)
 }
-
-// userHandleHeader는 임시 신원이다. 인증이 아니다 — 위조가 자명하게 가능하다.
-// 슬라이스 5(세션 인증)에서 걷어낸다.
-const userHandleHeader = "X-User-Handle"
 
 func (s *Server) GetProjectChapter(ctx context.Context, req gen.GetProjectChapterRequestObject) (gen.GetProjectChapterResponseObject, error) {
 	view, err := s.translate.Chapter(ctx, req.ProjectId, req.Idx)
@@ -76,9 +70,10 @@ func (s *Server) ListProposals(ctx context.Context, req gen.ListProposalsRequest
 }
 
 func (s *Server) CreateProposal(ctx context.Context, req gen.CreateProposalRequestObject) (gen.CreateProposalResponseObject, error) {
-	user, err := s.currentUser(ctx)
-	if err != nil {
-		return gen.CreateProposal401JSONResponse{Message: "신원을 확인할 수 없다"}, nil
+	// authGuard가 이미 로그인을 확인했다. 여기 오면 사용자가 있다.
+	user, ok := userFrom(ctx)
+	if !ok {
+		return gen.CreateProposal401JSONResponse{Message: "로그인이 필요하다"}, nil
 	}
 	if req.Body == nil || req.Body.Text == "" {
 		return gen.CreateProposal409JSONResponse{Message: "번역문이 비었다"}, nil
@@ -95,12 +90,12 @@ func (s *Server) CreateProposal(ctx context.Context, req gen.CreateProposalReque
 }
 
 func (s *Server) ReviewProposal(ctx context.Context, req gen.ReviewProposalRequestObject) (gen.ReviewProposalResponseObject, error) {
-	user, err := s.currentUser(ctx)
-	if err != nil {
-		return gen.ReviewProposal401JSONResponse{Message: "신원을 확인할 수 없다"}, nil
+	user, ok := userFrom(ctx)
+	if !ok {
+		return gen.ReviewProposal401JSONResponse{Message: "로그인이 필요하다"}, nil
 	}
-	// 검수는 reviewer 이상만 한다. 제안은 누구나 할 수 있다.
-	if user.Role != "reviewer" && user.Role != "admin" {
+	// 검수는 reviewer 이상만 한다. 제안은 로그인한 누구나 할 수 있다.
+	if !auth.CanReview(user.Role) {
 		return gen.ReviewProposal403JSONResponse{Message: "검수 권한이 없다"}, nil
 	}
 	if req.Body == nil {
@@ -157,29 +152,6 @@ func (s *Server) CreateProject(ctx context.Context, req gen.CreateProjectRequest
 		TargetLang: project.TargetLang,
 		Status:     gen.ProjectStatus(project.Status),
 	}, nil
-}
-
-// currentUser는 임시 신원 헤더를 사용자로 바꾼다.
-// 슬라이스 5에서 세션으로 대체한다.
-func (s *Server) currentUser(ctx context.Context) (*gendb.User, error) {
-	handle, _ := ctx.Value(userHandleKey{}).(string)
-	if handle == "" {
-		return nil, fmt.Errorf("신원 헤더가 없다")
-	}
-	return s.translate.UserByHandle(ctx, handle)
-}
-
-type userHandleKey struct{}
-
-// withUserHandle은 임시 신원 헤더를 컨텍스트로 옮긴다.
-// 핸들러가 *http.Request를 직접 만지지 않게 하기 위함이다.
-func withUserHandle(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if handle := r.Header.Get(userHandleHeader); handle != "" {
-			r = r.WithContext(context.WithValue(r.Context(), userHandleKey{}, handle))
-		}
-		next.ServeHTTP(w, r)
-	})
 }
 
 func toProposal(p gendb.TranslationProposal, authorHandle string) gen.Proposal {

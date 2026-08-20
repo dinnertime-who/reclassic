@@ -24,6 +24,7 @@ make help     # 사용 가능한 명령
 | [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 읽기 경로 명세 (완료) |
 | [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md) | 수집 자동화 명세 (완료) |
 | [`docs/SLICE_TRANSLATION.md`](docs/SLICE_TRANSLATION.md) | 번역(제안·검수) 명세 (완료) |
+| [`docs/SLICE_AUTH.md`](docs/SLICE_AUTH.md) | 세션 인증 명세 (완료) |
 
 ## AI 에이전트 지침
 
@@ -76,5 +77,12 @@ curl -X POST localhost:8080/admin/books \
 제안 → 검수 → 확정본이 흐르고, 승인 커버리지 80%를 넘으면 읽기 화면이 `index`로 바뀐다(ADR-023).
 미확정 문단은 원문으로 노출하고 진행률을 표시한다.
 
-**다음은 세션 인증이다.** 지금 신원은 `X-User-Handle` 헤더이고 **인증이 아니다** —
-위조가 자명하게 가능하다. 걷어내기 전까지 프로덕션에 배포하지 않는다.
+**세션 인증 슬라이스 완료** — [`docs/SLICE_AUTH.md`](docs/SLICE_AUTH.md).
+Google 로그인 + Postgres 세션. 비밀번호를 다루지 않는다. 관리자는 `ADMIN_EMAIL`과
+일치하는 Google 계정이다. 임시 헤더는 전부 걷어냈다.
+
+`.env`에 `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`이 있어야 API가 기동한다.
+Google Cloud Console에서 OAuth 클라이언트를 만들고 승인된 리디렉션 URI에
+`GOOGLE_REDIRECT_URL` 값을 그대로 등록한다.
+
+**다음은 배포(Railway)다.** ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없다.

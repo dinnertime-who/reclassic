@@ -12,7 +12,9 @@ import (
 	"testing"
 
 	"github.com/dinnertime/reclassic/internal/api/gen"
+	"github.com/dinnertime/reclassic/internal/auth"
 	"github.com/dinnertime/reclassic/internal/book"
+	gendb "github.com/dinnertime/reclassic/internal/db/gen"
 )
 
 // fakePinger는 DB 없이 헬스체크를 검증하기 위한 대역이다.
@@ -41,9 +43,42 @@ func (f fakeRequester) Request(context.Context, int, string, string) (int64, err
 	return f.bookID, f.err
 }
 
-const testAdminToken = "test-admin-token"
+// fakeSessions는 고정된 사용자를 돌려주는 대역이다.
+// nil이면 비로그인이다.
+type fakeSessions struct {
+	user    *gendb.User
+	revoked bool
+}
 
-// newTestServer는 빠진 의존성을 기본 대역으로 채운다.
+func (f *fakeSessions) User(context.Context, *http.Request) (*gendb.User, error) {
+	if f.user == nil {
+		return nil, auth.ErrNoSession
+	}
+	return f.user, nil
+}
+
+func (f *fakeSessions) Issue(context.Context, http.ResponseWriter, int64, string) error { return nil }
+
+func (f *fakeSessions) Revoke(context.Context, http.ResponseWriter, *http.Request) error {
+	f.revoked = true
+	return nil
+}
+
+type fakeGoogle struct{}
+
+func (fakeGoogle) Start(http.ResponseWriter) (string, error) {
+	return "https://accounts.google.example", nil
+}
+func (fakeGoogle) Callback(context.Context, http.ResponseWriter, *http.Request, string, string) (*gendb.User, error) {
+	return nil, errors.New("사용하지 않음")
+}
+func (fakeGoogle) SuccessRedirect() string { return "http://localhost:3000/" }
+
+func userWithRole(role string) *gendb.User {
+	return &gendb.User{ID: 1, Handle: "tester", DisplayName: "Tester", Role: role}
+}
+
+// newTestServer는 빠진 의존성을 기본 대역으로 채운다. 기본은 비로그인이다.
 func newTestServer(d Deps) *Server {
 	if d.DB == nil {
 		d.DB = fakePinger{}
@@ -54,7 +89,12 @@ func newTestServer(d Deps) *Server {
 	if d.Requester == nil {
 		d.Requester = fakeRequester{}
 	}
-	d.AdminToken = testAdminToken
+	if d.Sessions == nil {
+		d.Sessions = &fakeSessions{}
+	}
+	if d.Google == nil {
+		d.Google = fakeGoogle{}
+	}
 	d.Version = "test"
 	d.Log = discardLogger()
 	return NewServer(d)
@@ -147,22 +187,22 @@ func TestGetBookChapterNotFound(t *testing.T) {
 	}
 }
 
-func postBook(srv *Server, token string) *httptest.ResponseRecorder {
+func postBook(srv *Server) *httptest.ResponseRecorder {
 	rec := httptest.NewRecorder()
 	body := strings.NewReader(`{"gutenbergId":1342,"title":"Pride and Prejudice"}`)
 	req := httptest.NewRequest(http.MethodPost, "/admin/books", body)
 	req.Header.Set("Content-Type", "application/json")
-	if token != "" {
-		req.Header.Set("X-Admin-Token", token)
-	}
 	srv.Router().ServeHTTP(rec, req)
 	return rec
 }
 
 func TestRequestBookAccepted(t *testing.T) {
-	srv := newTestServer(Deps{Requester: fakeRequester{bookID: 42}})
+	srv := newTestServer(Deps{
+		Requester: fakeRequester{bookID: 42},
+		Sessions:  &fakeSessions{user: userWithRole(auth.RoleAdmin)},
+	})
 
-	rec := postBook(srv, testAdminToken)
+	rec := postBook(srv)
 	if rec.Code != http.StatusAccepted {
 		t.Fatalf("status = %d, want 202 (body: %s)", rec.Code, rec.Body.String())
 	}
@@ -177,24 +217,38 @@ func TestRequestBookAccepted(t *testing.T) {
 }
 
 // 관리자 엔드포인트가 무인증으로 열리면 안 된다.
-func TestRequestBookRejectsBadToken(t *testing.T) {
-	for _, token := range []string{"", "wrong-token"} {
-		srv := newTestServer(Deps{Requester: fakeRequester{bookID: 42}})
-		if rec := postBook(srv, token); rec.Code != http.StatusUnauthorized {
-			t.Errorf("token %q → status %d, want 401", token, rec.Code)
+func TestRequestBookRequiresLogin(t *testing.T) {
+	srv := newTestServer(Deps{Requester: fakeRequester{bookID: 42}})
+	if rec := postBook(srv); rec.Code != http.StatusUnauthorized {
+		t.Errorf("비로그인 → status %d, want 401", rec.Code)
+	}
+}
+
+// 로그인했어도 admin이 아니면 403이다.
+func TestRequestBookRequiresAdminRole(t *testing.T) {
+	for _, role := range []string{auth.RoleMember, auth.RoleReviewer} {
+		srv := newTestServer(Deps{
+			Requester: fakeRequester{bookID: 42},
+			Sessions:  &fakeSessions{user: userWithRole(role)},
+		})
+		if rec := postBook(srv); rec.Code != http.StatusForbidden {
+			t.Errorf("role %q → status %d, want 403", role, rec.Code)
 		}
 	}
 }
 
 func TestRequestBookConflict(t *testing.T) {
-	srv := newTestServer(Deps{Requester: fakeRequester{err: book.ErrAlreadyRequested}})
-	if rec := postBook(srv, testAdminToken); rec.Code != http.StatusConflict {
+	srv := newTestServer(Deps{
+		Requester: fakeRequester{err: book.ErrAlreadyRequested},
+		Sessions:  &fakeSessions{user: userWithRole(auth.RoleAdmin)},
+	})
+	if rec := postBook(srv); rec.Code != http.StatusConflict {
 		t.Errorf("status = %d, want 409", rec.Code)
 	}
 }
 
-// 읽기 엔드포인트는 관리자 토큰 없이 열려 있어야 한다.
-func TestReadEndpointsNeedNoToken(t *testing.T) {
+// 읽기 엔드포인트는 비로그인도 볼 수 있어야 한다.
+func TestReadEndpointsNeedNoLogin(t *testing.T) {
 	srv := newTestServer(Deps{Reader: fakeReader{view: &book.ChapterView{TotalChapters: 1}}})
 
 	rec := httptest.NewRecorder()
@@ -202,4 +256,101 @@ func TestReadEndpointsNeedNoToken(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", rec.Code)
 	}
+}
+
+// 검수는 로그인 + reviewer 이상이어야 한다.
+func TestReviewProposalRequiresReviewerRole(t *testing.T) {
+	post := func(srv *Server) int {
+		rec := httptest.NewRecorder()
+		body := strings.NewReader(`{"action":"approve"}`)
+		req := httptest.NewRequest(http.MethodPost, "/proposals/1/review", body)
+		req.Header.Set("Content-Type", "application/json")
+		srv.Router().ServeHTTP(rec, req)
+		return rec.Code
+	}
+
+	tests := []struct {
+		name string
+		user *gendb.User
+		want int
+	}{
+		{"비로그인", nil, http.StatusUnauthorized},
+		{"member", userWithRole(auth.RoleMember), http.StatusForbidden},
+		{"reviewer", userWithRole(auth.RoleReviewer), http.StatusOK},
+		{"admin", userWithRole(auth.RoleAdmin), http.StatusOK},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := newTestServer(Deps{
+				Sessions:  &fakeSessions{user: tt.user},
+				Translate: fakeTranslator{},
+			})
+			if got := post(srv); got != tt.want {
+				t.Errorf("status = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCurrentUser(t *testing.T) {
+	srv := newTestServer(Deps{Sessions: &fakeSessions{user: userWithRole(auth.RoleReviewer)}})
+
+	rec := httptest.NewRecorder()
+	srv.Router().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/auth/me", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+
+	var got gen.CurrentUser
+	if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil {
+		t.Fatalf("디코드: %v", err)
+	}
+	if got.Handle != "tester" || got.Role != gen.Reviewer {
+		t.Errorf("user = %+v", got)
+	}
+}
+
+func TestCurrentUserUnauthenticated(t *testing.T) {
+	srv := newTestServer(Deps{})
+	rec := httptest.NewRecorder()
+	srv.Router().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/auth/me", nil))
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("status = %d, want 401", rec.Code)
+	}
+}
+
+// 로그아웃은 세션을 즉시 폐기해야 한다.
+func TestLogoutRevokesSession(t *testing.T) {
+	sessions := &fakeSessions{user: userWithRole(auth.RoleMember)}
+	srv := newTestServer(Deps{Sessions: sessions})
+
+	rec := httptest.NewRecorder()
+	srv.Router().ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/auth/logout", nil))
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want 204", rec.Code)
+	}
+	if !sessions.revoked {
+		t.Error("세션이 폐기되지 않았다")
+	}
+}
+
+// 로그인 시작은 Google로 리다이렉트한다.
+func TestGoogleStartRedirects(t *testing.T) {
+	srv := newTestServer(Deps{})
+	rec := httptest.NewRecorder()
+	srv.Router().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/auth/google/start", nil))
+
+	if rec.Code != http.StatusFound {
+		t.Fatalf("status = %d, want 302", rec.Code)
+	}
+	if loc := rec.Header().Get("Location"); loc != "https://accounts.google.example" {
+		t.Errorf("Location = %q", loc)
+	}
+}
+
+// fakeTranslator는 검수 권한 검사만 보기 위한 최소 대역이다.
+type fakeTranslator struct{ Translator }
+
+func (fakeTranslator) Approve(context.Context, int64, int64, string) (*gendb.ParagraphTranslation, error) {
+	return &gendb.ParagraphTranslation{}, nil
 }

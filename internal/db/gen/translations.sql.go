@@ -71,6 +71,41 @@ func (q *Queries) ChapterCoverage(ctx context.Context, arg ChapterCoverageParams
 	return i, err
 }
 
+const createGoogleUser = `-- name: CreateGoogleUser :one
+INSERT INTO users (handle, display_name, role, email, google_sub)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, handle, display_name, role, created_at, email, google_sub
+`
+
+type CreateGoogleUserParams struct {
+	Handle      string
+	DisplayName string
+	Role        string
+	Email       pgtype.Text
+	GoogleSub   pgtype.Text
+}
+
+func (q *Queries) CreateGoogleUser(ctx context.Context, arg CreateGoogleUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createGoogleUser,
+		arg.Handle,
+		arg.DisplayName,
+		arg.Role,
+		arg.Email,
+		arg.GoogleSub,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Handle,
+		&i.DisplayName,
+		&i.Role,
+		&i.CreatedAt,
+		&i.Email,
+		&i.GoogleSub,
+	)
+	return i, err
+}
+
 const createProject = `-- name: CreateProject :one
 INSERT INTO translation_projects (book_id, target_lang)
 VALUES ($1, $2)
@@ -131,6 +166,64 @@ func (q *Queries) CreateProposal(ctx context.Context, arg CreateProposalParams) 
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const createSession = `-- name: CreateSession :one
+INSERT INTO sessions (id, user_id, expires_at, user_agent)
+VALUES ($1, $2, $3, $4)
+RETURNING id, user_id, expires_at, created_at, user_agent
+`
+
+type CreateSessionParams struct {
+	ID        string
+	UserID    int64
+	ExpiresAt pgtype.Timestamptz
+	UserAgent string
+}
+
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, createSession,
+		arg.ID,
+		arg.UserID,
+		arg.ExpiresAt,
+		arg.UserAgent,
+	)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UserAgent,
+	)
+	return i, err
+}
+
+const deleteExpiredSessions = `-- name: DeleteExpiredSessions :exec
+DELETE FROM sessions WHERE expires_at <= now()
+`
+
+func (q *Queries) DeleteExpiredSessions(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deleteExpiredSessions)
+	return err
+}
+
+const deleteSession = `-- name: DeleteSession :exec
+DELETE FROM sessions WHERE id = $1
+`
+
+func (q *Queries) DeleteSession(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, deleteSession, id)
+	return err
+}
+
+const deleteUserSessions = `-- name: DeleteUserSessions :exec
+DELETE FROM sessions WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserSessions(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteUserSessions, userID)
+	return err
 }
 
 const findOrphanedTranslations = `-- name: FindOrphanedTranslations :many
@@ -244,9 +337,57 @@ func (q *Queries) GetProposal(ctx context.Context, id int64) (TranslationProposa
 	return i, err
 }
 
+const getSessionUser = `-- name: GetSessionUser :one
+SELECT u.id, u.handle, u.display_name, u.role, u.created_at, u.email, u.google_sub FROM sessions s
+JOIN users u ON u.id = s.user_id
+WHERE s.id = $1 AND s.expires_at > now()
+`
+
+type GetSessionUserRow struct {
+	User User
+}
+
+// 만료된 세션은 조회 단계에서 걸러낸다. 정리 잡을 기다리지 않는다.
+func (q *Queries) GetSessionUser(ctx context.Context, id string) (GetSessionUserRow, error) {
+	row := q.db.QueryRow(ctx, getSessionUser, id)
+	var i GetSessionUserRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Handle,
+		&i.User.DisplayName,
+		&i.User.Role,
+		&i.User.CreatedAt,
+		&i.User.Email,
+		&i.User.GoogleSub,
+	)
+	return i, err
+}
+
+const getUserByGoogleSub = `-- name: GetUserByGoogleSub :one
+
+SELECT id, handle, display_name, role, created_at, email, google_sub FROM users WHERE google_sub = $1
+`
+
+// 인증 (슬라이스 5).
+// google_sub으로 찾는다. 이메일은 바뀌므로 식별자로 쓰지 않는다.
+func (q *Queries) GetUserByGoogleSub(ctx context.Context, googleSub pgtype.Text) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByGoogleSub, googleSub)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Handle,
+		&i.DisplayName,
+		&i.Role,
+		&i.CreatedAt,
+		&i.Email,
+		&i.GoogleSub,
+	)
+	return i, err
+}
+
 const getUserByHandle = `-- name: GetUserByHandle :one
 
-SELECT id, handle, display_name, role, created_at FROM users WHERE handle = $1
+SELECT id, handle, display_name, role, created_at, email, google_sub FROM users WHERE handle = $1
 `
 
 // 번역 제안과 검수.
@@ -260,8 +401,22 @@ func (q *Queries) GetUserByHandle(ctx context.Context, handle string) (User, err
 		&i.DisplayName,
 		&i.Role,
 		&i.CreatedAt,
+		&i.Email,
+		&i.GoogleSub,
 	)
 	return i, err
+}
+
+const handleExists = `-- name: HandleExists :one
+SELECT EXISTS (SELECT 1 FROM users WHERE handle = $1)
+`
+
+// handle 충돌 확인용.
+func (q *Queries) HandleExists(ctx context.Context, handle string) (bool, error) {
+	row := q.db.QueryRow(ctx, handleExists, handle)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const listChapterParagraphsWithTranslation = `-- name: ListChapterParagraphsWithTranslation :many
@@ -537,6 +692,40 @@ func (q *Queries) SupersedeCurrentProposal(ctx context.Context, arg SupersedeCur
 	return err
 }
 
+const updateUserFromGoogle = `-- name: UpdateUserFromGoogle :one
+UPDATE users
+   SET display_name = $2, email = $3, role = $4
+ WHERE id = $1
+RETURNING id, handle, display_name, role, created_at, email, google_sub
+`
+
+type UpdateUserFromGoogleParams struct {
+	ID          int64
+	DisplayName string
+	Email       pgtype.Text
+	Role        string
+}
+
+func (q *Queries) UpdateUserFromGoogle(ctx context.Context, arg UpdateUserFromGoogleParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUserFromGoogle,
+		arg.ID,
+		arg.DisplayName,
+		arg.Email,
+		arg.Role,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Handle,
+		&i.DisplayName,
+		&i.Role,
+		&i.CreatedAt,
+		&i.Email,
+		&i.GoogleSub,
+	)
+	return i, err
+}
+
 const upsertParagraphTranslation = `-- name: UpsertParagraphTranslation :one
 INSERT INTO paragraph_translations
        (project_id, paragraph_stable_id, text, proposal_id, approved_by)
@@ -582,7 +771,7 @@ const upsertUser = `-- name: UpsertUser :one
 INSERT INTO users (handle, display_name, role)
 VALUES ($1, $2, $3)
 ON CONFLICT (handle) DO UPDATE SET display_name = EXCLUDED.display_name
-RETURNING id, handle, display_name, role, created_at
+RETURNING id, handle, display_name, role, created_at, email, google_sub
 `
 
 type UpsertUserParams struct {
@@ -600,6 +789,8 @@ func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) (User, e
 		&i.DisplayName,
 		&i.Role,
 		&i.CreatedAt,
+		&i.Email,
+		&i.GoogleSub,
 	)
 	return i, err
 }

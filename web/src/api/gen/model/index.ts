@@ -14,6 +14,8 @@ export * from './bookRequestAcceptedStatus.ts';
 export * from './chapter.ts';
 export * from './chapterView.ts';
 export * from './coverage.ts';
+export * from './currentUser.ts';
+export * from './currentUserRole.ts';
 export * from './error.ts';
 export * from './health.ts';
 export * from './healthDb.ts';

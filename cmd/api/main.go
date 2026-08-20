@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/dinnertime/reclassic/internal/api"
+	"github.com/dinnertime/reclassic/internal/auth"
 	"github.com/dinnertime/reclassic/internal/book"
 	"github.com/dinnertime/reclassic/internal/config"
 	"github.com/dinnertime/reclassic/internal/db"
@@ -45,15 +46,13 @@ func run(log *slog.Logger) error {
 	if err != nil {
 		return err
 	}
-	// 관리자 엔드포인트를 막는 임시 가드. 비어 있으면 기동하지 않는다 —
-	// 무인증으로 열린 채 배포되는 것이 최악이다.
-	adminToken, err := config.Require("ADMIN_TOKEN")
-	if err != nil {
-		return err
-	}
 	// 브라우저가 이 API를 직접 부를 수 있는 출처. 쉼표로 구분한다 (ADR-026).
 	// 기본값을 조용히 채우지 않는다 — 비어 있으면 교차 출처 호출이 전부 막힌다.
 	origins, err := config.RequireList("CORS_ALLOWED_ORIGINS")
+	if err != nil {
+		return err
+	}
+	googleCfg, cookieCfg, err := authConfig()
 	if err != nil {
 		return err
 	}
@@ -83,7 +82,8 @@ func run(log *slog.Logger) error {
 			Reader:         book.NewReader(pool),
 			Requester:      book.NewRequester(pool, jobs.NewEnqueuer(riverClient)),
 			Translate:      translate.NewService(pool),
-			AdminToken:     adminToken,
+			Sessions:       auth.NewSessions(pool, cookieCfg),
+			Google:         auth.NewGoogle(pool, googleCfg, cookieCfg),
 			AllowedOrigins: origins,
 			Version:        version,
 			Log:            log,
@@ -114,4 +114,35 @@ func run(log *slog.Logger) error {
 
 	log.Info("api 종료 완료")
 	return nil
+}
+
+// authConfig는 Google 로그인과 쿠키 설정을 읽는다.
+// 하나라도 비면 기동하지 않는다 — 로그인할 수 없는 배포는 사고다.
+func authConfig() (auth.GoogleConfig, auth.CookieConfig, error) {
+	var g auth.GoogleConfig
+	var c auth.CookieConfig
+
+	for _, f := range []struct {
+		key string
+		dst *string
+	}{
+		{"GOOGLE_CLIENT_ID", &g.ClientID},
+		{"GOOGLE_CLIENT_SECRET", &g.ClientSecret},
+		{"GOOGLE_REDIRECT_URL", &g.RedirectURL},
+		// 마스터 관리자. 관리자가 아무도 없는 배포를 막는다 (ADR-027).
+		{"ADMIN_EMAIL", &g.AdminEmail},
+		{"LOGIN_SUCCESS_REDIRECT", &g.SuccessRedirect},
+	} {
+		v, err := config.Require(f.key)
+		if err != nil {
+			return g, c, err
+		}
+		*f.dst = v
+	}
+
+	// 로컬 http에서는 Secure를 꺼야 쿠키가 붙는다.
+	// 프로덕션에서 켜는 것을 잊지 말 것.
+	c.Secure = os.Getenv("COOKIE_SECURE") == "true"
+	c.Domain = os.Getenv("COOKIE_DOMAIN")
+	return g, c, nil
 }

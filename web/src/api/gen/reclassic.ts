@@ -11,6 +11,7 @@ import type {
   BookRequest,
   BookRequestAccepted,
   ChapterView,
+  CurrentUser,
   Error,
   Health,
   Project,
@@ -107,6 +108,85 @@ export const getBookChapter = async (gutenbergId: number,
 
 
 
+export type getCurrentUserResponse200 = {
+  data: CurrentUser
+  status: 200
+}
+
+export type getCurrentUserResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type getCurrentUserResponseSuccess = (getCurrentUserResponse200) & {
+  headers: Headers;
+};
+export type getCurrentUserResponseError = (getCurrentUserResponse401) & {
+  headers: Headers;
+};
+
+export type getCurrentUserResponse = (getCurrentUserResponseSuccess | getCurrentUserResponseError)
+
+export const getGetCurrentUserUrl = () => {
+
+
+
+
+  return `/auth/me`
+}
+
+/**
+ * @summary 현재 로그인한 사용자
+ */
+export const getCurrentUser = async ( options?: Parameters<typeof apiFetch>[1]): Promise<getCurrentUserResponse> => {
+
+  return apiFetch<getCurrentUserResponse>(getGetCurrentUserUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type logoutResponse204 = {
+  data: void
+  status: 204
+}
+
+export type logoutResponseSuccess = (logoutResponse204) & {
+  headers: Headers;
+};
+;
+
+export type logoutResponse = (logoutResponseSuccess)
+
+export const getLogoutUrl = () => {
+
+
+
+
+  return `/auth/logout`
+}
+
+/**
+ * @summary 로그아웃 — 세션을 즉시 무효화한다
+ */
+export const logout = async ( options?: Parameters<typeof apiFetch>[1]): Promise<logoutResponse> => {
+
+  return apiFetch<logoutResponse>(getLogoutUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
 export type requestBookResponse202 = {
   data: BookRequestAccepted
   status: 202
@@ -117,6 +197,11 @@ export type requestBookResponse401 = {
   status: 401
 }
 
+export type requestBookResponse403 = {
+  data: Error
+  status: 403
+}
+
 export type requestBookResponse409 = {
   data: Error
   status: 409
@@ -125,7 +210,7 @@ export type requestBookResponse409 = {
 export type requestBookResponseSuccess = (requestBookResponse202) & {
   headers: Headers;
 };
-export type requestBookResponseError = (requestBookResponse401 | requestBookResponse409) & {
+export type requestBookResponseError = (requestBookResponse401 | requestBookResponse403 | requestBookResponse409) & {
   headers: Headers;
 };
 
@@ -369,6 +454,11 @@ export type createProjectResponse401 = {
   status: 401
 }
 
+export type createProjectResponse403 = {
+  data: Error
+  status: 403
+}
+
 export type createProjectResponse404 = {
   data: Error
   status: 404
@@ -377,7 +467,7 @@ export type createProjectResponse404 = {
 export type createProjectResponseSuccess = (createProjectResponse201) & {
   headers: Headers;
 };
-export type createProjectResponseError = (createProjectResponse401 | createProjectResponse404) & {
+export type createProjectResponseError = (createProjectResponse401 | createProjectResponse403 | createProjectResponse404) & {
   headers: Headers;
 };
 
