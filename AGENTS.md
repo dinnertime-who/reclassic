@@ -53,7 +53,7 @@ FetchSource → R2 → ParseBook → 적재가 자동으로 돕니다.
 `approved`가 둘 남습니다. 승인 트랜잭션 맨 앞의 자문 잠금을 빼지 마세요 —
 단발 테스트로는 통과합니다.
 
-**슬라이스 5(세션 인증)도 끝났습니다.** Google 로그인 + Postgres 세션이고,
+**슬라이스 5(세션 인증)도 끝났습니다 — 실물 로그인까지 검증했습니다.** Google 로그인 + Postgres 세션이고,
 임시 헤더(`X-User-Handle`·`X-Admin-Token`)는 코드·계약·환경변수에서 전부 사라졌습니다.
 관리자는 `ADMIN_EMAIL`과 일치하는 Google 계정입니다 (ADR-027).
 
