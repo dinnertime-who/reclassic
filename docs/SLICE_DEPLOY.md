@@ -225,12 +225,39 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 
 ### 5.1 도메인 (가장 먼저)
 
-서브도메인 둘. **같은 상위 도메인이어야 세션 쿠키가 공유된다** (ADR-027의 `COOKIE_DOMAIN`).
+**발급만으로는 안 된다. DNS 레코드를 직접 넣어야 한다.**
+
+**같은 상위 도메인을 써야 세션 쿠키가 공유된다** (ADR-027의 `COOKIE_DOMAIN`).
+웹을 다른 호스팅(예: Vercel)에 두면 쿠키가 갈려 로그인이 되지 않는다.
 
 ```
 reclassic.example        웹
 api.reclassic.example    API
 ```
+
+**절차**
+
+1. 도메인 발급
+2. Railway 서비스마다 `Settings → Networking → Custom Domain` 등록 →
+   **CNAME 대상**(`xxxx.up.railway.app`)을 받는다. 서비스마다 값이 다르다
+3. DNS에 CNAME 추가
+
+   ```
+   api.reclassic.example   CNAME → <api 서비스가 준 값>
+   reclassic.example       CNAME → <web 서비스가 준 값>   ← apex, 아래 주의
+   ```
+
+4. TLS는 Railway가 자동 발급한다. DNS 전파를 기다리면 된다
+
+**걸리는 곳 둘**
+
+- **apex 도메인에는 CNAME을 넣을 수 없다** (DNS 표준 제약).
+  Cloudflare DNS의 CNAME flattening을 쓰거나, 웹도 서브도메인(`www.`)으로 두고
+  apex는 리다이렉트한다.
+- **Cloudflare 프록시(주황 구름)를 처음부터 켜지 말 것.**
+  DNS only(회색)로 두고 Railway 인증서가 발급된 것을 확인한 뒤,
+  켤 거면 SSL/TLS 모드를 **Full (strict)**로 맞추고 켠다.
+  순서가 반대면 이중 프록시로 발급이 막힌다.
 
 이게 정해지면 아래 값이 전부 확정된다:
 `CORS_ALLOWED_ORIGINS` · `COOKIE_DOMAIN` · `GOOGLE_REDIRECT_URL` ·
