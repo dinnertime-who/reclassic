@@ -45,8 +45,12 @@ ADR-002가 Railway 4서비스를 정한 지 오래됐지만 **실물로 돌아�
 
 | | 상태 |
 |---|---|
+| **마이그레이션 실행 위치** | **정해졌다 — pre-deploy 명령 (ADR-030).** §4.4 |
 | **도메인** | **미정.** 나머지 환경변수 값이 전부 여기 의존한다 |
-| **마이그레이션 실행 위치** | **미정.** §4.4 |
+
+도메인은 파일을 쓰는 데는 필요 없다 — Dockerfile은 도메인을 모르고,
+환경변수는 저장소가 아니라 Railway 대시보드에 들어간다.
+**Railway를 실제로 설정하는 시점에 필요하다.** §6에 모아 뒀다.
 
 ---
 
@@ -57,7 +61,7 @@ ADR-002가 Railway 4서비스를 정한 지 오래됐지만 **실물로 돌아�
 | `Dockerfile` | Go 서비스 공용. `--build-arg CMD=api\|worker` |
 | `web/Dockerfile` | TanStack Start (Node) |
 | `.dockerignore` | `.cache/`·`node_modules`·`bin/` 제외 |
-| `docs/DECISIONS.md` | 마이그레이션 실행 위치 ADR |
+| Railway pre-deploy 명령 | `tools/migrate` 실행 (ADR-030) |
 | `AGENTS.md` | 배포 절차 |
 
 ---
@@ -148,19 +152,28 @@ CMD ["node", ".output/server/index.mjs"]
 
 **`api`는 `[::]`에 바인딩한다** (불변식 4). 이미 그렇게 돼 있고, 이 슬라이스가 그것을 처음 검증한다.
 
-### 4.4 마이그레이션 실행 자리 — **미결**
+### 4.4 마이그레이션은 pre-deploy 명령으로 실행한다 (ADR-030)
 
-`make migrate`는 `tools/migrate`를 `go run`으로 돌린다. Railway에는 그 자리가 없다.
+`make migrate`는 `tools/migrate`를 `go run`으로 돌린다. Railway에는 그 자리가 없다 —
+서비스를 띄우는 것만 하지 "이 명령을 한 번 실행" 하는 자리가 기본적으로 없다.
 
-| 안 | 장점 | 단점 |
-|---|---|---|
-| A. pre-deploy 명령 | 배포마다 자동, 배포당 한 번만 실행 | 실패 시 배포가 막힌다 |
-| B. 일회성 서비스 수동 실행 | 통제 가능 | 배포할 때마다 잊기 쉽다 |
-| C. api 기동 시 자동 | 설정 없음 | **인스턴스가 여럿이면 경합.** ADR-022가 기각한 방식 |
+순서가 틀리면 바로 깨진다. `00003_auth.sql`이 `sessions`를 만드는데,
+그 SQL 없이 새 API 코드가 뜨면 로그인마다 `relation "sessions" does not exist`다.
+**스키마가 코드보다 먼저 가 있어야 한다.**
 
-Dockerfile을 쓰면 A가 자연스럽다 — `tools/migrate`를 같은 이미지에 넣고
-pre-deploy로 부르면 된다. 배포당 한 번만 도니 ADR-022의 경합 우려가 해소된다.
-**정하고 ADR로 남길 것.**
+**결정: Railway pre-deploy 명령.** 새 버전을 띄우기 전에 한 번 실행된다.
+
+**Dockerfile에 미치는 영향:** `tools/migrate`도 바이너리로 빌드해 같은 이미지에 넣는다.
+Go Dockerfile이 `api`·`worker`·`migrate` 셋을 빌드 인자로 가르게 된다.
+
+```
+--build-arg CMD=api      → /app  (api)
+--build-arg CMD=worker   → /app  (worker)
+tools/migrate            → 이미지에 함께 포함. pre-deploy가 부른다
+```
+
+pre-deploy는 `api` 서비스 하나에만 건다. `worker`에도 걸면 배포마다 두 번 돈다 —
+goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 
 ### 4.5 환경변수
 
@@ -205,7 +218,55 @@ pre-deploy로 부르면 된다. 배포당 한 번만 도니 ADR-022의 경합 �
 
 ---
 
-## 5. 반드시 지킬 것
+## 5. 사람이 직접 해야 하는 것 — 체크리스트
+
+에이전트가 할 수 없는 작업이다. **순서대로 하면 뒤 항목의 값이 앞에서 정해진다.**
+
+### 5.1 도메인 (가장 먼저)
+
+서브도메인 둘. **같은 상위 도메인이어야 세션 쿠키가 공유된다** (ADR-027의 `COOKIE_DOMAIN`).
+
+```
+reclassic.example        웹
+api.reclassic.example    API
+```
+
+이게 정해지면 아래 값이 전부 확정된다:
+`CORS_ALLOWED_ORIGINS` · `COOKIE_DOMAIN` · `GOOGLE_REDIRECT_URL` ·
+`LOGIN_SUCCESS_REDIRECT` · `VITE_API_URL` · `VITE_LOGIN_URL` · `PUBLIC_BASE_URL`
+
+### 5.2 Cloudflare R2
+
+- 버킷 생성 (예: `reclassic-sources`)
+- R2 API 토큰 발급 → `R2_ACCOUNT_ID` · `R2_ACCESS_KEY_ID` · `R2_SECRET_ACCESS_KEY`
+
+현재 `.env` 값은 **로컬 MinIO 자격증명**이다. 그대로 쓰면 안 된다.
+
+### 5.3 Google OAuth — 프로덕션
+
+로컬 클라이언트에 URI를 추가하거나 별도 클라이언트를 만든다.
+
+- 승인된 리디렉션 URI에 `https://<api도메인>/auth/google/callback` 추가
+- **OAuth 동의 화면을 테스트 → 프로덕션으로 게시.** 안 하면 테스트 사용자만 로그인된다
+
+### 5.4 Railway
+
+1. 프로젝트 생성, GitHub 저장소 연결
+2. **Postgres 플러그인** 추가
+3. 서비스 셋 생성 — 각각 Dockerfile 경로와 빌드 인자를 지정 (§4.3)
+4. 서비스별 환경변수 입력 (§4.5)
+5. **`api` 서비스에 pre-deploy 명령 등록** — 마이그레이션 (§4.4)
+6. 메모리 설정: `worker` 1GB / `api`·`web` 512MB (§4.2)
+7. 커스텀 도메인 연결
+
+### 5.5 배포 후 확인
+
+§7 완료 조건을 위에서부터 훑는다. 특히 **SSR이 `api.railway.internal`을 쓰는지**와
+**서브도메인 간 쿠키 공유**가 이 슬라이스의 핵심 검증이다.
+
+---
+
+## 6. 반드시 지킬 것
 
 1. **`[::]`에 바인딩한다.** `0.0.0.0`은 서비스 간 내부 호출을 받지 못한다.
 2. **`COOKIE_SECURE=true`.** 로컬에서만 false다.
@@ -217,7 +278,7 @@ pre-deploy로 부르면 된다. 배포당 한 번만 도니 ADR-022의 경합 �
 
 ---
 
-## 6. 완료 조건
+## 7. 완료 조건
 
 - [ ] `docker build --build-arg CMD=api .`와 `CMD=worker`가 각각 바이너리 하나만 담은 이미지를 만든다
 - [ ] `web/Dockerfile`이 pnpm 10.28.1로 빌드하고 런타임 이미지에 devDependencies가 없다
@@ -227,12 +288,13 @@ pre-deploy로 부르면 된다. 배포당 한 번만 도니 ADR-022의 경합 �
 - [ ] **웹과 API가 다른 서브도메인인데 세션 쿠키가 공유된다** (`COOKIE_DOMAIN`)
 - [ ] 관리자가 도서 한 권을 지시하면 수집·파싱·적재가 끝까지 돈다
 - [ ] 읽기 화면이 프로덕션에서 뜨고 `noindex`가 붙어 있다
-- [ ] 마이그레이션이 배포 흐름 안에서 한 번만 실행된다 (§4.4)
+- [ ] **pre-deploy 명령으로 마이그레이션이 배포당 한 번만 실행된다** (ADR-030)
+- [ ] 마이그레이션이 실패하면 새 버전이 뜨지 않는다
 - [ ] `make lint && make test` 통과
 
 ---
 
-## 7. 다음
+## 8. 다음
 
 이 슬라이스가 끝나면 **ADR-028의 숙제에 답할 수 있다** — 운영이 실제로 아픈가.
 아프면 안 C(Workers + Hyperdrive + Postgres)를 다시 연다. 아니면 화면 슬라이스로 간다.

@@ -61,8 +61,12 @@ FetchSource → R2 → ParseBook → 적재가 자동으로 돕니다.
 ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 —
 `[::]` 바인딩, `railway.internal`, 서브도메인 간 쿠키 공유가 전부 미확인입니다.
 
-빌드는 Nixpacks가 아니라 Dockerfile입니다 (ADR-029).
-**착수 블로커 둘이 남아 있습니다: 도메인, 마이그레이션 실행 위치.**
+빌드는 Nixpacks가 아니라 Dockerfile이고(ADR-029),
+마이그레이션은 pre-deploy 명령으로 돕니다(ADR-030).
+
+**사람이 직접 해야 하는 작업은 `SLICE_DEPLOY.md` §5에 모여 있습니다** —
+도메인·R2·Google 프로덕션 클라이언트·Railway 대시보드.
+**남은 블로커는 도메인 하나입니다.**
 
 계획된 순서:
 
