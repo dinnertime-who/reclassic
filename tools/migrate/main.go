@@ -1,5 +1,8 @@
-// `make migrate`의 진입점. 배포되지 않는 개발 도구라 cmd/ 가 아니라 tools/ 에 둔다.
-// cmd/ 에는 배포 단위(api·worker)와 스파이크 실행기(parsecheck)만 있다.
+// `make migrate`의 진입점. cmd/ 에는 상주 서비스(api·worker)와 스파이크 실행기(parsecheck)만
+// 두고, 한 번 돌고 끝나는 도구는 tools/ 에 둔다.
+//
+// 상주하지는 않지만 이미지에는 들어간다 — Railway의 pre-deploy 명령이 `/migrate`를 부른다
+// (ADR-030). 그래서 Dockerfile이 api·worker와 함께 이 바이너리도 빌드한다.
 package main
 
 import (

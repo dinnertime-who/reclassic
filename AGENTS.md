@@ -69,6 +69,12 @@ ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 �
 **사람이 직접 해야 하는 것은 §6입니다** — 도메인 발급과 DNS 레코드, R2, Google 프로덕션 클라이언트.
 **남은 블로커는 도메인 하나입니다.**
 
+**저장소 쪽 산출물은 들어왔고 로컬에서 검증했습니다** — `Dockerfile`·`web/Dockerfile`·
+`.dockerignore`·`railway.api.json`·`railway.worker.json`·`railway.web.json`.
+두 이미지가 빌드되고, 컨테이너 둘을 띄워 **SSR이 내부 호스트로 API를 부르는 것**과
+`db: ok`까지 확인했습니다 (2026-08-20). 자세한 것은 아래 "배포 (Railway)" 절입니다.
+**아직 Railway에 올려본 적은 없습니다** — 남은 것은 도메인과 §6의 사람 작업입니다.
+
 계획된 순서:
 
 | | 슬라이스 | 명세 |
@@ -134,9 +140,38 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | golden 스냅샷 비교 | `make golden` |
 | golden 스냅샷 갱신 | `make golden GOLDEN_UPDATE=1` |
 | PR 생성 | `make pr` (또는 `./scripts/gh pr create ...`) |
+| Go 이미지 빌드 (api·worker·migrate) | `make docker-build` |
+| 웹 이미지 빌드 | `make docker-build-web` |
 
 `go test ./...`나 `npm run ...`을 직접 추론해서 실행하지 마세요.
 **Makefile이 유일한 진입점입니다.** 필요한 명령이 없으면 Makefile에 추가하고 이 표도 같이 갱신하세요.
+
+## 배포 (Railway)
+
+전체 절차와 사람이 직접 해야 하는 것은 `docs/SLICE_DEPLOY.md`에 있습니다. 여기는 요약입니다.
+
+**서비스 넷이 같은 저장소를 봅니다.** 빌드·배포 설정은 서비스마다 파일로 저장소에 있습니다 (ADR-031).
+
+| 서비스 | 설정 파일 | 이미지 | 실행 | 메모리 |
+|---|---|---|---|---|
+| `api` | `railway.api.json` | `Dockerfile` | `/api` (pre-deploy `/migrate`) | 512MB |
+| `worker` | `railway.worker.json` | `Dockerfile` | `/worker` | 1GB |
+| `web` | `railway.web.json` | `web/Dockerfile` | 이미지 `CMD` | 512MB |
+| `postgres` | — | Railway 관리형 | — | — |
+
+- **Go 바이너리 셋이 한 이미지에 들어갑니다.** `startCommand`로 가릅니다 —
+  Railway 설정 파일에 임의의 빌드 인자를 선언하는 자리가 없기 때문입니다 (ADR-031·032).
+  그래서 `Dockerfile`에 `ENTRYPOINT`를 박지 않습니다. **빼지 마세요.**
+- **마이그레이션은 `api`의 pre-deploy 명령으로 돕니다** (ADR-030). 실패하면 새 버전이 뜨지 않습니다.
+  `worker`에는 걸지 않습니다 — 배포마다 두 번 도는 것 말고 얻는 게 없습니다.
+- **설정은 런타임에 읽습니다. 예외가 `VITE_*` 둘입니다** (ADR-032).
+  `VITE_API_URL`·`VITE_LOGIN_URL`은 빌드 시점에 클라이언트 번들에 박히므로
+  `web/Dockerfile`이 `ARG`로 받습니다. **값이 바뀌면 재시작이 아니라 재빌드입니다.**
+- **웹 빌드 컨텍스트는 저장소 루트입니다.** Railway에서 `source.rootDirectory`를
+  건드리지 않는 것이 곧 이 조건입니다 (ADR-029).
+
+배포 상태는 `railway deployment list --json`이 `SUCCESS`를 줄 때까지 성공이 아닙니다.
+빌드가 큐에 들어간 것과 뜬 것은 다릅니다.
 
 ## 작업 규칙
 
@@ -173,6 +208,13 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
   LAN·Tailscale로 접속하려면 그 출처를 `CORS_ALLOWED_ORIGINS`에 추가하세요.
 - **시크릿을 `railway.json`에 넣지 마세요.** 커밋되는 파일입니다. 값은 Railway 변수로 갑니다.
   CLI로 넣을 때는 `--stdin`을 쓰세요 — 인자로 주면 셸 히스토리에 남습니다 (ADR-031).
+- **`Dockerfile`에 `ENTRYPOINT`·`CMD`를 넣지 마세요.** 바이너리 셋이 한 이미지에 있고
+  서비스별 `startCommand`가 고릅니다 (ADR-031). 박으면 셋 중 하나로 고정됩니다.
+- **`startCommand`에 `$PORT` 같은 변수를 쓰지 마세요.** exec form이라 확장되지 않습니다.
+  포트는 Go 코드가 환경변수에서 직접 읽습니다.
+- **`source.rootDirectory`를 설정하지 마세요.** 웹 빌드가 저장소 루트를 봐야 합니다 (ADR-029).
+- **`.railway/railway.ts`를 같이 두지 마세요.** `railway.json`과 두 모델은 같은 서비스를
+  함께 관리할 수 없습니다 (ADR-031).
 - **`gh`를 직접 부르지 마세요. `./scripts/gh`를 쓰세요.** `gh`의 활성 계정은 머신 전역이라
   다른 저장소를 오가면 바뀌고, 이 저장소의 협업자가 아니면 `must be a collaborator`로 막힙니다.
   래퍼가 keyring에서 토큰을 꺼내 계정을 고정합니다 — **`gh auth switch`를 쓰지 마세요.**

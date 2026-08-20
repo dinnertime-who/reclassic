@@ -5,7 +5,7 @@
 임시 헤더를 걷어낸 뒤에야 시작할 수 있다.
 **다음 슬라이스:** 편집·검수 화면 — 아직 명세 없음
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md` (특히 "핵심 불변식 4"),
-`docs/DECISIONS.md` (특히 ADR-001 / 002 / 008 / 019 / 022 / 026 / 027 / 028 / 029 / 030 / 031)
+`docs/DECISIONS.md` (특히 ADR-001 / 002 / 008 / 019 / 022 / 026 / 027 / 028 / 029 / 030 / 031 / 032 / 033)
 
 ---
 
@@ -50,7 +50,7 @@ ADR-002가 Railway 4서비스를 정한 지 오래됐지만 **실물로 돌아�
 |---|---|
 | **마이그레이션 실행 위치** | **정해졌다 — pre-deploy 명령 (ADR-030).** §4.4 |
 | **설정을 어디에 두는가** | **정해졌다 — 서비스별 `railway.json` (ADR-031).** §4.3 |
-| **도메인** | **미정.** 나머지 환경변수 값이 전부 여기 의존한다 |
+| **도메인** | **정해졌다 (2026-08-20).** 웹 `reclassic.dinnertimes.app` · API `api-reclassic.dinnertimes.app` (ADR-033) |
 
 도메인은 파일을 쓰는 데는 필요 없다 — Dockerfile도 `railway.json`도 도메인을 모르고,
 환경변수는 저장소가 아니라 Railway에 들어간다.
@@ -101,26 +101,45 @@ COPY --from=build /out/ /
 
 - **빌드 인자로 가르지 않는다.** Railway 설정 표면에 Docker 빌드 인자가 없다 (ADR-031).
   **셋을 다 넣고 서비스별 `startCommand`로 고른다.** `ENTRYPOINT`를 박지 않는 이유가 이것이다.
+
 - `CGO_ENABLED=0`. distroless static에 libc가 없다.
 - 런타임 이미지에 SQL 파일을 싣지 않는다. 이미 바이너리 안에 있다.
 - `.env`를 이미지에 넣지 않는다. Railway 환경변수로 주입한다.
+
+**실측 (2026-08-20, 로컬 `make docker-build`)**
+
+| | |
+|---|---|
+| Go 이미지 | **57.3MB** — `/api` 12.5MB · `/worker` 15.0MB · `/migrate` 10.4MB |
+| 웹 이미지 | **349MB** — 대부분 `node:24-slim` 베이스. `.output` 말고는 아무것도 없다 |
+| 빌드 컨텍스트 | 276MB → **1MB 미만** (`.dockerignore` 적용 후) |
+
+ADR-029가 말한 "20~30MB"는 바이너리 하나 기준이다. 셋을 넣어 57MB가 됐다 — 여전히 작다.
+셋 다 distroless 안에서 실행되는 것을 확인했다 (`DATABASE_URL` 없이 돌려 설정 오류로 즉시 종료).
 
 **web Dockerfile — 요점**
 
 ```dockerfile
 FROM node:24 AS build
 RUN corepack enable          # packageManager 필드의 pnpm 10.28.1 강제 (ADR-019)
-COPY web/package.json web/pnpm-lock.yaml ./
+COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
+
+ARG VITE_API_URL             # 클라이언트 번들에 박히는 값 (ADR-032)
+ARG VITE_LOGIN_URL           # 없으면 여기서 빌드를 세운다
 ...
 RUN pnpm build
 
 FROM node:24-slim
-COPY --from=build /app/.output ./.output   # devDependencies를 싣지 않는다
+COPY --from=build /app/web/.output ./.output   # devDependencies를 싣지 않는다
+ENV HOST=::                                    # 불변식 4
 CMD ["node", ".output/server/index.mjs"]
 ```
 
 - **`corepack enable`을 빼지 말 것.** Nixpacks에 맡기면 pnpm 버전 고정이 보장되지 않는다.
+- **`pnpm-workspace.yaml`도 락파일과 함께 복사한다.** `allowBuilds`(esbuild·lightningcss)가
+  거기 있다. 빠지면 pnpm 10이 빌드 스크립트를 막아 설치가 반쪽이 된다.
+- **`ARG`를 빼지 말 것.** Railway는 이름이 같은 `ARG`를 선언한 스테이지에만 변수를 넘긴다 (§4.5).
 - `orval.config.ts`가 `../openapi.yaml`을 참조하므로 **빌드 컨텍스트는 저장소 루트**다.
   `web/`만 컨텍스트로 잡으면 생성이 깨진다. Railway에서는 `source.rootDirectory`를
   **건드리지 않는 것**이 곧 이 조건이다.
@@ -213,13 +232,13 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 |---|---|
 | `PORT` | Railway 자동 주입 |
 | `DATABASE_URL` | Postgres 서비스 참조 |
-| `CORS_ALLOWED_ORIGINS` | `https://<웹도메인>` (ADR-026) |
+| `CORS_ALLOWED_ORIGINS` | `https://reclassic.dinnertimes.app` (ADR-026) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 프로덕션 클라이언트 |
-| `GOOGLE_REDIRECT_URL` | `https://<api도메인>/auth/google/callback` |
-| `LOGIN_SUCCESS_REDIRECT` | `https://<웹도메인>/` |
+| `GOOGLE_REDIRECT_URL` | `https://api-reclassic.dinnertimes.app/auth/google/callback` |
+| `LOGIN_SUCCESS_REDIRECT` | `https://reclassic.dinnertimes.app/` |
 | `ADMIN_EMAIL` | 마스터 계정 (ADR-027) |
 | `COOKIE_SECURE` | **`true`** |
-| `COOKIE_DOMAIN` | `.<도메인>` — 앞의 점이 서브도메인 공유를 만든다 |
+| `COOKIE_DOMAIN` | `.dinnertimes.app` — 앞의 점이 서브도메인 공유를 만든다. 범위가 존 전체인 이유는 ADR-033 |
 
 **`worker`**
 
@@ -230,20 +249,29 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 
 **`web`**
 
-| 키 | 값 |
-|---|---|
-| `VITE_API_URL` | `https://<api도메인>` — 브라우저용 |
-| `VITE_LOGIN_URL` | `https://<api도메인>/auth/google/start` |
-| `API_INTERNAL_HOST` | `api.railway.internal` — SSR용 |
-| `API_PORT` | `8080` |
+| 키 | 값 | 언제 쓰이는가 |
+|---|---|---|
+| `VITE_API_URL` | `https://api-reclassic.dinnertimes.app` — 브라우저용 | **빌드 시점** |
+| `VITE_LOGIN_URL` | `https://api-reclassic.dinnertimes.app/auth/google/start` | **빌드 시점** |
+| `API_INTERNAL_HOST` | `api.railway.internal` — SSR용 | 런타임 |
+| `API_PORT` | `8080` | 런타임 |
 
 마지막 둘이 불변식 4의 "API 베이스 URL은 서버·클라이언트에서 서로 달라야 한다"이다.
+
+**`VITE_*` 둘은 런타임 환경변수가 아니다** (ADR-032). Vite가 빌드 시점에 클라이언트 번들에
+상수로 박는다. Railway는 **이름이 같은 `ARG`를 선언한 스테이지에만** 서비스 변수를 넘기므로
+`web/Dockerfile`이 `ARG VITE_API_URL`·`ARG VITE_LOGIN_URL`을 선언한다.
+
+- **웹 서비스를 처음 배포하기 전에 값이 들어가 있어야 한다.** 순서가 §6.1(도메인)에 걸린다.
+- **값이 바뀌면 재시작이 아니라 재빌드다.** 도메인을 갈아끼우면 웹은 다시 빌드해야 한다.
+- 비어 있으면 `pnpm build` 앞에서 빌드를 세운다. 그냥 두면 번들에 `undefined`가 박히고
+  **SSR은 뜨는데 브라우저에서만 죽는다** — 배포는 성공한 것처럼 보인다.
 
 ### 4.6 프로덕션 Google OAuth
 
 로컬 클라이언트와 **별도로** 만들거나 리디렉션 URI를 추가한다.
 
-- 승인된 리디렉션 URI: `https://<api도메인>/auth/google/callback`
+- 승인된 리디렉션 URI: `https://api-reclassic.dinnertimes.app/auth/google/callback`
 - 동의 화면을 테스트에서 **프로덕션으로 게시**해야 테스트 사용자 밖에서도 로그인된다
 
 ---
@@ -285,7 +313,7 @@ railway variable list --service api --json
 ### 5.3 도메인
 
 ```bash
-railway domain api.reclassic.example --service api --port 8080
+railway domain api-reclassic.dinnertimes.app --service api --port 8080
 railway domain status --service api --json
 railway domain list --service api --json
 ```
@@ -328,34 +356,43 @@ CLI로 안 되는 것만 남겼다. **순서대로 하면 뒤 항목의 값이 �
 **같은 상위 도메인을 써야 세션 쿠키가 공유된다** (ADR-027의 `COOKIE_DOMAIN`).
 웹을 다른 호스팅(예: Vercel)에 두면 쿠키가 갈려 로그인이 되지 않는다.
 
+**정해진 이름 (2026-08-20, ADR-033)**
+
 ```
-reclassic.example        웹
-api.reclassic.example    API
+reclassic.dinnertimes.app        웹
+api-reclassic.dinnertimes.app    API      ← 점이 아니라 하이픈. 이유는 ADR-033
+COOKIE_DOMAIN=.dinnertimes.app            ← 둘의 공통 상위가 여기까지다
 ```
+
+DNS는 Cloudflare다 (`beth`·`rick.ns.cloudflare.com`). apex를 쓰지 않으므로
+**apex CNAME 제약에는 걸리지 않는다.**
 
 **절차**
 
-1. 도메인 발급 ← **사람**
+1. 도메인 발급 ← **사람** — **끝났다**
 2. `railway domain <이름> --service <서비스>` → **넣어야 할 DNS 레코드를 받는다.**
    서비스마다 값이 다르다 ← **CLI (§5.3)**
 3. DNS에 CNAME 추가 ← **사람**
 
    ```
-   api.reclassic.example   CNAME → <api 서비스가 준 값>
-   reclassic.example       CNAME → <web 서비스가 준 값>   ← apex, 아래 주의
+   api-reclassic   CNAME → <api 서비스가 준 값>   Proxy: DNS only(회색)
+   reclassic       CNAME → <web 서비스가 준 값>   Proxy: DNS only(회색)
    ```
 
 4. TLS는 Railway가 자동 발급한다. `railway domain status`로 확인한다
 
 **걸리는 곳 둘**
 
-- **apex 도메인에는 CNAME을 넣을 수 없다** (DNS 표준 제약).
-  Cloudflare DNS의 CNAME flattening을 쓰거나, 웹도 서브도메인(`www.`)으로 두고
-  apex는 리다이렉트한다.
+- **이 존에는 이미 프록시가 켜진 와일드카드가 있다** (2026-08-20 확인).
+  없는 이름(`definitely-not-real-xyz.dinnertimes.app`)까지 Cloudflare 프록시 IP로 응답하고
+  `https://reclassic.dinnertimes.app/`이 `server: cloudflare`로 404를 준다.
+  명시적 레코드가 와일드카드를 이기므로 동작에는 문제가 없지만,
+  **Cloudflare는 새 CNAME을 기본으로 프록시 켜서 만든다.** 3단계에서 반드시 회색으로 둘 것.
 - **Cloudflare 프록시(주황 구름)를 처음부터 켜지 말 것.**
   DNS only(회색)로 두고 Railway 인증서가 발급된 것을 확인한 뒤,
   켤 거면 SSL/TLS 모드를 **Full (strict)**로 맞추고 켠다.
   순서가 반대면 이중 프록시로 발급이 막힌다.
+  `.app`은 HSTS 프리로드 TLD라 http 폴백이 없다 — 인증서가 안 서면 화면이 아예 안 뜬다.
 
 이게 정해지면 아래 값이 전부 확정된다:
 `CORS_ALLOWED_ORIGINS` · `COOKIE_DOMAIN` · `GOOGLE_REDIRECT_URL` ·
@@ -372,7 +409,7 @@ api.reclassic.example    API
 
 로컬 클라이언트에 URI를 추가하거나 별도 클라이언트를 만든다.
 
-- 승인된 리디렉션 URI에 `https://<api도메인>/auth/google/callback` 추가
+- 승인된 리디렉션 URI에 `https://api-reclassic.dinnertimes.app/auth/google/callback` 추가
 - **OAuth 동의 화면을 테스트 → 프로덕션으로 게시.** 안 하면 테스트 사용자만 로그인된다
 
 ### 6.4 Railway 대시보드 — 미확인 둘 (ADR-031)
@@ -381,10 +418,11 @@ CLI로 되는지 확인하지 못했다. **안 되면 대시보드에서 서비�
 
 | 항목 | 상태 |
 |---|---|
-| **서비스별 설정 파일 경로** (`railway.api.json` 등) | 서비스 설정 항목. CLI 점 경로 목록에 없다 |
-| **메모리 상한** (§4.2) | `railway.json` 스키마에는 `deploy.limitOverride`가 있는데 공개 문서·CLI 점 경로 목록에는 없다 |
+| **서비스별 설정 파일 경로** (`railway.api.json` 등) | **문서 확인됨.** 서비스 Settings의 config file path 필드에 **저장소 절대 경로**(`/railway.api.json`)를 넣는다. CLI로 되는지는 미확인 |
+| **메모리 상한** (§4.2) | **여전히 미확인.** 스키마에 `deploy.limitOverride.containers.memoryBytes`가 실재하는 것은 재확인했지만, `config-as-code/reference`의 설정 목록에는 없다. 파일에 적어 두고 **먹는지는 배포 후 확인** |
 
 **확인되면 ADR-031의 "미확인 둘"에 결과를 적는다.** 지우지 말고 채운다.
+문서로 확인된 부분은 이미 적어 뒀다 — **실물 확인 결과를 그 아래 이어서 적는다.**
 
 ### 6.5 배포 후 확인
 
@@ -410,8 +448,20 @@ CLI로 되는지 확인하지 못했다. **안 되면 대시보드에서 서비�
 
 ## 8. 완료 조건
 
-- [ ] `docker build .` 한 번으로 `api`·`worker`·`migrate` 셋이 든 이미지가 나온다
-- [ ] `web/Dockerfile`이 pnpm 10.28.1로 빌드하고 런타임 이미지에 devDependencies가 없다
+- [x] `docker build .` 한 번으로 `api`·`worker`·`migrate` 셋이 든 이미지가 나온다 — 57.3MB
+- [x] `web/Dockerfile`이 pnpm 10.28.1로 빌드하고 런타임 이미지에 devDependencies가 없다 —
+      corepack이 `pnpm-10.28.1.tgz`를 받는 것과 런타임에 `node_modules`가 없는 것을 확인
+- [x] **`VITE_*` 없이 웹을 빌드하면 실패한다** — 깨진 번들이 배포되지 않는다 (ADR-032).
+      인자 없이 빌드하면 `pnpm build` 전에 멈춘다
+
+**로컬 선행 검증 (2026-08-20).** Railway가 아니라 컨테이너 둘을 같은 도커 네트워크에 띄워 확인했다.
+불변식 4의 구조를 로컬에서 미리 밟아 본 것이고, **Railway 실물 확인을 대신하지 않는다.**
+
+- `/api`가 distroless에서 뜨고 `[::]:8080`에 바인딩한다 → `/healthz`가 `db: ok`
+- **SSR이 컨테이너 이름(`API_INTERNAL_HOST`)으로 API를 부른다** — api 컨테이너 로그에
+  `/healthz`·`/auth/me` 요청이 찍혔다. 공개 URL을 경유하지 않는다
+- 같은 HTML의 로그인 링크는 **빌드 시점에 박힌 `VITE_LOGIN_URL`**이다 (ADR-032).
+  서버는 내부 주소, 브라우저는 공개 주소 — 불변식 4가 실제로 갈린다
 - [ ] 4서비스가 Railway에 뜨고 `/healthz`가 `db: ok`를 준다
 - [ ] **서비스별 `railway.json`이 실제로 읽힌다** — 배포 상세에서 설정 출처가 파일로 표시된다 (ADR-031)
 - [ ] **SSR이 `api.railway.internal`로 API를 부른다** — 공개 도메인을 경유하지 않는다 (불변식 4)

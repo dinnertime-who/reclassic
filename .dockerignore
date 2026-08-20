@@ -1,0 +1,43 @@
+# 빌드 컨텍스트에서 뺄 것.
+# Go 이미지(Dockerfile)와 웹 이미지(web/Dockerfile)가 둘 다 저장소 루트를 컨텍스트로 쓴다 (ADR-029).
+# 이 파일 하나가 양쪽에 적용된다.
+#
+# 빼기 전과 후: 276MB → 1MB 미만 (2026-08-20 실측).
+# 컨텍스트는 매 빌드마다 데몬으로 전송된다.
+#
+# 지우면 안 되는 것: internal/db/migrations/*.sql — internal/db/migrate.go가 go:embed로 싣는다.
+
+# Gutenberg 원본 HTML 스냅샷 (20MB). 빌드에 필요 없다.
+.cache/
+
+# 로컬 빌드 산출물 (63MB). 이미지 안에서 다시 빌드한다.
+bin/
+web/.output/
+web/.nitro/
+web/.tanstack/
+web/dist/
+
+# 의존성 (188MB). 이미지 안에서 pnpm install --frozen-lockfile로 다시 깐다.
+web/node_modules/
+
+# 시크릿. 이미지에 굽지 않는다 — 값은 Railway 변수로 간다 (SLICE_DEPLOY §7.6).
+.env
+.env.*
+!.env.example
+
+.git/
+.github/
+.editorconfig
+
+# 문서는 빌드에 관여하지 않는다.
+docs/
+*.md
+
+# 로컬 전용
+docker-compose.yml
+scripts/
+*.test
+*.out
+.DS_Store
+.idea/
+.vscode/

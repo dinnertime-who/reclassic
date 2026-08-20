@@ -1088,7 +1088,120 @@ Railway에는 그 자리가 없다 — 서비스를 띄우는 것만 하지
 - **미확인 둘.** 정직하게 남긴다.
   - **서비스별 설정 파일 경로 지정.** Railway 서비스 설정 항목이다.
     CLI 점 경로 목록에 없다 — 대시보드에서 서비스당 한 번 지정해야 할 수 있다.
+
+    **문서 확인 (2026-08-20):** 공식 문서 `config-as-code`에 항목이 있다 —
+    *"You can use a custom config file by setting it on the service settings page.
+    You should provide the absolute path to the file in your repository"*.
+    **대시보드 서비스 설정에서 저장소 절대 경로**(`/railway.api.json`)를 넣는 것이 맞다.
+    CLI로 되는지는 여전히 미확인. **실물 확인은 배포할 때 한다.**
   - **`deploy.limitOverride`.** JSON 스키마에는 있는데 Railway 공개 문서에는 없고
     CLI 점 경로 목록에도 없다. 안 먹으면 메모리는 대시보드로 간다.
 
+    **스키마 재확인 (2026-08-20):** `deploy.limitOverride.containers.memoryBytes`가
+    스키마에 실재한다(`cpu`·`memoryBytes`·`diskBytes`). 다만 `config-as-code/reference`의
+    "Configurable settings" 목록에는 **여전히 없다.** 파일에 적어 두되 **먹는지는 배포 후 확인한다.**
+
   둘 다 서비스당 한 번뿐이라 막히지 않는다. 배포할 때 확인하고 이 ADR에 결과를 적는다.
+
+- **덤으로 확인된 것 둘** (문서, 2026-08-20). 둘 다 이 구성의 전제였다.
+  - **`startCommand`는 exec form으로 이미지의 `ENTRYPOINT`를 덮는다.**
+    셸을 거치지 않는다 — **distroless에 셸이 없어도 `/api`가 뜬다.**
+    대신 **변수 확장이 안 된다.** `startCommand`에 `$PORT`를 쓰지 말 것.
+    Go 코드가 `PORT`를 직접 읽는 지금 구조가 맞다.
+  - **pre-deploy는 애플리케이션 이미지로, 프라이빗 네트워크 안에서, 서비스 환경변수를 갖고 돈다.**
+    실패하면 재시도 없이 배포가 멈춘다 — ADR-030이 원한 동작 그대로다.
+    **별도 컨테이너라 파일시스템 변경은 남지 않는다.** `tools/migrate`는 DB만 건드리므로 무관하다.
+
+---
+
+## ADR-032 — 클라이언트 번들에 박히는 값은 빌드 인자로 받는다
+**상태:** Accepted (2026-08-20). ADR-031의 "빌드 인자" 서술을 정정한다. 결정은 그대로다.
+
+**맥락:** ADR-031은 `railway.schema.json`의 `build` 섹션에 `args`가 없는 것을 보고
+**"Railway에는 Docker 빌드 인자를 넣을 자리가 없다"**고 적었다. **그 서술이 부정확하다.**
+
+없는 것은 **임의의 빌드 인자를 설정 파일에 선언하는 자리**다.
+서비스 변수는 빌드에 들어간다 — 다만 **Dockerfile에 같은 이름의 `ARG`를 선언해야만** 한다.
+Railway 문서(`builds/dockerfiles` — "Using variables at build time")가 명시한다:
+
+> you must specify them in the Dockerfile using the `ARG` command […]
+> Be sure to declare your environment variables in the stage they are required in
+
+**이게 왜 문제가 되는가.** Vite는 `import.meta.env.VITE_*`를 **빌드 시점에 상수로 치환**한다.
+런타임 환경변수가 아니다. 이 저장소에서 그런 값이 둘이다:
+
+| 값 | 쓰이는 곳 |
+|---|---|
+| `VITE_API_URL` | `web/src/api/http.ts` — 브라우저가 부를 API 주소 |
+| `VITE_LOGIN_URL` | `web/src/routes/__root.tsx` — 로그인 시작 주소 |
+
+`ARG`를 선언하지 않으면 Railway 변수에 값을 넣어도 빌드에 들어오지 않는다.
+번들에는 `undefined`가 박히고, **배포는 성공한 것처럼 보이는데 브라우저에서만 죽는다.**
+SSR은 `API_INTERNAL_HOST`를 런타임에 읽으므로 첫 화면은 뜬다 — 그래서 더 늦게 발견된다.
+
+**결정:**
+
+1. **`web/Dockerfile`이 빌드 스테이지에서 `ARG VITE_API_URL` · `ARG VITE_LOGIN_URL`을 선언한다.**
+2. **비어 있으면 빌드를 세운다.** `pnpm build` 앞에서 `test -n`으로 막는다.
+   기본값을 조용히 채우지 않는다는 규약(CONVENTIONS)을 빌드 시점으로 옮긴 것이다.
+   깨진 번들을 배포하는 것보다 빌드가 실패하는 것이 낫다 — ADR-030의 판단과 같은 형태다.
+
+**결과:**
+
+- **웹 이미지는 도메인에 묶인다.** 도메인이나 API 주소가 바뀌면 변수만 고치고 재시작하는 것으로
+  안 된다. **재빌드해야 한다.** Go 이미지는 영향이 없다 — 설정을 전부 런타임에 읽는다.
+- **`VITE_*`는 웹 서비스를 처음 배포하기 전에 넣어야 한다.** 순서가 §6.1(도메인)에 걸린다.
+- **ADR-031의 결정은 그대로다.** 서비스 변수로 `CMD=api|worker`를 넘겨 이미지를 가르는 것도
+  이론상 가능하지만, 그러면 **서비스마다 이미지를 따로 빌드**하게 된다.
+  한 이미지 + `startCommand`가 여전히 낫다.
+- Go 쪽은 `RAILWAY_GIT_COMMIT_SHA`만 `ARG`로 받는다. `/healthz`의 `version`에 배포된 커밋이 뜬다 —
+  어느 빌드가 살아 있는지 확인하는 데 쓴다.
+
+---
+
+## ADR-033 — 도메인은 `reclassic.dinnertimes.app`. API는 하이픈으로 옆에 둔다
+**상태:** Accepted (2026-08-20). ADR-027의 `COOKIE_DOMAIN` 범위를 넓힌다.
+
+**맥락:** 슬라이스 6의 마지막 착수 블로커였다. 도메인은 이미 확보돼 있고 DNS는 Cloudflare다
+(`beth`·`rick.ns.cloudflare.com`). 웹이 서브도메인이라 **apex CNAME 제약에는 걸리지 않는다.**
+
+남은 것은 API를 어디에 두느냐였고, 후보가 둘이었다.
+
+| | API 이름 | 가능한 `COOKIE_DOMAIN` |
+|---|---|---|
+| 중첩 | `api.reclassic.dinnertimes.app` | `.reclassic.dinnertimes.app` — 이 프로젝트 안에 갇힌다 |
+| 병렬 | **`api-reclassic.dinnertimes.app`** | `.dinnertimes.app` — **존 전체** |
+
+**결정: 병렬(하이픈).** `api-reclassic.dinnertimes.app`.
+
+**근거 — Cloudflare Universal SSL은 한 단계까지만 커버한다.**
+발급되는 인증서는 `dinnertimes.app`과 `*.dinnertimes.app`이고,
+`api.reclassic.dinnertimes.app`은 **두 단계라 포함되지 않는다.**
+중첩으로 가면 Cloudflare 프록시(주황 구름)를 켜는 순간 인증서가 맞지 않는다.
+프록시를 켤 여지를 남기려면 한 단계여야 한다.
+
+**대가 — 세션 쿠키의 범위가 존 전체가 된다.** 쿠키 도메인은 두 호스트의 공통 상위여야 하는데,
+병렬 배치에서 그것은 `dinnertimes.app`뿐이다. 그래서 `COOKIE_DOMAIN=.dinnertimes.app`이고,
+**세션 쿠키가 이 존의 모든 서브도메인 요청에 실려 나간다.**
+
+**이 대가를 감수하는 조건 — 아래가 깨지면 이 결정을 다시 연다.**
+
+- **이 존에 신뢰하지 않는 서비스를 올리지 않는다.** 올리는 순간 그쪽 서버가 세션 쿠키를 받는다.
+  남의 코드가 도는 서브도메인(미리보기 배포, 서드파티 위젯, 사용자 콘텐츠 호스팅)이 생기면
+  중첩 배치로 되돌리거나 존을 나눈다.
+- 쿠키는 `HttpOnly`라 다른 서브도메인의 **자바스크립트**가 읽지는 못한다 (ADR-027).
+  막지 못하는 것은 그 서브도메인의 **서버**가 받는 것이다.
+- DB에는 토큰의 sha256만 있다 (ADR-027). 유출 표면은 여전히 세션 그 자체다.
+
+**결과:**
+
+- 확정된 값 — `CORS_ALLOWED_ORIGINS=https://reclassic.dinnertimes.app` ·
+  `GOOGLE_REDIRECT_URL=https://api-reclassic.dinnertimes.app/auth/google/callback` ·
+  `LOGIN_SUCCESS_REDIRECT=https://reclassic.dinnertimes.app/` ·
+  `VITE_API_URL=https://api-reclassic.dinnertimes.app` ·
+  `VITE_LOGIN_URL=https://api-reclassic.dinnertimes.app/auth/google/start` ·
+  `PUBLIC_BASE_URL=https://reclassic.dinnertimes.app` · `COOKIE_DOMAIN=.dinnertimes.app`
+- **`VITE_*` 둘은 빌드 시점 값이다** (ADR-032). 웹을 처음 빌드하기 전에 들어가 있어야 한다.
+- **이 존에는 이미 프록시가 켜진 와일드카드가 있다.** 없는 이름까지 Cloudflare가 404로 받는다.
+  명시적 레코드가 이기지만, 새 CNAME은 **DNS only(회색)로 만들어야** Railway 인증서가 선다.
+- `.app`은 HSTS 프리로드 TLD다. http 폴백이 없어 인증서가 안 서면 화면이 아예 안 뜬다.

@@ -33,6 +33,11 @@ OAPI    := $(GO) tool oapi-codegen
 # gh는 머신 전역 활성 계정의 HTTPS 토큰을 쓰기 때문이다. 이유 전문은 scripts/gh 주석.
 GH      := ./scripts/gh
 
+# 웹 이미지는 VITE_ 값을 빌드 시점에 번들에 박는다 (ADR-032).
+# 로컬 확인 빌드에서는 .env 값을 쓴다. Railway에서는 서비스 변수가 같은 이름의 ARG로 들어간다.
+VITE_API_URL   ?= $(shell test -f .env && grep -E '^VITE_API_URL=' .env | cut -d= -f2-)
+VITE_LOGIN_URL ?= $(shell test -f .env && grep -E '^VITE_LOGIN_URL=' .env | cut -d= -f2-)
+
 # 필수 도구가 없으면 설치 방법을 알려주고 멈춘다
 define need
 	@command -v $(1) >/dev/null 2>&1 || { \
@@ -177,6 +182,21 @@ golden: ## golden 스냅샷 비교 (GOLDEN_UPDATE=1 이면 갱신)
 	else \
 		$(GO) run ./cmd/parsecheck golden -corpus=$(CORPUS) -cache=$(CACHE); \
 	fi
+
+.PHONY: docker-build
+docker-build: ## Go 이미지 빌드 (api·worker·migrate 셋이 한 이미지에, ADR-031)
+	$(call need,docker,https://docs.docker.com/desktop/)
+	docker build -t reclassic-go .
+
+.PHONY: docker-build-web
+docker-build-web: ## 웹 이미지 빌드 (컨텍스트는 저장소 루트, ADR-029)
+	$(call need,docker,https://docs.docker.com/desktop/)
+	@test -n "$(VITE_API_URL)"   || { echo "✗ VITE_API_URL 이 비어 있습니다 (.env 확인)"; exit 1; }
+	@test -n "$(VITE_LOGIN_URL)" || { echo "✗ VITE_LOGIN_URL 이 비어 있습니다 (.env 확인)"; exit 1; }
+	docker build -f $(WEB)/Dockerfile \
+		--build-arg VITE_API_URL=$(VITE_API_URL) \
+		--build-arg VITE_LOGIN_URL=$(VITE_LOGIN_URL) \
+		-t reclassic-web .
 
 .PHONY: pr
 pr: ## PR 생성 (계정 고정, .github/pull_request_template.md 사용)
