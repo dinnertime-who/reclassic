@@ -1088,7 +1088,71 @@ Railway에는 그 자리가 없다 — 서비스를 띄우는 것만 하지
 - **미확인 둘.** 정직하게 남긴다.
   - **서비스별 설정 파일 경로 지정.** Railway 서비스 설정 항목이다.
     CLI 점 경로 목록에 없다 — 대시보드에서 서비스당 한 번 지정해야 할 수 있다.
+
+    **문서 확인 (2026-08-20):** 공식 문서 `config-as-code`에 항목이 있다 —
+    *"You can use a custom config file by setting it on the service settings page.
+    You should provide the absolute path to the file in your repository"*.
+    **대시보드 서비스 설정에서 저장소 절대 경로**(`/railway.api.json`)를 넣는 것이 맞다.
+    CLI로 되는지는 여전히 미확인. **실물 확인은 배포할 때 한다.**
   - **`deploy.limitOverride`.** JSON 스키마에는 있는데 Railway 공개 문서에는 없고
     CLI 점 경로 목록에도 없다. 안 먹으면 메모리는 대시보드로 간다.
 
+    **스키마 재확인 (2026-08-20):** `deploy.limitOverride.containers.memoryBytes`가
+    스키마에 실재한다(`cpu`·`memoryBytes`·`diskBytes`). 다만 `config-as-code/reference`의
+    "Configurable settings" 목록에는 **여전히 없다.** 파일에 적어 두되 **먹는지는 배포 후 확인한다.**
+
   둘 다 서비스당 한 번뿐이라 막히지 않는다. 배포할 때 확인하고 이 ADR에 결과를 적는다.
+
+- **덤으로 확인된 것 둘** (문서, 2026-08-20). 둘 다 이 구성의 전제였다.
+  - **`startCommand`는 exec form으로 이미지의 `ENTRYPOINT`를 덮는다.**
+    셸을 거치지 않는다 — **distroless에 셸이 없어도 `/api`가 뜬다.**
+    대신 **변수 확장이 안 된다.** `startCommand`에 `$PORT`를 쓰지 말 것.
+    Go 코드가 `PORT`를 직접 읽는 지금 구조가 맞다.
+  - **pre-deploy는 애플리케이션 이미지로, 프라이빗 네트워크 안에서, 서비스 환경변수를 갖고 돈다.**
+    실패하면 재시도 없이 배포가 멈춘다 — ADR-030이 원한 동작 그대로다.
+    **별도 컨테이너라 파일시스템 변경은 남지 않는다.** `tools/migrate`는 DB만 건드리므로 무관하다.
+
+---
+
+## ADR-032 — 클라이언트 번들에 박히는 값은 빌드 인자로 받는다
+**상태:** Accepted (2026-08-20). ADR-031의 "빌드 인자" 서술을 정정한다. 결정은 그대로다.
+
+**맥락:** ADR-031은 `railway.schema.json`의 `build` 섹션에 `args`가 없는 것을 보고
+**"Railway에는 Docker 빌드 인자를 넣을 자리가 없다"**고 적었다. **그 서술이 부정확하다.**
+
+없는 것은 **임의의 빌드 인자를 설정 파일에 선언하는 자리**다.
+서비스 변수는 빌드에 들어간다 — 다만 **Dockerfile에 같은 이름의 `ARG`를 선언해야만** 한다.
+Railway 문서(`builds/dockerfiles` — "Using variables at build time")가 명시한다:
+
+> you must specify them in the Dockerfile using the `ARG` command […]
+> Be sure to declare your environment variables in the stage they are required in
+
+**이게 왜 문제가 되는가.** Vite는 `import.meta.env.VITE_*`를 **빌드 시점에 상수로 치환**한다.
+런타임 환경변수가 아니다. 이 저장소에서 그런 값이 둘이다:
+
+| 값 | 쓰이는 곳 |
+|---|---|
+| `VITE_API_URL` | `web/src/api/http.ts` — 브라우저가 부를 API 주소 |
+| `VITE_LOGIN_URL` | `web/src/routes/__root.tsx` — 로그인 시작 주소 |
+
+`ARG`를 선언하지 않으면 Railway 변수에 값을 넣어도 빌드에 들어오지 않는다.
+번들에는 `undefined`가 박히고, **배포는 성공한 것처럼 보이는데 브라우저에서만 죽는다.**
+SSR은 `API_INTERNAL_HOST`를 런타임에 읽으므로 첫 화면은 뜬다 — 그래서 더 늦게 발견된다.
+
+**결정:**
+
+1. **`web/Dockerfile`이 빌드 스테이지에서 `ARG VITE_API_URL` · `ARG VITE_LOGIN_URL`을 선언한다.**
+2. **비어 있으면 빌드를 세운다.** `pnpm build` 앞에서 `test -n`으로 막는다.
+   기본값을 조용히 채우지 않는다는 규약(CONVENTIONS)을 빌드 시점으로 옮긴 것이다.
+   깨진 번들을 배포하는 것보다 빌드가 실패하는 것이 낫다 — ADR-030의 판단과 같은 형태다.
+
+**결과:**
+
+- **웹 이미지는 도메인에 묶인다.** 도메인이나 API 주소가 바뀌면 변수만 고치고 재시작하는 것으로
+  안 된다. **재빌드해야 한다.** Go 이미지는 영향이 없다 — 설정을 전부 런타임에 읽는다.
+- **`VITE_*`는 웹 서비스를 처음 배포하기 전에 넣어야 한다.** 순서가 §6.1(도메인)에 걸린다.
+- **ADR-031의 결정은 그대로다.** 서비스 변수로 `CMD=api|worker`를 넘겨 이미지를 가르는 것도
+  이론상 가능하지만, 그러면 **서비스마다 이미지를 따로 빌드**하게 된다.
+  한 이미지 + `startCommand`가 여전히 낫다.
+- Go 쪽은 `RAILWAY_GIT_COMMIT_SHA`만 `ARG`로 받는다. `/healthz`의 `version`에 배포된 커밋이 뜬다 —
+  어느 빌드가 살아 있는지 확인하는 데 쓴다.

@@ -101,6 +101,17 @@ COPY --from=build /out/ /
 
 - **빌드 인자로 가르지 않는다.** Railway 설정 표면에 Docker 빌드 인자가 없다 (ADR-031).
   **셋을 다 넣고 서비스별 `startCommand`로 고른다.** `ENTRYPOINT`를 박지 않는 이유가 이것이다.
+
+**실측 (2026-08-20, 로컬 `make docker-build`)**
+
+| | |
+|---|---|
+| Go 이미지 | **57.3MB** — `/api` 12.5MB · `/worker` 15.0MB · `/migrate` 10.4MB |
+| 웹 이미지 | **349MB** — 대부분 `node:24-slim` 베이스. `.output` 말고는 아무것도 없다 |
+| 빌드 컨텍스트 | 276MB → **1MB 미만** (`.dockerignore` 적용 후) |
+
+ADR-029가 말한 "20~30MB"는 바이너리 하나 기준이다. 셋을 넣어 57MB가 됐다 — 여전히 작다.
+셋 다 distroless 안에서 실행되는 것을 확인했다 (`DATABASE_URL` 없이 돌려 설정 오류로 즉시 종료).
 - `CGO_ENABLED=0`. distroless static에 libc가 없다.
 - 런타임 이미지에 SQL 파일을 싣지 않는다. 이미 바이너리 안에 있다.
 - `.env`를 이미지에 넣지 않는다. Railway 환경변수로 주입한다.
@@ -110,17 +121,24 @@ COPY --from=build /out/ /
 ```dockerfile
 FROM node:24 AS build
 RUN corepack enable          # packageManager 필드의 pnpm 10.28.1 강제 (ADR-019)
-COPY web/package.json web/pnpm-lock.yaml ./
+COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
+
+ARG VITE_API_URL             # 클라이언트 번들에 박히는 값 (ADR-032)
+ARG VITE_LOGIN_URL           # 없으면 여기서 빌드를 세운다
 ...
 RUN pnpm build
 
 FROM node:24-slim
-COPY --from=build /app/.output ./.output   # devDependencies를 싣지 않는다
+COPY --from=build /app/web/.output ./.output   # devDependencies를 싣지 않는다
+ENV HOST=::                                    # 불변식 4
 CMD ["node", ".output/server/index.mjs"]
 ```
 
 - **`corepack enable`을 빼지 말 것.** Nixpacks에 맡기면 pnpm 버전 고정이 보장되지 않는다.
+- **`pnpm-workspace.yaml`도 락파일과 함께 복사한다.** `allowBuilds`(esbuild·lightningcss)가
+  거기 있다. 빠지면 pnpm 10이 빌드 스크립트를 막아 설치가 반쪽이 된다.
+- **`ARG`를 빼지 말 것.** Railway는 이름이 같은 `ARG`를 선언한 스테이지에만 변수를 넘긴다 (§4.5).
 - `orval.config.ts`가 `../openapi.yaml`을 참조하므로 **빌드 컨텍스트는 저장소 루트**다.
   `web/`만 컨텍스트로 잡으면 생성이 깨진다. Railway에서는 `source.rootDirectory`를
   **건드리지 않는 것**이 곧 이 조건이다.
@@ -230,14 +248,23 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 
 **`web`**
 
-| 키 | 값 |
-|---|---|
-| `VITE_API_URL` | `https://<api도메인>` — 브라우저용 |
-| `VITE_LOGIN_URL` | `https://<api도메인>/auth/google/start` |
-| `API_INTERNAL_HOST` | `api.railway.internal` — SSR용 |
-| `API_PORT` | `8080` |
+| 키 | 값 | 언제 쓰이는가 |
+|---|---|---|
+| `VITE_API_URL` | `https://<api도메인>` — 브라우저용 | **빌드 시점** |
+| `VITE_LOGIN_URL` | `https://<api도메인>/auth/google/start` | **빌드 시점** |
+| `API_INTERNAL_HOST` | `api.railway.internal` — SSR용 | 런타임 |
+| `API_PORT` | `8080` | 런타임 |
 
 마지막 둘이 불변식 4의 "API 베이스 URL은 서버·클라이언트에서 서로 달라야 한다"이다.
+
+**`VITE_*` 둘은 런타임 환경변수가 아니다** (ADR-032). Vite가 빌드 시점에 클라이언트 번들에
+상수로 박는다. Railway는 **이름이 같은 `ARG`를 선언한 스테이지에만** 서비스 변수를 넘기므로
+`web/Dockerfile`이 `ARG VITE_API_URL`·`ARG VITE_LOGIN_URL`을 선언한다.
+
+- **웹 서비스를 처음 배포하기 전에 값이 들어가 있어야 한다.** 순서가 §6.1(도메인)에 걸린다.
+- **값이 바뀌면 재시작이 아니라 재빌드다.** 도메인을 갈아끼우면 웹은 다시 빌드해야 한다.
+- 비어 있으면 `pnpm build` 앞에서 빌드를 세운다. 그냥 두면 번들에 `undefined`가 박히고
+  **SSR은 뜨는데 브라우저에서만 죽는다** — 배포는 성공한 것처럼 보인다.
 
 ### 4.6 프로덕션 Google OAuth
 
@@ -381,10 +408,11 @@ CLI로 되는지 확인하지 못했다. **안 되면 대시보드에서 서비�
 
 | 항목 | 상태 |
 |---|---|
-| **서비스별 설정 파일 경로** (`railway.api.json` 등) | 서비스 설정 항목. CLI 점 경로 목록에 없다 |
-| **메모리 상한** (§4.2) | `railway.json` 스키마에는 `deploy.limitOverride`가 있는데 공개 문서·CLI 점 경로 목록에는 없다 |
+| **서비스별 설정 파일 경로** (`railway.api.json` 등) | **문서 확인됨.** 서비스 Settings의 config file path 필드에 **저장소 절대 경로**(`/railway.api.json`)를 넣는다. CLI로 되는지는 미확인 |
+| **메모리 상한** (§4.2) | **여전히 미확인.** 스키마에 `deploy.limitOverride.containers.memoryBytes`가 실재하는 것은 재확인했지만, `config-as-code/reference`의 설정 목록에는 없다. 파일에 적어 두고 **먹는지는 배포 후 확인** |
 
 **확인되면 ADR-031의 "미확인 둘"에 결과를 적는다.** 지우지 말고 채운다.
+문서로 확인된 부분은 이미 적어 뒀다 — **실물 확인 결과를 그 아래 이어서 적는다.**
 
 ### 6.5 배포 후 확인
 
@@ -410,8 +438,20 @@ CLI로 되는지 확인하지 못했다. **안 되면 대시보드에서 서비�
 
 ## 8. 완료 조건
 
-- [ ] `docker build .` 한 번으로 `api`·`worker`·`migrate` 셋이 든 이미지가 나온다
-- [ ] `web/Dockerfile`이 pnpm 10.28.1로 빌드하고 런타임 이미지에 devDependencies가 없다
+- [x] `docker build .` 한 번으로 `api`·`worker`·`migrate` 셋이 든 이미지가 나온다 — 57.3MB
+- [x] `web/Dockerfile`이 pnpm 10.28.1로 빌드하고 런타임 이미지에 devDependencies가 없다 —
+      corepack이 `pnpm-10.28.1.tgz`를 받는 것과 런타임에 `node_modules`가 없는 것을 확인
+- [x] **`VITE_*` 없이 웹을 빌드하면 실패한다** — 깨진 번들이 배포되지 않는다 (ADR-032).
+      인자 없이 빌드하면 `pnpm build` 전에 멈춘다
+
+**로컬 선행 검증 (2026-08-20).** Railway가 아니라 컨테이너 둘을 같은 도커 네트워크에 띄워 확인했다.
+불변식 4의 구조를 로컬에서 미리 밟아 본 것이고, **Railway 실물 확인을 대신하지 않는다.**
+
+- `/api`가 distroless에서 뜨고 `[::]:8080`에 바인딩한다 → `/healthz`가 `db: ok`
+- **SSR이 컨테이너 이름(`API_INTERNAL_HOST`)으로 API를 부른다** — api 컨테이너 로그에
+  `/healthz`·`/auth/me` 요청이 찍혔다. 공개 URL을 경유하지 않는다
+- 같은 HTML의 로그인 링크는 **빌드 시점에 박힌 `VITE_LOGIN_URL`**이다 (ADR-032).
+  서버는 내부 주소, 브라우저는 공개 주소 — 불변식 4가 실제로 갈린다
 - [ ] 4서비스가 Railway에 뜨고 `/healthz`가 `db: ok`를 준다
 - [ ] **서비스별 `railway.json`이 실제로 읽힌다** — 배포 상세에서 설정 출처가 파일로 표시된다 (ADR-031)
 - [ ] **SSR이 `api.railway.internal`로 API를 부른다** — 공개 도메인을 경유하지 않는다 (불변식 4)
