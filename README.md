@@ -49,7 +49,7 @@ Go와 TS 양쪽이 컴파일 에러를 낸다(ADR-009 검증).
 make dev        # Postgres
 make migrate    # 스키마
 make run-api    # :8080
-make run-web    # :3000 (SSR)
+make run-web    # :3100 (SSR)
 ```
 
 **읽기 경로 슬라이스 완료** — [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md).
@@ -58,7 +58,7 @@ make run-web    # :3000 (SSR)
 ```bash
 make ingest       # 캐시된 22권 적재 (멱등)
 make succession   # stable_id 승계율 측정
-# http://localhost:3000/books/1342/chapters/5
+# http://localhost:3100/books/1342/chapters/5
 ```
 
 **`stable_id` 승계율은 파서 미변경 상태에서 21권 37,125문단 100%다.**

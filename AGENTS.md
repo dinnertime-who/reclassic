@@ -98,7 +98,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 프론트 패키지 | pnpm | Node 패키지는 `web/` 하나. 루트 `package.json` 없음 (ADR-019) |
 | API 계약 | OpenAPI → oapi-codegen(Go) + Orval(TS) | 스펙 우선 |
 | 빌드 타임 도구 | sqlc·oapi-codegen은 `go.mod` tool 디렉티브 | 별도 설치 없음 (ADR-020) |
-| 배포 | Railway | 서비스: api / worker / postgres / web |
+| 배포 | Railway | 서비스: api / worker / postgres / web. Cloudflare 이전은 검토 후 기각 (ADR-028) |
 
 ## 명령어 — 이것만 사용하세요
 
@@ -113,7 +113,7 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | 로컬 의존 서비스 기동 (Postgres + MinIO) | `make dev` |
 | 로컬 의존 서비스 정지 | `make dev-down` |
 | API 서버 실행 (:8080) | `make run-api` |
-| 웹 개발 서버 실행 (:3000, SSR) | `make run-web` |
+| 웹 개발 서버 실행 (:3100, SSR) | `make run-web` |
 | 웹 개발 서버를 LAN에 노출 | `make run-web-lan` (주소 지정: `LAN_IP=192.168.x.x`) |
 | `web/` 의존성 설치 | `make web-install` |
 | 파서 결과 적재 (멱등) | `make ingest` (한 권만: `make ingest ONLY=1342`) |

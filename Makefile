@@ -103,7 +103,7 @@ dev: ## 로컬 의존 서비스 기동 (Postgres + MinIO)
 	@echo "  make migrate     # goose → River"
 	@echo "  make run-api     # :8080"
 	@echo "  make run-worker  # 잡 소비"
-	@echo "  make run-web     # :3000  (SSR)"
+	@echo "  make run-web     # :3100  (SSR)"
 
 .PHONY: dev-down
 dev-down: ## 로컬 의존 서비스 정지
@@ -118,9 +118,9 @@ run-worker: ## 워커 실행 (아직 잡을 소비하지 않는다)
 	$(GO) run ./cmd/worker
 
 .PHONY: run-web
-run-web: web-install ## 웹 개발 서버 실행 (:3000, SSR). SSH 포워딩으로도 붙는다
+run-web: web-install ## 웹 개발 서버 실행 (:3100, SSR). SSH 포워딩으로도 붙는다
 	@# 127.0.0.1에 붙인다. Vite 기본값은 localhost인데 macOS에서 [::1]로만 열려서
-	@# `ssh -L 3000:localhost:3000`이 IPv4로 붙을 때 연결이 거부된다.
+	@# `ssh -L 3100:localhost:3100`이 IPv4로 붙을 때 연결이 거부된다.
 	@# 특정 주소이므로 v6only=0이어도 IPv4가 매핑되지 않는다 — Go 서버의 [::]와 다르다.
 	cd $(WEB) && env $(WEB_ENV) $(PNPM) run dev --host 127.0.0.1
 
@@ -128,7 +128,7 @@ run-web: web-install ## 웹 개발 서버 실행 (:3000, SSR). SSH 포워딩으�
 run-web-lan: web-install ## 웹 개발 서버를 LAN에 노출 (휴대폰 등에서 접속). LAN_IP=192.168.x.x 로 지정 가능
 	@test -n "$(LAN_IP)" || { echo "✗ LAN IP를 찾지 못했습니다. 'make run-web-lan LAN_IP=192.168.x.x' 로 지정하세요."; exit 1; }
 	@echo "── 같은 네트워크의 다른 기기에서 ──"
-	@echo "  웹  : http://$(LAN_IP):3000"
+	@echo "  웹  : http://$(LAN_IP):3100"
 	@echo "  API : http://$(LAN_IP):8080  (Go 서버는 [::] 바인딩이라 이미 열려 있습니다)"
 	@echo
 	@echo "⚠ 개발 서버입니다. ADMIN_TOKEN과 X-User-Handle 신원이 그대로 노출됩니다."
