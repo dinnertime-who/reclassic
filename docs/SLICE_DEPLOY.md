@@ -5,7 +5,7 @@
 임시 헤더를 걷어낸 뒤에야 시작할 수 있다.
 **다음 슬라이스:** 편집·검수 화면 — 아직 명세 없음
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md` (특히 "핵심 불변식 4"),
-`docs/DECISIONS.md` (특히 ADR-001 / 002 / 008 / 019 / 022 / 026 / 027 / 028 / 029 / 030 / 031)
+`docs/DECISIONS.md` (특히 ADR-001 / 002 / 008 / 019 / 022 / 026 / 027 / 028 / 029 / 030 / 031 / 032 / 033)
 
 ---
 
@@ -50,7 +50,7 @@ ADR-002가 Railway 4서비스를 정한 지 오래됐지만 **실물로 돌아�
 |---|---|
 | **마이그레이션 실행 위치** | **정해졌다 — pre-deploy 명령 (ADR-030).** §4.4 |
 | **설정을 어디에 두는가** | **정해졌다 — 서비스별 `railway.json` (ADR-031).** §4.3 |
-| **도메인** | **미정.** 나머지 환경변수 값이 전부 여기 의존한다 |
+| **도메인** | **정해졌다 (2026-08-20).** 웹 `reclassic.dinnertimes.app` · API `api-reclassic.dinnertimes.app` (ADR-033) |
 
 도메인은 파일을 쓰는 데는 필요 없다 — Dockerfile도 `railway.json`도 도메인을 모르고,
 환경변수는 저장소가 아니라 Railway에 들어간다.
@@ -102,6 +102,10 @@ COPY --from=build /out/ /
 - **빌드 인자로 가르지 않는다.** Railway 설정 표면에 Docker 빌드 인자가 없다 (ADR-031).
   **셋을 다 넣고 서비스별 `startCommand`로 고른다.** `ENTRYPOINT`를 박지 않는 이유가 이것이다.
 
+- `CGO_ENABLED=0`. distroless static에 libc가 없다.
+- 런타임 이미지에 SQL 파일을 싣지 않는다. 이미 바이너리 안에 있다.
+- `.env`를 이미지에 넣지 않는다. Railway 환경변수로 주입한다.
+
 **실측 (2026-08-20, 로컬 `make docker-build`)**
 
 | | |
@@ -112,9 +116,6 @@ COPY --from=build /out/ /
 
 ADR-029가 말한 "20~30MB"는 바이너리 하나 기준이다. 셋을 넣어 57MB가 됐다 — 여전히 작다.
 셋 다 distroless 안에서 실행되는 것을 확인했다 (`DATABASE_URL` 없이 돌려 설정 오류로 즉시 종료).
-- `CGO_ENABLED=0`. distroless static에 libc가 없다.
-- 런타임 이미지에 SQL 파일을 싣지 않는다. 이미 바이너리 안에 있다.
-- `.env`를 이미지에 넣지 않는다. Railway 환경변수로 주입한다.
 
 **web Dockerfile — 요점**
 
@@ -231,13 +232,13 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 |---|---|
 | `PORT` | Railway 자동 주입 |
 | `DATABASE_URL` | Postgres 서비스 참조 |
-| `CORS_ALLOWED_ORIGINS` | `https://<웹도메인>` (ADR-026) |
+| `CORS_ALLOWED_ORIGINS` | `https://reclassic.dinnertimes.app` (ADR-026) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 프로덕션 클라이언트 |
-| `GOOGLE_REDIRECT_URL` | `https://<api도메인>/auth/google/callback` |
-| `LOGIN_SUCCESS_REDIRECT` | `https://<웹도메인>/` |
+| `GOOGLE_REDIRECT_URL` | `https://api-reclassic.dinnertimes.app/auth/google/callback` |
+| `LOGIN_SUCCESS_REDIRECT` | `https://reclassic.dinnertimes.app/` |
 | `ADMIN_EMAIL` | 마스터 계정 (ADR-027) |
 | `COOKIE_SECURE` | **`true`** |
-| `COOKIE_DOMAIN` | `.<도메인>` — 앞의 점이 서브도메인 공유를 만든다 |
+| `COOKIE_DOMAIN` | `.dinnertimes.app` — 앞의 점이 서브도메인 공유를 만든다. 범위가 존 전체인 이유는 ADR-033 |
 
 **`worker`**
 
@@ -250,8 +251,8 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 
 | 키 | 값 | 언제 쓰이는가 |
 |---|---|---|
-| `VITE_API_URL` | `https://<api도메인>` — 브라우저용 | **빌드 시점** |
-| `VITE_LOGIN_URL` | `https://<api도메인>/auth/google/start` | **빌드 시점** |
+| `VITE_API_URL` | `https://api-reclassic.dinnertimes.app` — 브라우저용 | **빌드 시점** |
+| `VITE_LOGIN_URL` | `https://api-reclassic.dinnertimes.app/auth/google/start` | **빌드 시점** |
 | `API_INTERNAL_HOST` | `api.railway.internal` — SSR용 | 런타임 |
 | `API_PORT` | `8080` | 런타임 |
 
@@ -270,7 +271,7 @@ goose가 멱등이라 사고는 안 나지만 의미 없는 실행이다.
 
 로컬 클라이언트와 **별도로** 만들거나 리디렉션 URI를 추가한다.
 
-- 승인된 리디렉션 URI: `https://<api도메인>/auth/google/callback`
+- 승인된 리디렉션 URI: `https://api-reclassic.dinnertimes.app/auth/google/callback`
 - 동의 화면을 테스트에서 **프로덕션으로 게시**해야 테스트 사용자 밖에서도 로그인된다
 
 ---
@@ -312,7 +313,7 @@ railway variable list --service api --json
 ### 5.3 도메인
 
 ```bash
-railway domain api.reclassic.example --service api --port 8080
+railway domain api-reclassic.dinnertimes.app --service api --port 8080
 railway domain status --service api --json
 railway domain list --service api --json
 ```
@@ -355,34 +356,43 @@ CLI로 안 되는 것만 남겼다. **순서대로 하면 뒤 항목의 값이 �
 **같은 상위 도메인을 써야 세션 쿠키가 공유된다** (ADR-027의 `COOKIE_DOMAIN`).
 웹을 다른 호스팅(예: Vercel)에 두면 쿠키가 갈려 로그인이 되지 않는다.
 
+**정해진 이름 (2026-08-20, ADR-033)**
+
 ```
-reclassic.example        웹
-api.reclassic.example    API
+reclassic.dinnertimes.app        웹
+api-reclassic.dinnertimes.app    API      ← 점이 아니라 하이픈. 이유는 ADR-033
+COOKIE_DOMAIN=.dinnertimes.app            ← 둘의 공통 상위가 여기까지다
 ```
+
+DNS는 Cloudflare다 (`beth`·`rick.ns.cloudflare.com`). apex를 쓰지 않으므로
+**apex CNAME 제약에는 걸리지 않는다.**
 
 **절차**
 
-1. 도메인 발급 ← **사람**
+1. 도메인 발급 ← **사람** — **끝났다**
 2. `railway domain <이름> --service <서비스>` → **넣어야 할 DNS 레코드를 받는다.**
    서비스마다 값이 다르다 ← **CLI (§5.3)**
 3. DNS에 CNAME 추가 ← **사람**
 
    ```
-   api.reclassic.example   CNAME → <api 서비스가 준 값>
-   reclassic.example       CNAME → <web 서비스가 준 값>   ← apex, 아래 주의
+   api-reclassic   CNAME → <api 서비스가 준 값>   Proxy: DNS only(회색)
+   reclassic       CNAME → <web 서비스가 준 값>   Proxy: DNS only(회색)
    ```
 
 4. TLS는 Railway가 자동 발급한다. `railway domain status`로 확인한다
 
 **걸리는 곳 둘**
 
-- **apex 도메인에는 CNAME을 넣을 수 없다** (DNS 표준 제약).
-  Cloudflare DNS의 CNAME flattening을 쓰거나, 웹도 서브도메인(`www.`)으로 두고
-  apex는 리다이렉트한다.
+- **이 존에는 이미 프록시가 켜진 와일드카드가 있다** (2026-08-20 확인).
+  없는 이름(`definitely-not-real-xyz.dinnertimes.app`)까지 Cloudflare 프록시 IP로 응답하고
+  `https://reclassic.dinnertimes.app/`이 `server: cloudflare`로 404를 준다.
+  명시적 레코드가 와일드카드를 이기므로 동작에는 문제가 없지만,
+  **Cloudflare는 새 CNAME을 기본으로 프록시 켜서 만든다.** 3단계에서 반드시 회색으로 둘 것.
 - **Cloudflare 프록시(주황 구름)를 처음부터 켜지 말 것.**
   DNS only(회색)로 두고 Railway 인증서가 발급된 것을 확인한 뒤,
   켤 거면 SSL/TLS 모드를 **Full (strict)**로 맞추고 켠다.
   순서가 반대면 이중 프록시로 발급이 막힌다.
+  `.app`은 HSTS 프리로드 TLD라 http 폴백이 없다 — 인증서가 안 서면 화면이 아예 안 뜬다.
 
 이게 정해지면 아래 값이 전부 확정된다:
 `CORS_ALLOWED_ORIGINS` · `COOKIE_DOMAIN` · `GOOGLE_REDIRECT_URL` ·
@@ -399,7 +409,7 @@ api.reclassic.example    API
 
 로컬 클라이언트에 URI를 추가하거나 별도 클라이언트를 만든다.
 
-- 승인된 리디렉션 URI에 `https://<api도메인>/auth/google/callback` 추가
+- 승인된 리디렉션 URI에 `https://api-reclassic.dinnertimes.app/auth/google/callback` 추가
 - **OAuth 동의 화면을 테스트 → 프로덕션으로 게시.** 안 하면 테스트 사용자만 로그인된다
 
 ### 6.4 Railway 대시보드 — 미확인 둘 (ADR-031)
