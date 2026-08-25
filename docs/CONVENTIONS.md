@@ -66,6 +66,40 @@ const baseURL = typeof window === 'undefined'
   하이드레이션 후 화면이 깜빡인다.
 - server function에는 비즈니스 로직을 넣지 않는다. SSR 데이터 페칭과 쿠키 전달 전용이다.
 
+### 편집·검수 화면 (CSR) — ADR-035
+
+- **`QueryClient`는 `getRouter()` 안에서 요청마다 새로 만든다. 모듈 스코프에 두지 않는다.**
+  서버는 프로세스 하나가 모든 요청을 처리하므로, 공유하면 한 사람의 응답이 다른 사람에게 나간다.
+- `QueryClientProvider`를 직접 감싸지 않는다. `setupRouterSsrQueryIntegration`이 기본으로 감싼다.
+- 로더에서 SSR을 막고 기다리려면 `ensureQueryData()`. 막지 않고 흘리려면 `fetchQuery()`를 await 없이.
+- **`useQuery`는 서버에서 돌지 않는다.** 하이드레이션 후 클라이언트에서만 실행된다.
+  서버에서 돌려야 하면 `useSuspenseQuery`다.
+- `staleTime`을 0보다 크게 둔다(60초). 0이면 하이드레이션 직후 전부 다시 요청한다.
+- **읽기 화면(`/books/…`·`/projects/…`)에 react-query 훅이나 shadcn 컴포넌트를 넣지 않는다.**
+  자바스크립트 없이 뜨는 성질이 ADR-007·023의 SEO 전제다. Tailwind 클래스는 써도 된다.
+- 컴포넌트는 **shadcn/ui에 있는지 먼저 찾고, 없을 때만 직접 만든다.**
+  shadcn이 복사해 넣은 파일은 우리 소스이고 고쳐도 된다 — 다만 고친 것을 다시 `add`하지 않는다.
+
+## 보안
+
+- **세션 토큰을 평문으로 저장하지 않는다.** DB에는 sha256만 넣는다 (ADR-027).
+- **OAuth `state` 검증을 빼지 않는다.** 로그인 CSRF가 열린다.
+- **프로덕션에서 `COOKIE_SECURE=true`.** 로컬에서만 false다.
+- **CORS 허용 출처에 `*`를 넣지 않는다.** credentials와 함께 쓸 수 없고, 써서도 안 된다 (ADR-026).
+  LAN·Tailscale로 접속하려면 그 출처를 `CORS_ALLOWED_ORIGINS`에 추가한다.
+- 시크릿을 커밋하지 않는다. 새 환경변수는 `.env.example`에 이름과 한 줄 설명만 추가한다.
+  `railway.json`도 커밋되는 파일이다 — 값은 Railway 변수로 간다 (ADR-031).
+
+## 수집 (Gutenberg)
+
+- **병렬 요청을 보내지 않는다.** 워커 동시성 1~2, 요청 간 최소 1초, User-Agent 명시.
+  공격적으로 긁으면 IP가 차단되고 복구가 어렵다.
+- **수집 큐(`fetch`)의 동시성을 1보다 올리지 않는다.** 파싱 큐(`parse`)는 올려도 된다.
+  **큐를 나눈 이유가 그것이다.**
+- **`PARSE_CONCURRENCY`를 메모리 확인 없이 올리지 않는다.** 셰익스피어 전집 파싱이 힙 310MB를 쓴다 (ADR-029).
+- **원본 HTML을 커밋하지 않는다.** `.cache/`는 gitignore 대상이다.
+  검증용 도서는 `internal/parse/testdata/corpus.json`에 ID만 기록하고 `make fetch-corpus`로 받는다.
+
 ## 테스트
 
 - 파서는 `internal/parse/testdata/golden/`의 스냅샷으로 회귀를 검증한다.
@@ -130,15 +164,17 @@ Conventional Commits. 타입은 여섯이다:
 
 `.github/pull_request_template.md`가 같은 내용을 담고 있다.
 
-1. `make lint && make test` 통과
+1. `make lint && make test && make docs-check` 통과
 2. **`DATABASE_URL` 없이도** `make test` 통과 (CI가 DB 없이 돈다)
-3. 아키텍처에 영향을 주는 판단이 있었으면 `docs/DECISIONS.md`에 ADR 추가
+3. 아키텍처에 영향을 주는 판단이 있었으면 **`docs/decisions/ADR-NNN.md` 파일 추가 +
+   `docs/decisions/index.md` 표에 줄 추가**. 둘 중 하나만 하면 `make docs-check`가 잡는다
 4. `openapi.yaml`을 고쳤으면 `make generate`를 돌리고 산출물까지 커밋
 5. 마이그레이션을 추가했으면 **기존 파일은 건드리지 않았는지** 확인
 6. 파서를 고쳤으면 `make parsecheck`로 눈 검증 후 golden 갱신,
    `make succession`으로 승계 영향 측정
 7. 환경변수를 추가했으면 `.env.example`에 이름과 한 줄 설명 추가
 8. 명령을 추가했으면 Makefile과 `AGENTS.md` 명령어 표를 함께 갱신
+9. **알면서 남긴 것이 있으면 `docs/tech-debt.md`에 기록** — "언제 아플 것인가"까지 적는다
 
 ### `main` 브랜치 보호 — 권장 설정
 

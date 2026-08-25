@@ -1,10 +1,10 @@
 # 슬라이스 명세 — 번역 (제안 · 검수 · 공개)
 
 **작업 종류:** 구현 슬라이스 (수직)
-**선행 슬라이스:** `docs/SLICE_INGEST_AUTOMATION.md`
+**선행 슬라이스:** `docs/slices/completed/ingest-automation.md`
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md` (특히 "핵심 불변식", "공개와 SEO"),
-`docs/DECISIONS.md` (특히 ADR-004 / 005 / 007 / 010 / 016)
-**다음 슬라이스:** `docs/SLICE_AUTH.md` — 세션 인증
+`docs/decisions/index.md` (특히 ADR-004 / 005 / 007 / 010 / 016)
+**다음 슬라이스:** `docs/slices/completed/auth.md` — 세션 인증
 
 ---
 
@@ -203,5 +203,5 @@ GET /projects/{projectId}/chapters/{idx}      ← 최종 계약 (ARCHITECTURE)
 
 ## 7. 다음
 
-`docs/SLICE_AUTH.md` — 세션 인증. §4.7의 임시 헤더를 걷어낸다.
+`docs/slices/completed/auth.md` — 세션 인증. §4.7의 임시 헤더를 걷어낸다.
 그 전까지 **프로덕션에 배포하지 않는다.**
