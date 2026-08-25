@@ -42,6 +42,14 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | T4 | **`web-install`의 재설치 판정은 mtime 스탬프다** — `web/node_modules/.install-stamp`가 `pnpm-lock.yaml`·`package.json`보다 오래되면 다시 깐다. 그래서 **lockfile은 그대로인 채 `node_modules` 안만 망가진 상태는 잡지 못한다** | 손으로 패키지를 지웠을 때. 증상이 나면 `rm -rf web/node_modules && make web-install`로 복구한다 (스탬프도 같이 지워진다) |
 | T5 | **web 의존성을 늘릴 make 경로가 없다** — `web-install`은 `--frozen-lockfile` 전용이고([ADR-019](decisions/ADR-019.md)) lockfile을 갱신하는 타깃이 없다. `make ui-add`(shadcn)만 예외적으로 자기 의존성을 깐다 | 다음에 web 의존성을 늘리는 순간. `pnpm install`을 직접 쳐야 해서 **"Makefile이 유일한 진입점"이 깨진다.** 의존성 추가 자체가 ADR을 요구하는 일이라 지금은 타깃을 만들지 않았다 |
 
+## 로컬에만 있는 것
+
+운영 데이터가 아니다. 로컬 DB를 지우고 다시 올리면 사라진다.
+
+| | 무엇 | 언제 아픈가 |
+|---|---|---|
+| L1 | 슬라이스 8 검증용으로 **가짜 승계 고아 행 1건**을 주입했다 (1342 Pride and Prejudice, 고아 2건) | 로컬 관리자 화면의 고아 목록이 항상 1건으로 보인다. **프로덕션에는 없다.** 다음에 로컬에서 "고아 0건" 빈 화면을 확인하려다 데이터가 있다고 착각할 때. 그 행을 지우거나 DB를 다시 올리면 사라진다 |
+
 ## 프록시 뒤라서 생긴 것
 
 | | 무엇 | 언제 아픈가 |
