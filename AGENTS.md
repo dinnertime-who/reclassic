@@ -73,13 +73,12 @@ ADR-002의 4서비스 구성이 처음으로 실물 검증됐습니다.
 
 **ADR-028의 숙제도 닫혔습니다.** 운영이 아프지 않았으므로 안 C(Cloudflare 이전)를 열지 않습니다.
 
-**남은 것 셋입니다.**
+**남은 것 둘입니다.**
 
-- **ADR-034 — Cloudflare 프록시가 켜진 채로 서 있습니다.** 문서(§6.1)는 회색으로 두라고 적었는데
-  실물은 주황이고, 그대로 동작합니다. **Rocket Loader가 HTML의 스크립트 태그를 고쳐 씁니다** —
-  지금은 하이드레이션이 살아 있지만 보장이 아닙니다. 켤지 끌지 정해야 하고, **되돌리는 것도 무중단이 아닙니다.**
 - **미검증 둘** — 마이그레이션 실패 게이트와 파서 메모리 피크. 프로덕션에서 확인할 성질이 아닙니다.
 - **`make lint`가 `golangci-lint` 없이 `go vet`으로 대체됩니다.** 의도한 강도가 아닙니다.
+
+Cloudflare 프록시는 **켜 두기로 정해졌습니다** (ADR-034).
 
 **Railway 설정은 대부분 `railway` CLI로 합니다** — 명령은 `SLICE_DEPLOY.md` §5에 있습니다.
 **사람이 직접 해야 하는 것은 §6입니다** — 도메인·DNS 레코드, R2, Google 프로덕션 클라이언트.
@@ -162,7 +161,15 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 전체 절차와 사람이 직접 해야 하는 것은 `docs/SLICE_DEPLOY.md`에 있습니다. 여기는 요약입니다.
 
 **떠 있는 주소** — 웹 `https://reclassic.dinnertimes.app` · API `https://api-reclassic.dinnertimes.app`.
-**둘 다 Cloudflare 프록시 뒤에 있습니다.** 문서가 지시한 상태가 아닙니다 — ADR-034를 먼저 읽으세요.
+
+**둘 다 Cloudflare 프록시 뒤에 있습니다** (ADR-034). SSL/TLS는 Full (strict)입니다.
+여기서 따라오는 규칙 둘:
+
+- **응답 본문을 고치는 Cloudflare 기능을 켜지 마세요** — Rocket Loader, Mirage, Polish 등.
+  Rocket Loader가 켜져 있어서 껐습니다. 켜면 하이드레이션이 깨져도 SSR은 멀쩡해서
+  **배포는 성공으로 보이고 브라우저에서만 죽습니다.**
+- **`r.RemoteAddr`은 방문자 IP가 아닙니다.** Cloudflare 주소입니다.
+  방문자 IP는 `CF-Connecting-IP`에 있습니다 — `CONVENTIONS.md` "클라이언트 IP" 절.
 
 **서비스 넷이 같은 저장소를 봅니다.** 빌드·배포 설정은 서비스마다 파일로 저장소에 있습니다 (ADR-031).
 

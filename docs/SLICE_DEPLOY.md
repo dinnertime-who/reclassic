@@ -208,7 +208,7 @@ CMD ["node", ".output/server/index.mjs"]
 
 **파일이 셋인 이유.** 셋 다 저장소 루트에서 빌드하므로 기본 이름(`railway.json`) 하나를
 두면 세 서비스가 같은 값을 읽는다. `startCommand`가 서로 달라야 하니 갈라야 한다.
-**서비스마다 설정 파일 경로를 지정해야 한다** — §6.4의 미확인 항목이다.
+**서비스마다 설정 파일 경로를 지정해야 한다** — 대시보드에 저장소 절대 경로를 넣는다 (§6.4).
 
 **시크릿을 이 파일에 넣지 않는다.** 커밋되는 파일이다. 값은 Railway 변수로 간다 (§4.5).
 
@@ -393,10 +393,13 @@ DNS는 Cloudflare다 (`beth`·`rick.ns.cloudflare.com`). apex를 쓰지 않으�
 
 4. TLS는 Railway가 자동 발급한다. `railway domain status`로 확인한다
 
-> **실물은 이렇게 되지 않았다 (2026-08-25).** 두 CNAME 다 **프록시가 켜진 채**로 섰고
-> 그대로 정상 동작한다. TLS를 종단하는 것은 Railway가 아니라 **Cloudflare Universal SSL**이다.
-> 3~4단계의 "회색으로 둘 것"과 어긋나는 상태이고, **되돌리는 것도 무중단이 아니다.**
-> 무엇을 감수하게 되는지와 남은 결정은 **ADR-034**에 있다.
+> **개정됨 — 프록시를 켜 둔다 (ADR-034).** 두 CNAME 다 **프록시가 켜진 채**로 섰고
+> 그대로 정상 동작한다. TLS를 종단하는 것은 Railway가 아니라 **Cloudflare Universal SSL**이고,
+> SSL/TLS 모드는 **Full (strict)** 다. 위 3단계의 "회색(DNS only)으로 둘 것"은 더 이상 맞지 않다 —
+> **프록시를 켠 채로 만든다.**
+>
+> 대신 **응답 본문을 고치는 Cloudflare 기능을 켜지 않는다.** Rocket Loader가 켜져 있었고 껐다.
+> 그리고 **되돌리는 것은 무중단이 아니다** — Railway 인증서가 발급된 적이 없다. 자세한 것은 ADR-034.
 
 **걸리는 곳 둘**
 
@@ -534,12 +537,16 @@ DNS는 Cloudflare다 (`beth`·`rick.ns.cloudflare.com`). apex를 쓰지 않으�
 `railway.json`이 `dockerfilePath`·`preDeployCommand`·메모리를 전부 담았고
 **셋 다 실물에서 먹는 것이 확인됐다** (§6.4). DSL이 이것들을 담게 되면 그때 다시 본다 (ADR-031).
 
-**이 슬라이스가 남긴 것 둘.**
+**이 슬라이스가 남긴 것.**
 
-- **ADR-034 — Cloudflare 프록시.** 실물이 문서와 다르게 섰다. 켠 채로 둘지 정해야 하고,
-  두기로 하면 Rocket Loader를 끄고 SSL/TLS를 Full (strict)로 맞춰야 한다. **가장 먼저 처리할 것.**
 - **미검증 둘.** 마이그레이션 실패 게이트(§8)와 파서 메모리 피크(§4.2).
   둘 다 프로덕션에서 확인할 성질이 아니다 — 별도 환경이 생길 때 함께 본다.
+- **클라이언트 IP.** 프록시 뒤라 `RemoteAddr`이 방문자가 아니다 (ADR-034).
+  지금은 읽는 곳이 없어 무해하지만, **레이트리밋을 넣는 슬라이스에서 반드시 걸린다.**
+  규칙은 `CONVENTIONS.md` Go 절에 미리 적어 뒀다.
+
+Cloudflare 프록시는 **켜 두기로 정해졌다** (ADR-034). Rocket Loader는 껐고,
+SSL/TLS는 Full (strict)이며, 세션이 붙는 경로는 캐시되지 않는 것을 확인했다.
 
 **CI는 여전히 범위 밖이다.** 다만 `make lint`가 `golangci-lint` 없이 `go vet`으로
 대체되는 것을 이번에 확인했으므로, CI를 넣을 때 **린터 버전 고정을 첫 항목으로 둔다.**
