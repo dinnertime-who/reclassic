@@ -93,6 +93,12 @@
     margin-block: 0.67em;
   }
 
+  h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-block: 0.75em;
+  }
+
   p,
   dl {
     margin-block: 1em;
@@ -145,4 +151,10 @@ nav.session {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #ddd;
   font-size: 0.875rem;
+}
+
+nav.session .session-links {
+  margin-right: auto;
+  display: flex;
+  gap: 0.75rem;
 }

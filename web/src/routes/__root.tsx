@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 import {
   HeadContent,
+  Link,
   Scripts,
   createRootRouteWithContext,
   useRouter,
@@ -63,6 +64,10 @@ function SessionBar() {
 
   return (
     <nav className="session">
+      <span className="session-links">
+        <Link to="/books">도서 목록</Link>
+        {user?.role === 'admin' && <Link to="/admin">관리</Link>}
+      </span>
       {user ? (
         <>
           <span>
