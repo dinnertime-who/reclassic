@@ -82,7 +82,7 @@ ADR-035는 문서로만 존재하고 `web/`에는 아직 아무것도 설치돼 
 | `web/src/router.tsx` | 요청마다 `QueryClient` + SSR 통합 |
 | `web/orval.config.ts` | `client: 'react-query'` |
 | `web/src/api/gen/**` | 재생성 (손대지 않음) |
-| `web/src/routes/projects.$projectId.chapters.$idx.edit.tsx` | 편집·검수 화면 |
+| `web/src/routes/projects.$projectId.chapters.$idx_.edit.tsx` | 편집·검수 화면. **`_`가 필요하다** — §6 |
 | `web/src/components/ui/**` | shadcn 산출물 — **우리 소스다** (ADR-035) |
 | `web/vitest.config.ts` · `web/eslint.config.js` | 테스트·린트 |
 | `Makefile` | `test` · `lint` · `fmt`에 web 추가 |
@@ -198,16 +198,62 @@ export function getRouter() {
 5. **`reviewProposal`의 409를 실패로 처리하지 않는다.** 재조회한다.
 6. 작업 종료 전 `make lint && make test && make docs-check` 통과.
 
-## 6. 완료 조건
+## 6. 완료 조건 — 확인 결과
 
-- [ ] `make run-web`에서 편집 화면이 뜨고, **제안 → 승인 → 확정본 반영이 화면 안에서 돈다**
-- [ ] 승인 직후 그 문단의 확정 번역과 커버리지가 갱신된다 (챕터 뷰 무효화 확인)
-- [ ] **읽기 화면이 여전히 자바스크립트 없이 뜬다** — JS를 끄고 확인한다. 눈으로 볼 것
-- [ ] 비로그인·비권한 상태에서 검수 조작이 렌더되지 않는다
-- [ ] `reviewProposal` 409를 인위로 만들어 재조회로 회복하는 것을 확인한다
-- [ ] `make test`가 Go와 web을 함께 돌린다. **`DATABASE_URL` 없이 통과한다**
-- [ ] `make lint`가 ESLint를 돌린다
-- [ ] 실물(`https://reclassic.dinnertimes.app`)에서 한 번 확인한다
+착수 전에 쓴 항목에 **실제로 확인된 수치를 되먹인 것**이다.
+
+- [x] `make run-web`에서 편집 화면이 뜨고, **제안 → 승인 → 확정본 반영이 화면 안에서 돈다**
+- [x] 승인 직후 그 문단의 확정 번역과 커버리지가 갱신된다 —
+      **승인 한 번에 커버리지가 27/33 → 28/33으로 움직였다.** 챕터 뷰까지 무효화해야 나오는
+      결과다. 제안 목록만 무효화하면 `approvedTranslation`과 `proposalCount`가 낡은 채 남는다
+- [x] **읽기 화면이 여전히 자바스크립트 없이 뜬다** — `curl`(JS 실행 0)로 받은 SSR HTML에
+      `Chapter I.` 제목과 **문단 38개**가 그대로 들어 있다. 편집 라우트를 옆에 두고도
+      ADR-007·023의 전제가 유지된다
+- [x] 비로그인·비권한 상태에서 검수 조작이 렌더되지 않는다 — 비로그인·`member`는 승인/반려·
+      검수 사유·제안 폼이 뜨지 않고 `admin`만 뜬다
+- [x] `reviewProposal` 409를 인위로 만들어 재조회로 회복하는 것을 확인한다 —
+      `curl`로 다른 검수자가 먼저 승인시킨 뒤 화면에서 승인하면, 실패로 끝나지 않고
+      **남의 확정본이 화면에 올라온다** (ADR-024)
+- [x] `make test`가 Go와 web을 함께 돌린다. **`DATABASE_URL` 없이 통과한다** — vitest 8개.
+      각 테스트에 변이를 넣어 실제로 빨개지는 것까지 확인했다(챕터뷰 무효화 제거 · 409 재조회
+      제거 · `canReview` 항상 true 등 5가지)
+- [x] `make lint`가 ESLint를 돌린다
+- [ ] **실물(`https://reclassic.dinnertimes.app`)에서 한 번 확인한다** — 아직이다.
+      머지·배포 뒤에 한다. **이 한 줄 때문에 이 명세는 아직 `active/`에 있다.**
+
+### 이 슬라이스가 답한 것
+
+**ADR-035가 고른 스택은 SSR 라우터 안에서 CSR 화면을 지탱한다.** 요청마다 만든
+`QueryClient`가 SSR을 통과하고, 뮤테이션 뒤 부분 갱신이 돌고, 읽기 화면의 무자바스크립트
+성질이 옆에서 유지된다.
+
+**계약은 한 줄도 늘지 않았다** — `openapi.yaml` 0줄, 읽기 라우트 셋 0줄, `api/http.ts` 0줄.
+§4.1의 "기존 계약 9개로 성립한다"는 예측이 맞았다.
+
+**요청 수도 예측대로다.** 문단 33개를 그려도 `/proposals` 요청이 **0건**이다
+(`proposalCount`가 0이면 부르지 않는다, §4.5).
+
+### 착수 전에 몰랐던 것 셋
+
+1. **shadcn 최신 스타일은 색 토큰을 파일로 복사해 주지 않는다.** `node_modules`의 CSS에서
+   `@import`하게 되어 있는데, 그러면 토큰이 ADR-035가 정한 자리(`styles.css`의 `@theme`)
+   밖에 산다. **필요한 13개만 우리 소스로 옮겼다.** `tw-animate-css`는 쓰는 곳이 없어
+   넣지 않았다 — 의존성은 ADR-035 목록과 정확히 같다.
+2. **Tailwind preflight가 읽기 화면의 `h1`·`p`·`dl`·`a`를 납작하게 만들었다.**
+   SSR·빌드·테스트가 **전부 통과한 채** 브라우저에서만 드러났다. `@layer base`로 되살렸다.
+   base 레이어라 preflight는 이기고 유틸리티에는 진다.
+3. **라우트 파일명에 `_`가 필요하다.** `...$idx.edit.tsx`로 두면 flat 라우팅이 읽기 라우트를
+   부모 레이아웃으로 승격시켜, `Outlet`이 없는 읽기 화면 때문에 편집 화면이 **아예 뜨지 않는다.**
+   `...$idx_.edit.tsx`로 중첩을 끊었고 URL은 그대로다.
+
+### 규칙을 도구가 지키게 했다
+
+§5.2("읽기 라우트에 react-query 훅이나 shadcn 컴포넌트를 넣지 않는다")를 사람 눈으로만
+지키면 언젠가 깨진다. **`web/eslint.config.js`의 `no-restricted-imports`가 잡는다.**
+
+여기서도 조용한 고장이 하나 나왔다 — ESLint의 group 패턴은 gitignore 문법이라
+**`#/components/ui/*`의 선행 `#`이 주석으로 먹혀 아무것도 잡지 못하고 있었다.**
+escape로 고친 뒤, 읽기 라우트에 `useQuery`와 `Button`을 주입해 실제로 잡히는 것을 확인했다.
 
 ## 7. 다음
 
