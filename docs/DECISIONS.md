@@ -1272,3 +1272,115 @@ Email Obfuscation, "Cache Everything" 계열의 캐시 규칙. 켜야 할 이유
 - **캐시 규칙을 추가할 때는 세션이 붙는 경로를 반드시 제외한다.** 지금 안전한 것은
   기본 설정이 정적 확장자만 캐시하기 때문이지, 앱이 막고 있어서가 아니다.
   SSR 응답이 캐시되면 **한 사람의 로그인 화면이 다른 사람에게 나간다.**
+
+---
+
+## ADR-035 — 편집·검수 화면의 프론트 스택을 고정한다
+**상태:** Accepted (2026-08-25). ADR-006의 "편집·검수는 CSR"을 구체화한다 — 뒤집지 않는다.
+
+**맥락:** 슬라이스 7은 편집·검수·관리자 큐 화면을 만든다. 지금 `web/`에 정해진 것은
+TanStack Start·Router(ADR-006), React 19, Vite, pnpm(ADR-019)뿐이다.
+스타일은 `styles.css` 32줄이고 폼·서버 상태·컴포넌트 라이브러리가 없다.
+웹 테스트는 0개이며 ESLint도 없다 — `make test`는 `go test ./...`만 돌고
+`make lint`는 web에 `tsc --noEmit`만 돌린다.
+
+읽기 화면 넷은 요소가 적어 이대로 버텼다. 편집·검수는 문단 목록, 제안 카드,
+승인·반려, 확인 큐 테이블이 한 화면에 겹친다. **스택이 정해지지 않으면 화면을 시작할 수 없다** —
+ADR-019가 슬라이스 1에서 패키지 매니저를 먼저 막았던 것과 같은 이유다.
+
+`ARCHITECTURE.md`가 "react-query 훅은 소비할 CSR 화면(편집·검수)이 생길 때 켠다"고
+예고해 둔 시점이 지금이다.
+
+**결정:** 다섯을 고정한다.
+
+| 축 | 선택 |
+|---|---|
+| 서버 상태 | `@tanstack/react-query` + orval `react-query` 클라이언트 |
+| 스타일 | Tailwind CSS v4 |
+| 컴포넌트 | **shadcn/ui를 먼저 찾고, 없으면 직접 구현한다** |
+| 폼 | 라이브러리를 두지 않는다. 제어 컴포넌트로 직접 |
+| 테스트·린트 | Vitest + ESLint |
+
+### SSR 규칙 — 공식 문서가 강제하는 것
+
+react-query를 켜는 순간 SSR과 맞물리는 지점이 생긴다. 아래는 취향이 아니라 규칙이다.
+
+- **통합 패키지는 `@tanstack/react-router-ssr-query`다.** react-query만 넣으면 dehydrate·hydrate를
+  손으로 짜게 된다.
+- **`QueryClient`는 요청마다 새로 만든다.** `getRouter()` 안에서 `new QueryClient()`를 부른다.
+  **모듈 스코프에 두지 않는다** — 서버는 프로세스 하나가 모든 요청을 처리하므로,
+  공유하면 **한 사람의 응답이 다른 사람에게 나간다.** ADR-034가 캐시 규칙에서 경고한 실패와 같다.
+  지금 `getRouter()`가 이미 팩토리 함수라 자리가 맞는다.
+
+  ```tsx
+  export function getRouter() {
+    const queryClient = new QueryClient()
+    const router = createTanStackRouter({ routeTree, context: { queryClient }, ... })
+    setupRouterSsrQueryIntegration({ router, queryClient })
+    return router
+  }
+  ```
+
+- **`QueryClientProvider`를 직접 감싸지 않는다.** `setupRouterSsrQueryIntegration`의
+  `wrapQueryClient`가 기본 true다. 직접 감싸면 프로바이더가 둘이 된다.
+- **로더에서 기다려야 하면 `ensureQueryData()`다.** SSR을 막고 데이터를 기다린다.
+  막지 않고 흘리려면 `fetchQuery()`를 await 없이 부른다.
+- **`useQuery`는 서버에서 돌지 않는다.** 하이드레이션 후 클라이언트에서만 실행된다.
+  서버에서 돌리고 스트리밍하려면 `useSuspenseQuery`다. 이 둘을 헷갈리면
+  "SSR인데 화면이 비어서 온다"가 된다.
+- **`staleTime`을 0보다 크게 둔다(60초).** 0이면 하이드레이션 직후 서버가 이미 받아온 것을
+  전부 다시 요청한다. 지금 `defaultPreloadStaleTime: 0`과는 다른 값이다 — 혼동하지 말 것.
+
+### 읽기 화면에는 이 스택을 들이지 않는다
+
+**읽기 라우트(`/books/...`, `/projects/...`)는 지금의 로더 + 순수 HTML을 유지한다.**
+react-query 훅도 shadcn 컴포넌트도 넣지 않는다. Tailwind 클래스는 써도 된다.
+
+읽기 화면이 **자바스크립트 없이 뜨는 것**은 슬라이스 2에서 확인된 성질이고
+ADR-007·023의 SEO 전제다. Radix 프리미티브나 `useQuery`를 읽기 라우트에 끌어들이면
+그 성질이 조용히 깨진다. **그리고 SSR은 멀쩡해 보이므로 배포는 성공으로 보인다** —
+ADR-034가 Rocket Loader에서 본 실패 모양 그대로다.
+
+### shadcn 사용 규칙
+
+- **먼저 shadcn에 있는지 찾는다. 있으면 그것을 쓴다. 없을 때만 직접 만든다.**
+  직접 만든 컴포넌트도 shadcn의 파일 배치와 변형(variant) 관례를 따른다.
+- 넣는 방법은 `pnpm dlx shadcn@latest add <컴포넌트>`이고, **진입점은 Makefile이다**
+  (`make ui-add C=button`). AGENTS.md의 "Makefile이 유일한 진입점" 규약은 그대로다.
+- **shadcn 산출물은 생성 코드가 아니다.** 작업 규칙 4("생성 코드는 손으로 고치지 않는다")는
+  sqlc·oapi-codegen·orval 산출물에 대한 것이다. shadcn이 복사해 넣은 파일은 **우리 소스이고 고쳐도 된다.**
+  다만 같은 컴포넌트를 다시 `add`하면 덮어쓰므로, **고친 컴포넌트는 다시 add하지 않는다.**
+- **경로 별칭이 `#/*`다.** shadcn 기본값은 `@/*`이므로 `components.json`에서 맞춘다.
+  별칭은 `web/package.json`의 `imports`로 정의돼 있다(ADR-019의 단일 패키지 구조).
+
+**대안과 기각 사유:**
+
+- **Router 로더 + `invalidate()`만으로 버티기** — 의존성이 안 늘고 SSR·CSR이 한 모델로 간다.
+  기각한 이유는 **부분 갱신이 안 되기 때문이다.** 문단 하나를 승인해도 라우트 전체가 다시 돈다.
+  검수 화면은 승인 → 목록 갱신이 핵심 동작이라 이 비용을 계속 낸다.
+- **CSS Modules / 순수 CSS 유지** — 의존성이 0이고 지금 결과 이어진다. 기각한 이유는
+  **화면 수가 한 자리로 늘기 때문이다.** 간격·색 토큰을 직접 정하고 죽은 CSS를 직접 지워야 한다.
+- **react-hook-form + zod** — 필드가 늘면 강하다. 지금 필요한 폼은 제안 작성(textarea 하나)과
+  검수(승인/반려 + 사유)다. **쓰는 곳 없이 의존성부터 늘리지 않는다**는 `ARCHITECTURE.md`의
+  결과 그대로 기각한다. 필드가 늘어 아프면 그때 이 항목을 다시 연다.
+- **테스트·린트를 다음 슬라이스로 미루기** — 화면이 빨리 나온다. 기각한 이유는
+  **작업 규칙 6의 게이트가 비어버리기 때문이다.** `make lint && make test` 통과가 완료 조건인데
+  web에 로직이 생기는 슬라이스에서 web 테스트가 0개면 그 게이트는 Go만 지킨다.
+
+**결과:**
+
+- **web 런타임 의존성이 는다** — `@tanstack/react-query`, `@tanstack/react-router-ssr-query`,
+  `radix-ui`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`.
+  Go 쪽 의존성 여섯(ADR-021)과 달리 이쪽은 선택이므로, 늘릴 때마다 이 ADR을 다시 본다.
+- **Tailwind v4는 CSS-first 설정이라 `tailwind.config.js`가 없다.** 토큰은 `styles.css`의
+  `@theme`에 둔다. `@tailwindcss/vite` 플러그인을 `vite.config.ts`에 넣는다.
+- **orval 설정이 바뀐다.** `client: 'fetch'` → `'react-query'`. mutator(`http.ts`)는 그대로다 —
+  베이스 URL 분기와 SSR 쿠키 전달은 여전히 한 곳이다(CONVENTIONS). `make generate` 후
+  산출물까지 커밋한다(PR 체크리스트 4).
+- **`make test`와 `make lint`가 web을 포함하게 바뀐다.** 지금 `make test`는 Go만 돈다.
+  **web 테스트는 `DATABASE_URL` 없이 돌아야 한다**(PR 체크리스트 2) — API를 부르지 않고
+  orval 클라이언트를 모의한다.
+- **Makefile에 `make ui-add`가 는다. AGENTS.md 명령어 표를 함께 갱신한다** —
+  ADR-019가 `make doctor`에서 했던 것과 같다.
+- **되돌리는 비용이 축마다 다르다.** shadcn은 소스가 저장소에 있어 CLI를 버려도 컴포넌트가 남는다.
+  react-query와 Tailwind는 화면 전체를 고쳐야 한다.

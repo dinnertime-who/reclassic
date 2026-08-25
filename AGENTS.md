@@ -121,6 +121,11 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 | HTML 파싱 | goquery | Gutenberg 원문 추출 |
 | 오브젝트 스토리지 | Cloudflare R2 | S3 호환. 원본 HTML 스냅샷 보관 |
 | 웹 | TanStack Start | 읽기 화면 SSR, 편집·검수 화면 CSR |
+| 웹 서버 상태 | TanStack Query | orval이 훅을 생성. **`QueryClient`는 요청마다 새로** (ADR-035) |
+| 웹 스타일 | Tailwind CSS v4 | CSS-first 설정. `tailwind.config.js` 없음 (ADR-035) |
+| 웹 컴포넌트 | shadcn/ui | **먼저 찾고, 없을 때만 직접 구현.** 복사된 소스는 우리 것 (ADR-035) |
+| 웹 폼 | 없음 | 제어 컴포넌트로 직접. react-hook-form·zod를 넣지 않는다 (ADR-035) |
+| 웹 테스트·린트 | Vitest + ESLint | web 테스트는 `DATABASE_URL` 없이 돈다 (ADR-035) |
 | 프론트 패키지 | pnpm | Node 패키지는 `web/` 하나. 루트 `package.json` 없음 (ADR-019) |
 | API 계약 | OpenAPI → oapi-codegen(Go) + Orval(TS) | 스펙 우선 |
 | 빌드 타임 도구 | sqlc·oapi-codegen은 `go.mod` tool 디렉티브 | 별도 설치 없음 (ADR-020) |
@@ -226,6 +231,11 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 - **`0.0.0.0`에 바인딩하지 마세요.** Railway 프라이빗 네트워크는 IPv6 전용이라 `[::]`를 써야 서비스 간 호출이 됩니다.
 - **비즈니스 로직을 TanStack Start의 server function에 넣지 마세요.**
   권한 검사·DB 접근·도메인 로직은 전부 Go. server function은 SSR 데이터 페칭과 쿠키 전달 전용입니다.
+- **`QueryClient`를 모듈 스코프에 두지 마세요.** `getRouter()` 안에서 요청마다 새로 만듭니다 (ADR-035).
+  서버는 프로세스 하나가 모든 요청을 처리하므로, 공유하면 **한 사람의 응답이 다른 사람에게 나갑니다.**
+- **읽기 화면(`/books/...`·`/projects/...`)에 react-query 훅이나 shadcn 컴포넌트를 넣지 마세요** (ADR-035).
+  자바스크립트 없이 뜨는 성질이 ADR-007·023의 SEO 전제입니다. 넣으면 조용히 깨지는데
+  **SSR은 멀쩡해 보여서 배포는 성공으로 보입니다.** Tailwind 클래스는 써도 됩니다.
 - **`paragraph_translations`에 문단당 2행 이상 넣지 마세요.** 복합 PK가 막고 있고, 이건 의도된 제약입니다.
 - **승인 트랜잭션의 자문 잠금(ADR-024)과 `AND status='pending'`을 빼지 마세요.**
   둘 다 있어야 동시 승인이 막힙니다. 하나만으로는 부족합니다.
