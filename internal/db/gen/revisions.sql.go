@@ -7,6 +7,8 @@ package gen
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const activateRevision = `-- name: ActivateRevision :exec
@@ -192,6 +194,58 @@ func (q *Queries) InsertRevision(ctx context.Context, arg InsertRevisionParams) 
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const listOrphanedSuccessions = `-- name: ListOrphanedSuccessions :many
+SELECT
+    s.id,
+    s.book_id,
+    b.gutenberg_id,
+    b.title,
+    s.orphaned,
+    s.created_at
+FROM revision_successions s
+JOIN books b ON b.id = s.book_id
+WHERE s.orphaned > 0
+ORDER BY s.created_at DESC
+`
+
+type ListOrphanedSuccessionsRow struct {
+	ID          int64
+	BookID      int64
+	GutenbergID int32
+	Title       string
+	Orphaned    int32
+	CreatedAt   pgtype.Timestamptz
+}
+
+// 고아 승계 목록. 부분 인덱스 revision_successions_orphaned (book_id)
+// WHERE orphaned > 0 를 탄다. 읽기만 한다 — 되살리는 조작은 ADR-016에 닿는다.
+func (q *Queries) ListOrphanedSuccessions(ctx context.Context) ([]ListOrphanedSuccessionsRow, error) {
+	rows, err := q.db.Query(ctx, listOrphanedSuccessions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOrphanedSuccessionsRow
+	for rows.Next() {
+		var i ListOrphanedSuccessionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookID,
+			&i.GutenbergID,
+			&i.Title,
+			&i.Orphaned,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listParagraphsByChapter = `-- name: ListParagraphsByChapter :many

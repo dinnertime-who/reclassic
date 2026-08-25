@@ -73,13 +73,16 @@ func run(log *slog.Logger) error {
 		return err
 	}
 
+	reader := book.NewReader(pool)
 	srv := &http.Server{
 		// Railway 프라이빗 네트워크는 IPv6 전용이다 (불변식 4).
 		// 0.0.0.0에 바인딩하면 서비스 간 내부 호출을 받지 못한다.
 		Addr: "[::]:" + port,
 		Handler: api.NewServer(api.Deps{
 			DB:             pool,
-			Reader:         book.NewReader(pool),
+			Reader:         reader,
+			Catalog:        reader,
+			Users:          auth.NewUsers(pool),
 			Requester:      book.NewRequester(pool, jobs.NewEnqueuer(riverClient)),
 			Translate:      translate.NewService(pool),
 			Sessions:       auth.NewSessions(pool, cookieCfg),

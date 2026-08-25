@@ -18,6 +18,8 @@ type Translator interface {
 	Approve(ctx context.Context, proposalID, reviewerID int64, note string) (*gendb.ParagraphTranslation, error)
 	Reject(ctx context.Context, proposalID, reviewerID int64, note string) error
 	CreateProject(ctx context.Context, gutenbergID int, targetLang string) (*gendb.TranslationProject, error)
+	ListProjects(ctx context.Context, status string) ([]translate.ProjectItem, error)
+	SetProjectStatus(ctx context.Context, id int64, status string) (*gendb.TranslationProject, error)
 }
 
 func (s *Server) GetProjectChapter(ctx context.Context, req gen.GetProjectChapterRequestObject) (gen.GetProjectChapterResponseObject, error) {
@@ -146,12 +148,21 @@ func (s *Server) CreateProject(ctx context.Context, req gen.CreateProjectRequest
 		}
 		return nil, err
 	}
-	return gen.CreateProject201JSONResponse{
-		Id:         project.ID,
-		BookId:     project.BookID,
-		TargetLang: project.TargetLang,
-		Status:     gen.ProjectStatus(project.Status),
-	}, nil
+	return gen.CreateProject201JSONResponse(toAPIProject(*project)), nil
+}
+
+func toAPIProject(p gendb.TranslationProject) gen.Project {
+	out := gen.Project{
+		Id:         p.ID,
+		BookId:     p.BookID,
+		TargetLang: p.TargetLang,
+		Status:     gen.ProjectStatus(p.Status),
+	}
+	if p.PublishedAt.Valid {
+		t := p.PublishedAt.Time
+		out.PublishedAt = &t
+	}
+	return out
 }
 
 func toProposal(p gendb.TranslationProposal, authorHandle string) gen.Proposal {

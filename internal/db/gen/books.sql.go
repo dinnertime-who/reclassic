@@ -44,6 +44,122 @@ func (q *Queries) GetBookByGutenbergID(ctx context.Context, gutenbergID int32) (
 	return i, err
 }
 
+const listBooks = `-- name: ListBooks :many
+SELECT
+    b.id,
+    b.gutenberg_id,
+    b.title,
+    b.author,
+    b.language,
+    b.status,
+    COALESCE(stats.chapter_count, 0)::bigint    AS chapter_count,
+    COALESCE(stats.paragraph_count, 0)::bigint  AS paragraph_count
+FROM books b
+LEFT JOIN LATERAL (
+    SELECT
+        (SELECT count(*) FROM chapters c WHERE c.revision_id = r.id)   AS chapter_count,
+        (SELECT count(*) FROM paragraphs p WHERE p.revision_id = r.id) AS paragraph_count
+    FROM book_revisions r
+    WHERE r.book_id = b.id
+    ORDER BY r.created_at DESC
+    LIMIT 1
+) stats ON true
+WHERE $1::text IS NULL OR b.status = $1
+ORDER BY b.gutenberg_id
+`
+
+type ListBooksRow struct {
+	ID             int64
+	GutenbergID    int32
+	Title          string
+	Author         pgtype.Text
+	Language       string
+	Status         string
+	ChapterCount   int64
+	ParagraphCount int64
+}
+
+// 목록. 상태 필터는 선택이다 — needs_review 큐와 전체를 한 쿼리로 본다 (D1).
+// 챕터·문단 수는 최신 revision 기준. 게이트에 걸린 책은 is_active가 아니므로
+// 활성을 기다리지 않는다. 화면이 ADR-014 임계값과 나란히 보여 줘야 한다.
+func (q *Queries) ListBooks(ctx context.Context, status pgtype.Text) ([]ListBooksRow, error) {
+	rows, err := q.db.Query(ctx, listBooks, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListBooksRow
+	for rows.Next() {
+		var i ListBooksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GutenbergID,
+			&i.Title,
+			&i.Author,
+			&i.Language,
+			&i.Status,
+			&i.ChapterCount,
+			&i.ParagraphCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPublishedCatalog = `-- name: ListPublishedCatalog :many
+SELECT
+    b.gutenberg_id,
+    b.title,
+    b.author,
+    p.id          AS project_id,
+    p.target_lang
+FROM translation_projects p
+JOIN books b ON b.id = p.book_id
+WHERE p.status = 'published'
+ORDER BY b.title, p.target_lang
+`
+
+type ListPublishedCatalogRow struct {
+	GutenbergID int32
+	Title       string
+	Author      pgtype.Text
+	ProjectID   int64
+	TargetLang  string
+}
+
+// 공개 도서 목록. published 프로젝트만 행이 된다 (ADR-036).
+// 한 책에 대상 언어가 여럿이면 행이 여러 개다.
+func (q *Queries) ListPublishedCatalog(ctx context.Context) ([]ListPublishedCatalogRow, error) {
+	rows, err := q.db.Query(ctx, listPublishedCatalog)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPublishedCatalogRow
+	for rows.Next() {
+		var i ListPublishedCatalogRow
+		if err := rows.Scan(
+			&i.GutenbergID,
+			&i.Title,
+			&i.Author,
+			&i.ProjectID,
+			&i.TargetLang,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setBookStatus = `-- name: SetBookStatus :exec
 UPDATE books SET status = $2, updated_at = now() WHERE id = $1
 `

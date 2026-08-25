@@ -10,15 +10,9 @@
 ## 결정은 있는데 코드가 없는 것
 
 ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
-**슬라이스 7이 채워야 할 목록이 사실상 이것이다.**
 
 | | 무엇 | 근거 | 지금 상태 | 언제 아픈가 |
 |---|---|---|---|---|
-| D1 | **`needs_review` 큐를 읽을 방법이 없다** | [ADR-014](decisions/ADR-014.md) | 쓰기(`SetBookStatus`)만 있고 목록 쿼리가 없다. `ListBooks` 계열 자체가 없다 | **이미 아프다.** 셰익스피어 전집이 큐에 갇혀 있는데 확인할 수단이 없다 |
-| D2 | **승계 고아 번역을 볼 수 없다** | [ADR-004](decisions/ADR-004.md) 불변식 1 | `revision_successions.orphan_ids`에 기록만 된다. 읽기 쿼리 0건. `WHERE orphaned > 0` 부분 인덱스까지 만들어 놓고 조회하는 코드가 없다 | 파서를 고쳐 재파싱하는 순간. 사람이 쓴 번역이 갈 곳을 잃는데 아무도 모른다 |
-| D3 | **`reviewer` 역할을 만들 방법이 없다** | [ADR-027](decisions/ADR-027.md) | CHECK에 3역할, `CanReview`/`IsAdmin`도 있는데 역할 변경 쿼리가 없다. 관리자는 `ADMIN_EMAIL` 일치로만 결정된다 | **이미 아프다.** 검수를 관리자 한 명만 할 수 있다 |
-| D4 | **`translation_projects.status`가 `published`로 갈 수 없다** | [ADR-036](decisions/ADR-036.md) | `CreateProject`만 있고 상태 전이 쿼리가 없다. **기준은 정해졌다 — 관리자가 손으로 옮긴다.** 구현은 슬라이스 8 | 도서 목록을 만드는 순간. `published`가 "목록에 뜨는가"를 가른다 |
-| D5 | **목록 API가 하나도 없다** | — | openapi 오퍼레이션 9개가 전부 단건 조회거나 쓰기. `CountBooks`는 만들어 놓고 쓰는 곳이 없다 | 도서 목록·검수 큐 화면을 만드는 순간 |
 | D6 | **`book_glossary`가 테이블뿐이다** | [ADR-010](decisions/ADR-010.md) | 쿼리 0건 | **의도된 미구현.** 여러 사람이 같은 책을 번역해 인명·호칭이 갈리기 시작할 때 |
 | D7 | **문단마다 "내 제안 상태"를 주는 필드가 없다** | [ARCHITECTURE.md](ARCHITECTURE.md) 스케치의 `my_proposal_status` | `TranslatedParagraph`는 `stableId`·`sourceText`·`approvedTranslation`·`proposalCount`뿐이다. 인증이 없어 [translation.md](slices/completed/translation.md)에서 미뤘고 아직 계약에 없다 | **이미 아프다.** 편집 화면이 **펼친 문단의 제안만 부른다**([editor.md](slices/completed/editor.md) §4.5) — 전부 부르면 챕터 하나에 요청이 수백 개다. 내 제안이 어디에 있는지 한눈에 볼 방법이 없다 |
 
@@ -27,7 +21,7 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | | 무엇 | 언제 아픈가 |
 |---|---|---|
 | U1 | **`DeleteExpiredSessions`를 아무도 부르지 않는다** | 세션 수명 30일·갱신 없음([ADR-027](decisions/ADR-027.md))인데 만료 행이 영구히 쌓인다. 당장은 무해하고 사용자가 늘면 아프다 |
-| U2 | `CountBooks`·`ChapterCoverage` 미사용 | 무해. D5를 하면서 정리한다 |
+| U2 | `CountBooks`·`ChapterCoverage` 미사용 | 슬라이스 8에서 다시 봤다. **못 쓴다.** `CountBooks`는 전체 `books` 행 수인데, 공개 목록은 published 프로젝트와의 조인이고 페이지네이션도 없다(ADR-037) — `len(items)`가 곧 총량이다. `ChapterCoverage`는 챕터 단위 **번역** 커버리지(ADR-023)인데, `needs_review` 큐가 필요한 숫자는 책 단위 **파싱** 챕터·문단 수(ADR-014)다. 다른 숫자라 갖다 붙이면 게이트 판단이 틀린다 |
 
 ## 검증하지 못한 것
 
@@ -58,4 +52,10 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 
 ## 해결됨
 
-아직 없다.
+| | 무엇 | 어떻게 |
+|---|---|---|
+| D1 | `needs_review` 큐를 읽을 방법이 없다 | `ListBooks` 상태 필터 + `GET /admin/books/needs-review`. 챕터·문단 수를 최신 revision에서 붙인다. 화면은 다음 태스크 |
+| D2 | 승계 고아 번역을 볼 수 없다 | `ListOrphanedSuccessions` + `GET /admin/successions/orphans`. 읽기만. 부분 인덱스 `revision_successions_orphaned`를 탄다 |
+| D3 | `reviewer` 역할을 만들 방법이 없다 | `SetUserRole` + `POST /admin/users/{id}/role`. `member ↔ reviewer`만. 재로그인은 `Promote()`가 지킨다 |
+| D4 | `translation_projects.status`가 `published`로 갈 수 없다 | `SetProjectStatus` + `POST /admin/projects/{id}/status`. `published_at`은 처음 공개 시각을 남기고 내릴 때 비우지 않는다 (ADR-036) |
+| D5 | 목록 API가 하나도 없다 | `GET /books` · `GET /projects` · 관리자 목록들. 응답은 `{ items }` (ADR-037) |

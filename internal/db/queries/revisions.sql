@@ -45,3 +45,18 @@ SELECT stable_id, text FROM paragraphs WHERE chapter_id = $1 ORDER BY idx;
 -- 승계 매칭률 측정용. 저장된 revision의 stable_id 전체를 읽는다.
 -- name: ListStableIDs :many
 SELECT stable_id FROM paragraphs WHERE revision_id = $1;
+
+-- 고아 승계 목록. 부분 인덱스 revision_successions_orphaned (book_id)
+-- WHERE orphaned > 0 를 탄다. 읽기만 한다 — 되살리는 조작은 ADR-016에 닿는다.
+-- name: ListOrphanedSuccessions :many
+SELECT
+    s.id,
+    s.book_id,
+    b.gutenberg_id,
+    b.title,
+    s.orphaned,
+    s.created_at
+FROM revision_successions s
+JOIN books b ON b.id = s.book_id
+WHERE s.orphaned > 0
+ORDER BY s.created_at DESC;

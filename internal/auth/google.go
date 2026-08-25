@@ -197,7 +197,7 @@ func (g *Google) upsertUser(ctx context.Context, p *GoogleProfile) (*gen.User, e
 			ID:          existing.ID,
 			DisplayName: displayName(p),
 			Email:       text(p.Email),
-			Role:        promote(existing.Role, role),
+			Role:        Promote(existing.Role, role),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("update user: %w", err)
@@ -236,10 +236,10 @@ func (g *Google) roleFor(p *GoogleProfile) string {
 	return RoleMember
 }
 
-// promote는 로그인으로 부여할 역할과 기존 역할 중 높은 쪽을 남긴다.
+// Promote는 로그인으로 부여할 역할과 기존 역할 중 높은 쪽을 남긴다.
 // 손으로 올려준 reviewer를 로그인할 때마다 member로 되돌리지 않기 위함이다.
 // 다만 admin은 ADMIN_EMAIL이 유일한 출처라 여기서 유지되지 않는다.
-func promote(existing, fromLogin string) string {
+func Promote(existing, fromLogin string) string {
 	if fromLogin == RoleAdmin {
 		return RoleAdmin
 	}
