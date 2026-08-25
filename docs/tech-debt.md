@@ -20,6 +20,7 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | D4 | **`translation_projects.status`가 `published`로 갈 수 없다** | [ADR-036](decisions/ADR-036.md) | `CreateProject`만 있고 상태 전이 쿼리가 없다. **기준은 정해졌다 — 관리자가 손으로 옮긴다.** 구현은 슬라이스 8 | 도서 목록을 만드는 순간. `published`가 "목록에 뜨는가"를 가른다 |
 | D5 | **목록 API가 하나도 없다** | — | openapi 오퍼레이션 9개가 전부 단건 조회거나 쓰기. `CountBooks`는 만들어 놓고 쓰는 곳이 없다 | 도서 목록·검수 큐 화면을 만드는 순간 |
 | D6 | **`book_glossary`가 테이블뿐이다** | [ADR-010](decisions/ADR-010.md) | 쿼리 0건 | **의도된 미구현.** 여러 사람이 같은 책을 번역해 인명·호칭이 갈리기 시작할 때 |
+| D7 | **문단마다 "내 제안 상태"를 주는 필드가 없다** | [ARCHITECTURE.md](ARCHITECTURE.md) 스케치의 `my_proposal_status` | `TranslatedParagraph`는 `stableId`·`sourceText`·`approvedTranslation`·`proposalCount`뿐이다. 인증이 없어 [translation.md](slices/completed/translation.md)에서 미뤘고 아직 계약에 없다 | **이미 아프다.** 편집 화면이 **펼친 문단의 제안만 부른다**([editor.md](slices/active/editor.md) §4.5) — 전부 부르면 챕터 하나에 요청이 수백 개다. 내 제안이 어디에 있는지 한눈에 볼 방법이 없다 |
 
 ## 만들어 놓고 부르지 않는 것
 
@@ -43,7 +44,9 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 |---|---|---|
 | T1 | **`make lint`가 `golangci-lint` 없이 `go vet`으로 대체된다** | 의도한 강도가 아니다. **CI를 넣을 때 린터 버전 고정을 첫 항목으로 둔다** |
 | T2 | **CI가 없다** | 지금은 범위 밖. `make lint && make test`가 사람 손에 달려 있다 |
-| T3 | **`make fmt`가 Go만 포맷한다** | web 코드가 늘어나는 슬라이스 7부터 |
+| T3 | **`make fmt`의 web 몫이 사실상 비어 있다** — 슬라이스 7에서 `eslint . --fix`를 넣어 Go 전용은 아니게 됐지만, **ESLint 9+ 코어에는 포매팅 규칙이 없어 실제로 재포맷되는 것이 없다.** 정석은 prettier인데 [ADR-035](decisions/ADR-035.md)가 고정한 스택 밖이라 **의존성을 늘리는 결정은 `Proposed` ADR 감이다**(AGENTS.md 작업 규칙 2). 슬라이스 7에서는 넣지 않기로 정했다 | **이미 아프다.** web 코드가 늘어나는데 포맷 기준이 사람 에디터 설정에 달려 있다. **`make fmt`가 성공해서 포맷 게이트가 있다고 착각한다** — 실제로는 비어 있다 |
+| T4 | **`web-install`의 재설치 판정은 mtime 스탬프다** — `web/node_modules/.install-stamp`가 `pnpm-lock.yaml`·`package.json`보다 오래되면 다시 깐다. 그래서 **lockfile은 그대로인 채 `node_modules` 안만 망가진 상태는 잡지 못한다** | 손으로 패키지를 지웠을 때. 증상이 나면 `rm -rf web/node_modules && make web-install`로 복구한다 (스탬프도 같이 지워진다) |
+| T5 | **web 의존성을 늘릴 make 경로가 없다** — `web-install`은 `--frozen-lockfile` 전용이고([ADR-019](decisions/ADR-019.md)) lockfile을 갱신하는 타깃이 없다. `make ui-add`(shadcn)만 예외적으로 자기 의존성을 깐다 | 다음에 web 의존성을 늘리는 순간. `pnpm install`을 직접 쳐야 해서 **"Makefile이 유일한 진입점"이 깨진다.** 의존성 추가 자체가 ADR을 요구하는 일이라 지금은 타깃을 만들지 않았다 |
 
 ## 프록시 뒤라서 생긴 것
 

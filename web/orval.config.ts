@@ -11,7 +11,7 @@ export default defineConfig({
     output: {
       target: './src/api/gen/reclassic.ts',
       schemas: './src/api/gen/model',
-      client: 'fetch',
+      client: 'react-query',
       httpClient: 'fetch',
       clean: true,
       override: {

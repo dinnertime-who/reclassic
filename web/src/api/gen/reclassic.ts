@@ -7,6 +7,25 @@
  *
  * OpenAPI spec version: 0.1.0
  */
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
+import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
+  MutationFunction,
+  QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
+} from '@tanstack/react-query';
+
 import type {
   BookRequest,
   BookRequestAccepted,
@@ -24,6 +43,25 @@ import type {
 } from './model';
 
 import { apiFetch } from '../http.ts';
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+
+
+const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
+  const result = { queryKey } as T & { queryKey: K };
+  for (const key of Object.keys(query)) {
+    // The explicit queryKey always wins, matching the previous
+    // `{ ...query, queryKey }` spread where it was set last.
+    if (key === 'queryKey') continue;
+    Object.defineProperty(result, key, {
+      enumerable: true,
+      configurable: true,
+      get: () => (query as Record<string, unknown>)[key],
+    });
+  }
+  return result;
+};
+
 export type getHealthzResponse200 = {
   data: Health
   status: 200
@@ -58,6 +96,83 @@ export const getHealthz = async ( options?: Parameters<typeof apiFetch>[1]): Pro
 
   }
 );}
+
+
+
+
+
+export const getGetHealthzQueryKey = () => {
+    return [
+    `/healthz`
+    ] as const;
+    }
+
+
+export const getGetHealthzQueryOptions = <TData = Awaited<ReturnType<typeof getHealthz>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHealthzQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHealthz>>> = ({ signal }) => getHealthz({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetHealthzQueryResult = NonNullable<Awaited<ReturnType<typeof getHealthz>>>
+export type GetHealthzQueryError = unknown
+
+
+export function useGetHealthz<TData = Awaited<ReturnType<typeof getHealthz>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHealthz>>,
+          TError,
+          Awaited<ReturnType<typeof getHealthz>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetHealthz<TData = Awaited<ReturnType<typeof getHealthz>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getHealthz>>,
+          TError,
+          Awaited<ReturnType<typeof getHealthz>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetHealthz<TData = Awaited<ReturnType<typeof getHealthz>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 서비스와 DB 연결 상태
+ */
+
+export function useGetHealthz<TData = Awaited<ReturnType<typeof getHealthz>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getHealthz>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetHealthzQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
 
 
 
@@ -108,6 +223,89 @@ export const getBookChapter = async (gutenbergId: number,
 
 
 
+
+
+export const getGetBookChapterQueryKey = (gutenbergId: number,
+    idx: number,) => {
+    return [
+    `/books/${gutenbergId}/chapters/${idx}`
+    ] as const;
+    }
+
+
+export const getGetBookChapterQueryOptions = <TData = Awaited<ReturnType<typeof getBookChapter>>, TError = Error>(gutenbergId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookChapter>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBookChapterQueryKey(gutenbergId,idx);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBookChapter>>> = ({ signal }) => getBookChapter(gutenbergId,idx, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: gutenbergId !== null && gutenbergId !== undefined && idx !== null && idx !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBookChapter>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBookChapterQueryResult = NonNullable<Awaited<ReturnType<typeof getBookChapter>>>
+export type GetBookChapterQueryError = Error
+
+
+export function useGetBookChapter<TData = Awaited<ReturnType<typeof getBookChapter>>, TError = Error>(
+ gutenbergId: number,
+    idx: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookChapter>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBookChapter>>,
+          TError,
+          Awaited<ReturnType<typeof getBookChapter>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBookChapter<TData = Awaited<ReturnType<typeof getBookChapter>>, TError = Error>(
+ gutenbergId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookChapter>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBookChapter>>,
+          TError,
+          Awaited<ReturnType<typeof getBookChapter>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBookChapter<TData = Awaited<ReturnType<typeof getBookChapter>>, TError = Error>(
+ gutenbergId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookChapter>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 활성 revision의 챕터 하나와 그 문단들
+ */
+
+export function useGetBookChapter<TData = Awaited<ReturnType<typeof getBookChapter>>, TError = Error>(
+ gutenbergId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookChapter>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBookChapterQueryOptions(gutenbergId,idx,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export type getCurrentUserResponse200 = {
   data: CurrentUser
   status: 200
@@ -151,6 +349,83 @@ export const getCurrentUser = async ( options?: Parameters<typeof apiFetch>[1]):
 
 
 
+
+
+export const getGetCurrentUserQueryKey = () => {
+    return [
+    `/auth/me`
+    ] as const;
+    }
+
+
+export const getGetCurrentUserQueryOptions = <TData = Awaited<ReturnType<typeof getCurrentUser>>, TError = Error>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUser>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCurrentUserQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCurrentUser>>> = ({ signal }) => getCurrentUser({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCurrentUser>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCurrentUserQueryResult = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>
+export type GetCurrentUserQueryError = Error
+
+
+export function useGetCurrentUser<TData = Awaited<ReturnType<typeof getCurrentUser>>, TError = Error>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUser>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCurrentUser>>,
+          TError,
+          Awaited<ReturnType<typeof getCurrentUser>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCurrentUser<TData = Awaited<ReturnType<typeof getCurrentUser>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUser>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCurrentUser>>,
+          TError,
+          Awaited<ReturnType<typeof getCurrentUser>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCurrentUser<TData = Awaited<ReturnType<typeof getCurrentUser>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUser>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 현재 로그인한 사용자
+ */
+
+export function useGetCurrentUser<TData = Awaited<ReturnType<typeof getCurrentUser>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUser>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCurrentUserQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export type logoutResponse204 = {
   data: void
   status: 204
@@ -186,6 +461,53 @@ export const logout = async ( options?: Parameters<typeof apiFetch>[1]): Promise
 );}
 
 
+
+
+
+export const getLogoutMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext> => {
+
+const mutationKey = ['logout'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof logout>>, void> = () => {
+
+
+          return  logout(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LogoutMutationResult = NonNullable<Awaited<ReturnType<typeof logout>>>
+
+    export type LogoutMutationError = unknown
+
+    /**
+ * @summary 로그아웃 — 세션을 즉시 무효화한다
+ */
+export const useLogout = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof logout>>, TError,void, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof logout>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLogoutMutationOptions(options), queryClient);
+    }
 
 export type requestBookResponse202 = {
   data: BookRequestAccepted
@@ -244,6 +566,53 @@ export const requestBook = async (bookRequest: BookRequest, options?: Parameters
 
 
 
+
+
+export const getRequestBookMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestBook>>, TError,{data: BookRequest}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestBook>>, TError,{data: BookRequest}, TContext> => {
+
+const mutationKey = ['requestBook'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestBook>>, {data: BookRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestBook(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestBookMutationResult = NonNullable<Awaited<ReturnType<typeof requestBook>>>
+    export type RequestBookMutationBody = BookRequest
+    export type RequestBookMutationError = Error
+
+    /**
+ * @summary 도서 수집 지시
+ */
+export const useRequestBook = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestBook>>, TError,{data: BookRequest}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof requestBook>>,
+        TError,
+        {data: BookRequest},
+        TContext
+      > => {
+      return useMutation(getRequestBookMutationOptions(options), queryClient);
+    }
+
 export type getProjectChapterResponse200 = {
   data: ProjectChapterView
   status: 200
@@ -294,6 +663,89 @@ export const getProjectChapter = async (projectId: number,
 
 
 
+
+
+export const getGetProjectChapterQueryKey = (projectId: number,
+    idx: number,) => {
+    return [
+    `/projects/${projectId}/chapters/${idx}`
+    ] as const;
+    }
+
+
+export const getGetProjectChapterQueryOptions = <TData = Awaited<ReturnType<typeof getProjectChapter>>, TError = Error>(projectId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectChapter>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProjectChapterQueryKey(projectId,idx);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProjectChapter>>> = ({ signal }) => getProjectChapter(projectId,idx, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined && idx !== null && idx !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProjectChapter>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProjectChapterQueryResult = NonNullable<Awaited<ReturnType<typeof getProjectChapter>>>
+export type GetProjectChapterQueryError = Error
+
+
+export function useGetProjectChapter<TData = Awaited<ReturnType<typeof getProjectChapter>>, TError = Error>(
+ projectId: number,
+    idx: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectChapter>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectChapter>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectChapter>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectChapter<TData = Awaited<ReturnType<typeof getProjectChapter>>, TError = Error>(
+ projectId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectChapter>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectChapter>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectChapter>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectChapter<TData = Awaited<ReturnType<typeof getProjectChapter>>, TError = Error>(
+ projectId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectChapter>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
+ */
+
+export function useGetProjectChapter<TData = Awaited<ReturnType<typeof getProjectChapter>>, TError = Error>(
+ projectId: number,
+    idx: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectChapter>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProjectChapterQueryOptions(projectId,idx,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export type listProposalsResponse200 = {
   data: Proposal[]
   status: 200
@@ -329,6 +781,89 @@ export const listProposals = async (projectId: number,
 
   }
 );}
+
+
+
+
+
+export const getListProposalsQueryKey = (projectId: number,
+    stableId: string,) => {
+    return [
+    `/projects/${projectId}/paragraphs/${stableId}/proposals`
+    ] as const;
+    }
+
+
+export const getListProposalsQueryOptions = <TData = Awaited<ReturnType<typeof listProposals>>, TError = unknown>(projectId: number,
+    stableId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProposals>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProposalsQueryKey(projectId,stableId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProposals>>> = ({ signal }) => listProposals(projectId,stableId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined && stableId !== null && stableId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProposals>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListProposalsQueryResult = NonNullable<Awaited<ReturnType<typeof listProposals>>>
+export type ListProposalsQueryError = unknown
+
+
+export function useListProposals<TData = Awaited<ReturnType<typeof listProposals>>, TError = unknown>(
+ projectId: number,
+    stableId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProposals>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProposals>>,
+          TError,
+          Awaited<ReturnType<typeof listProposals>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProposals<TData = Awaited<ReturnType<typeof listProposals>>, TError = unknown>(
+ projectId: number,
+    stableId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProposals>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProposals>>,
+          TError,
+          Awaited<ReturnType<typeof listProposals>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProposals<TData = Awaited<ReturnType<typeof listProposals>>, TError = unknown>(
+ projectId: number,
+    stableId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProposals>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 문단의 제안 목록
+ */
+
+export function useListProposals<TData = Awaited<ReturnType<typeof listProposals>>, TError = unknown>(
+ projectId: number,
+    stableId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProposals>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListProposalsQueryOptions(projectId,stableId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
 
 
 
@@ -382,6 +917,53 @@ export const createProposal = async (projectId: number,
 );}
 
 
+
+
+
+export const getCreateProposalMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProposal>>, TError,{projectId: number;stableId: string;data: ProposalInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProposal>>, TError,{projectId: number;stableId: string;data: ProposalInput}, TContext> => {
+
+const mutationKey = ['createProposal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProposal>>, {projectId: number;stableId: string;data: ProposalInput}> = (props) => {
+          const {projectId,stableId,data} = props ?? {};
+
+          return  createProposal(projectId,stableId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateProposalMutationResult = NonNullable<Awaited<ReturnType<typeof createProposal>>>
+    export type CreateProposalMutationBody = ProposalInput
+    export type CreateProposalMutationError = Error
+
+    /**
+ * @summary 문단 번역 제안
+ */
+export const useCreateProposal = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProposal>>, TError,{projectId: number;stableId: string;data: ProposalInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createProposal>>,
+        TError,
+        {projectId: number;stableId: string;data: ProposalInput},
+        TContext
+      > => {
+      return useMutation(getCreateProposalMutationOptions(options), queryClient);
+    }
 
 export type reviewProposalResponse200 = {
   data: ReviewResult
@@ -444,6 +1026,53 @@ export const reviewProposal = async (proposalId: number,
 
 
 
+
+
+export const getReviewProposalMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reviewProposal>>, TError,{proposalId: number;data: ReviewInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof reviewProposal>>, TError,{proposalId: number;data: ReviewInput}, TContext> => {
+
+const mutationKey = ['reviewProposal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof reviewProposal>>, {proposalId: number;data: ReviewInput}> = (props) => {
+          const {proposalId,data} = props ?? {};
+
+          return  reviewProposal(proposalId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReviewProposalMutationResult = NonNullable<Awaited<ReturnType<typeof reviewProposal>>>
+    export type ReviewProposalMutationBody = ReviewInput
+    export type ReviewProposalMutationError = Error
+
+    /**
+ * @summary 제안 검수 — 승인 또는 거절
+ */
+export const useReviewProposal = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof reviewProposal>>, TError,{proposalId: number;data: ReviewInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof reviewProposal>>,
+        TError,
+        {proposalId: number;data: ReviewInput},
+        TContext
+      > => {
+      return useMutation(getReviewProposalMutationOptions(options), queryClient);
+    }
+
 export type createProjectResponse201 = {
   data: Project
   status: 201
@@ -494,3 +1123,52 @@ export const createProject = async (projectInput: ProjectInput, options?: Parame
     body: JSON.stringify(projectInput)
   }
 );}
+
+
+
+
+
+export const getCreateProjectMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,{data: ProjectInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,{data: ProjectInput}, TContext> => {
+
+const mutationKey = ['createProject'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProject>>, {data: ProjectInput}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createProject(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateProjectMutationResult = NonNullable<Awaited<ReturnType<typeof createProject>>>
+    export type CreateProjectMutationBody = ProjectInput
+    export type CreateProjectMutationError = Error
+
+    /**
+ * @summary 번역 프로젝트 생성
+ */
+export const useCreateProject = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProject>>, TError,{data: ProjectInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createProject>>,
+        TError,
+        {data: ProjectInput},
+        TContext
+      > => {
+      return useMutation(getCreateProjectMutationOptions(options), queryClient);
+    }

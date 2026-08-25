@@ -62,7 +62,7 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 | 목적 | 명령 |
 |---|---|
-| 빌드 · 테스트 · 린트 · 포맷 | `make build` · `make test` · `make lint` · `make fmt` |
+| 빌드 · 테스트 · 린트 · 포맷 (뒤 셋은 Go + web 한 번에) | `make build` · `make test` · `make lint` · `make fmt` |
 | 문서 구조 검사 | `make docs-check` |
 | 코드 생성 (sqlc / oapi-codegen / orval) | `make generate` |
 | 마이그레이션 적용 | `make migrate` |

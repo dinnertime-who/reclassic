@@ -13,6 +13,8 @@
 !.env.example
 
 # 웹
+# node_modules 안에는 `make web-install`의 설치 완료 스탬프(.install-stamp)도 들어 있다.
+# 이 줄이 둘 다 덮는다 — 스탬프는 절대 커밋되지 않는다.
 /web/node_modules/
 /web/.output/
 /web/.nitro/
