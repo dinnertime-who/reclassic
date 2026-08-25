@@ -1085,7 +1085,7 @@ Railway에는 그 자리가 없다 — 서비스를 띄우는 것만 하지
 - **`preDeployCommand`는 문자열 하나 또는 원소 하나짜리 배열이다** (스키마 `maxItems: 1`).
   명령을 여럿 엮을 수 없다. `tools/migrate`가 goose와 River를 이어 도는 이유가 여기서도 산다 (ADR-022).
 - **시크릿을 `railway.json`에 넣지 않는다.** 이 파일은 커밋된다. 값은 Railway 변수로 간다.
-- **미확인 둘.** 정직하게 남긴다.
+- **미확인이었던 둘 — 2026-08-25 첫 실배포에서 둘 다 결론이 났다.** 지우지 않고 아래에 결과를 잇는다.
   - **서비스별 설정 파일 경로 지정.** Railway 서비스 설정 항목이다.
     CLI 점 경로 목록에 없다 — 대시보드에서 서비스당 한 번 지정해야 할 수 있다.
 
@@ -1094,6 +1094,11 @@ Railway에는 그 자리가 없다 — 서비스를 띄우는 것만 하지
     You should provide the absolute path to the file in your repository"*.
     **대시보드 서비스 설정에서 저장소 절대 경로**(`/railway.api.json`)를 넣는 것이 맞다.
     CLI로 되는지는 여전히 미확인. **실물 확인은 배포할 때 한다.**
+
+    **실물 확인 (2026-08-25) — 맞았다.** 세 서비스 모두 저장소 절대 경로가 잡혀 있고
+    (`/railway.api.json` · `/railway.worker.json` · `/railway.web.json`) 실제로 읽힌다.
+    **서비스 레벨 builder가 `RAILPACK`으로 남아 있는데도 빌드는 Dockerfile로 갔다** —
+    파일이 서비스 설정을 이긴다. 대시보드에서 서비스당 한 번 넣는 것으로 끝난다.
   - **`deploy.limitOverride`.** JSON 스키마에는 있는데 Railway 공개 문서에는 없고
     CLI 점 경로 목록에도 없다. 안 먹으면 메모리는 대시보드로 간다.
 
@@ -1101,7 +1106,11 @@ Railway에는 그 자리가 없다 — 서비스를 띄우는 것만 하지
     스키마에 실재한다(`cpu`·`memoryBytes`·`diskBytes`). 다만 `config-as-code/reference`의
     "Configurable settings" 목록에는 **여전히 없다.** 파일에 적어 두되 **먹는지는 배포 후 확인한다.**
 
-  둘 다 서비스당 한 번뿐이라 막히지 않는다. 배포할 때 확인하고 이 ADR에 결과를 적는다.
+    **실물 확인 (2026-08-25) — 먹는다.** 메트릭의 `MEMORY_LIMIT_GB`가 파일 값과 정확히 같다:
+    `worker` 1.073741824GB(=`1073741824`) · `api` 0.536870912GB(=`536870912`).
+    공개 문서 목록에 없을 뿐 스키마대로 반영된다. **대시보드로 갈 필요가 없었다.**
+
+  **둘 다 확인됐으므로 이 ADR에 미확인 항목은 남아 있지 않다.**
 
 - **덤으로 확인된 것 둘** (문서, 2026-08-20). 둘 다 이 구성의 전제였다.
   - **`startCommand`는 exec form으로 이미지의 `ENTRYPOINT`를 덮는다.**
@@ -1203,5 +1212,63 @@ SSR은 `API_INTERNAL_HOST`를 런타임에 읽으므로 첫 화면은 뜬다 —
   `PUBLIC_BASE_URL=https://reclassic.dinnertimes.app` · `COOKIE_DOMAIN=.dinnertimes.app`
 - **`VITE_*` 둘은 빌드 시점 값이다** (ADR-032). 웹을 처음 빌드하기 전에 들어가 있어야 한다.
 - **이 존에는 이미 프록시가 켜진 와일드카드가 있다.** 없는 이름까지 Cloudflare가 404로 받는다.
-  명시적 레코드가 이기지만, 새 CNAME은 **DNS only(회색)로 만들어야** Railway 인증서가 선다.
+  명시적 레코드가 이긴다. ~~새 CNAME은 **DNS only(회색)로 만들어야** Railway 인증서가 선다.~~
+  → **개정됨 (ADR-034).** 실물은 프록시가 켜진 채로 섰고 Cloudflare Universal SSL로 정상 동작한다.
+  이중 프록시로 발급이 막힐 것이라는 이 예측은 틀렸다.
 - `.app`은 HSTS 프리로드 TLD다. http 폴백이 없어 인증서가 안 서면 화면이 아예 안 뜬다.
+
+---
+
+## ADR-034 — 웹·API는 Cloudflare 프록시 뒤에 둔다
+**상태:** Accepted (2026-08-25). **ADR-033의 "새 CNAME은 DNS only(회색)로 만든다"를 개정한다.**
+나머지(하이픈 배치와 `COOKIE_DOMAIN` 범위)는 그대로다.
+
+**맥락:** ADR-033은 프록시를 켜지 말라고 적었다. 근거는 **이중 프록시로 Railway 인증서 발급이
+막히는 것**이었다. 첫 실배포(2026-08-25)에서 두 호스트 다 프록시가 켜진 채로 섰는데,
+**그 실패는 일어나지 않았다.** Cloudflare Universal SSL이 TLS를 종단하고 정상 동작한다.
+
+**ADR-033이 하이픈 배치를 고른 이유가 여기서 값을 했다.** `api-reclassic`이
+`*.dinnertimes.app` 한 단계 안이라 인증서에 포함된다. 중첩(`api.reclassic...`)이었다면
+프록시를 켜는 순간 인증서가 맞지 않아 깨졌을 것이다. **켤 여지를 남겨 둔 것이 실제로 쓰였다.**
+
+**결정: 프록시를 켠 채로 둔다.**
+
+**프록시가 실제로 바꾸는 것은 넷이고, 셋은 확인했다.**
+
+| 무엇이 바뀌나 | 상태 |
+|---|---|
+| TLS를 Cloudflare가 종단하고 오리진에 다시 연결한다 | **SSL/TLS 모드 Full (strict).** 뒷구간도 검증된 TLS다 |
+| Cloudflare가 응답 본문을 고칠 수 있다 | **Rocket Loader를 껐다.** 아래 참조 |
+| Cloudflare가 응답을 캐시할 수 있다 | **캐시하지 않는다.** `/healthz`·`/auth/me`·SSR 두 경로 모두 `cf-cache-status: DYNAMIC`. 앱도 `Cache-Control`을 붙이지 않는다 |
+| 오리진이 방문자 IP 대신 Cloudflare IP를 본다 | **지금은 무해.** 앱이 클라이언트 IP를 읽는 곳이 없다. 아래 "결과" 참조 |
+
+**얻는 것:** DDoS 완화와 WAF, Railway 오리진 은닉, 정적 자산의 엣지 응답.
+이 존은 이미 전체가 프록시 뒤에 있어서 예외를 두는 쪽이 오히려 특이 케이스였다.
+
+**Rocket Loader — 껐다. 다시 켜지 않는다.**
+
+켜져 있던 동안 Cloudflare가 매 응답마다 `<script type="module">`을 `type="<토큰>-module"`로
+바꿔 가져갔고, TanStack Start의 인라인 부트스트랩 스크립트까지 건드렸다.
+관측 시점에는 복원에 성공해 하이드레이션이 살아 있었지만 **그것은 보장이 아니라 관측이었다.**
+
+**이 기능이 위험한 이유는 실패가 보이지 않기 때문이다.** 하이드레이션이 깨져도 SSR은 멀쩡하므로
+**배포는 성공으로 보이고 브라우저에서만 죽는다** — ADR-032가 막으려던 실패 모양 그대로다.
+그리고 이 사이트가 얻는 것이 없다. 번들은 이미 `type="module"`이라 기본 defer다.
+
+끈 뒤 확인: 응답에 `rocket-loader.min.js`도 `/cdn-cgi/scripts`도 없고
+`<script>`의 `type`은 `module` 하나뿐이다. 토큰이 붙은 타입은 0개다.
+
+**같은 이유로 응답 본문을 고치는 다른 기능도 켜지 않는다** — Mirage, Polish,
+Email Obfuscation, "Cache Everything" 계열의 캐시 규칙. 켜야 할 이유가 생기면 이 ADR을 다시 연다.
+
+**결과:**
+
+- **클라이언트 IP를 쓰게 되면 `CF-Connecting-IP`를 읽는다.** 지금은 앱이 IP를 읽는 곳이 없어
+  아무 문제가 없지만, **레이트리밋·남용 로깅·지역 판별을 넣는 순간 전부 Cloudflare IP로 보인다.**
+  프록시 뒤에서 `RemoteAddr`은 방문자가 아니다. 규칙은 `CONVENTIONS.md` Go 절에 있다.
+- **되돌리는 것은 무중단이 아니다.** Railway 인증서가 발급된 적이 없으므로, 회색으로 내리는 순간부터
+  Railway가 발급을 마칠 때까지 화면이 뜨지 않는다. `.app`은 HSTS 프리로드 TLD라 http 폴백도 없다.
+  **끄기로 한다면 계획된 창에서 한다.**
+- **캐시 규칙을 추가할 때는 세션이 붙는 경로를 반드시 제외한다.** 지금 안전한 것은
+  기본 설정이 정적 확장자만 캐시하기 때문이지, 앱이 막고 있어서가 아니다.
+  SSR 응답이 캐시되면 **한 사람의 로그인 화면이 다른 사람에게 나간다.**

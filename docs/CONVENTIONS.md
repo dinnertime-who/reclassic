@@ -25,6 +25,24 @@
 srv := &http.Server{Addr: "[::]:" + os.Getenv("PORT")}
 ```
 
+### 클라이언트 IP
+
+**`r.RemoteAddr`을 방문자 IP로 쓰지 않는다.** 프로덕션은 Cloudflare 프록시 뒤에 있어서
+(ADR-034) 그 값은 Cloudflare의 주소다. 레이트리밋·남용 로깅·지역 판별을 넣을 때
+전부 같은 소수의 IP로 뭉쳐 보인다 — **막으려던 것을 못 막고 애먼 것을 막는다.**
+
+방문자 IP는 **`CF-Connecting-IP`** 헤더에 있다.
+
+```go
+ip := r.Header.Get("CF-Connecting-IP")
+if ip == "" {
+    ip = r.RemoteAddr // 로컬 개발. 프로덕션에서 여기로 오면 프록시 설정을 의심한다
+}
+```
+
+**이 헤더를 신뢰할 수 있는 것은 오리진이 Cloudflare로만 노출돼 있을 때뿐이다.**
+Railway 공개 도메인이 따로 열리면 아무나 이 헤더를 넣어 보낼 수 있다.
+
 ## SQL / 마이그레이션
 
 - 마이그레이션은 `internal/db/migrations/`에 `NNN_설명.sql` 순번으로 추가한다.
