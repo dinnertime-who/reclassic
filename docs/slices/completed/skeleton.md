@@ -2,8 +2,8 @@
 
 **작업 종류:** 구현 슬라이스
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`,
-`docs/DECISIONS.md` (특히 ADR-001 / 002 / 006 / 009 / 017 / 018 / 019)
-**다음 슬라이스:** `docs/SLICE_READ_PATH.md`
+`docs/decisions/index.md` (특히 ADR-001 / 002 / 006 / 009 / 017 / 018 / 019)
+**다음 슬라이스:** `docs/slices/completed/read-path.md`
 
 ---
 
@@ -44,7 +44,7 @@
 
 ### 하지 않는 것 — 건드리면 안 됨
 
-- **파서 결과 적재.** 테이블은 만들되 비어 있다. 적재는 `SLICE_READ_PATH.md`
+- **파서 결과 적재.** 테이블은 만들되 비어 있다. 적재는 `docs/slices/completed/read-path.md`
 - **River 잡 큐, R2, FetchSource**
 - **번역 테이블 4개**
 - **인증·세션.** 미들웨어 자리만 비워 둔다
@@ -263,5 +263,5 @@ orval은 `web/` 안에서 실행되지만 진입점은 `make generate`다. `cd w
 
 ## 7. 다음
 
-`docs/SLICE_READ_PATH.md` — 파서 결과 적재와 `stable_id` 승계 매칭률 측정.
+`docs/slices/completed/read-path.md` — 파서 결과 적재와 `stable_id` 승계 매칭률 측정.
 이 골격의 빈 테이블을 채우는 작업이다.

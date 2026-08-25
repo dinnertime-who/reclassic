@@ -1,10 +1,10 @@
 # 슬라이스 명세 — 세션 인증 (Google 로그인)
 
 **작업 종류:** 구현 슬라이스 (수직)
-**선행 슬라이스:** `docs/SLICE_TRANSLATION.md` — `users`와 역할 검사가 이미 있다.
+**선행 슬라이스:** `docs/slices/completed/translation.md` — `users`와 역할 검사가 이미 있다.
 이 슬라이스는 그것을 **진짜로 작동하게** 만든다.
-**선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` (특히 ADR-005 / 026)
-**다음 슬라이스:** `docs/SLICE_DEPLOY.md` — 이 슬라이스가 끝나야 배포할 수 있다.
+**선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions/index.md` (특히 ADR-005 / 026)
+**다음 슬라이스:** `docs/slices/completed/deploy.md` — 이 슬라이스가 끝나야 배포할 수 있다.
 
 ---
 
@@ -207,6 +207,6 @@ GET  /auth/me               → 현재 사용자 (비로그인 401)
 
 ## 7. 다음
 
-- **배포 (Railway) → `docs/SLICE_DEPLOY.md`.** 이 슬라이스가 끝나야 시작할 수 있었다
+- **배포 (Railway) → `docs/slices/completed/deploy.md`.** 이 슬라이스가 끝나야 시작할 수 있었다
 - 편집·검수 CSR 화면 (이제 만들 수 있다) — 아직 명세 없음
 - 역할 관리 UI, 도서 목록·검색, 관리자 확인 큐 화면 — 아직 명세 없음

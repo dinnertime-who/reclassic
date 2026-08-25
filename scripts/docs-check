@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""문서 구조를 기계적으로 검사한다.
+
+문서는 지침이므로 틀리면 에이전트가 틀린 방향으로 간다.
+사람이 눈으로 지키는 규칙은 반드시 무너지므로 여기서 막는다.
+
+검사 항목:
+  1. ADR 번호가 001부터 빈 곳 없이 이어지는가
+  2. `docs/decisions/index.md` 표가 실제 파일과 정확히 일치하는가
+  3. 모든 ADR 파일에 `**상태:**` 줄이 있는가
+  4. 마크다운 상대 링크가 실제로 존재하는 파일을 가리키는가
+  5. `AGENTS.md`가 상한을 넘지 않는가 — 지도가 백과사전이 되는 것을 막는다
+"""
+import os
+import re
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DECISIONS = os.path.join(ROOT, "docs", "decisions")
+AGENTS_MAX_LINES = 130
+
+errors = []
+checked = 0
+
+
+def err(msg):
+    errors.append(msg)
+
+
+# ── 1. ADR 번호 연속성 ──────────────────────────────────────────────
+adr_files = sorted(f for f in os.listdir(DECISIONS) if re.fullmatch(r"ADR-\d{3}\.md", f))
+if not adr_files:
+    err("docs/decisions/에 ADR 파일이 없다")
+
+nums = [int(f[4:7]) for f in adr_files]
+expected = list(range(1, len(nums) + 1))
+if nums != expected:
+    missing = sorted(set(expected) - set(nums))
+    extra = sorted(set(nums) - set(expected))
+    if missing:
+        err(f"ADR 번호가 비어 있다: {['%03d' % n for n in missing]}")
+    if extra:
+        err(f"ADR 번호가 순서를 벗어났다: {['%03d' % n for n in extra]}")
+checked += 1
+
+# ── 2. 색인 표와 실제 파일 일치 ─────────────────────────────────────
+index_path = os.path.join(DECISIONS, "index.md")
+if not os.path.exists(index_path):
+    err("docs/decisions/index.md가 없다")
+else:
+    index_text = open(index_path, encoding="utf-8").read()
+    linked = set(re.findall(r"\((ADR-\d{3})\.md\)", index_text))
+    actual = {f[:-3] for f in adr_files}
+
+    for adr in sorted(actual - linked):
+        err(f"{adr}.md가 색인(docs/decisions/index.md)에 없다 — 표에 줄을 추가할 것")
+    for adr in sorted(linked - actual):
+        err(f"색인이 없는 파일을 가리킨다: {adr}.md")
+checked += 1
+
+# ── 3. 상태 줄 ──────────────────────────────────────────────────────
+VALID = ("Accepted", "Proposed", "Superseded", "Rejected")
+for f in adr_files:
+    text = open(os.path.join(DECISIONS, f), encoding="utf-8").read()
+    m = re.search(r"^\*\*상태:\*\*\s*(.+)$", text, re.M)
+    if not m:
+        err(f"{f}에 `**상태:**` 줄이 없다")
+    elif not any(v in m.group(1) for v in VALID):
+        err(f"{f}의 상태가 {VALID} 중 하나가 아니다: {m.group(1)[:40]}")
+checked += 1
+
+# ── 4. 상대 링크 ────────────────────────────────────────────────────
+LINK = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+md_files = []
+for dirpath, dirnames, filenames in os.walk(ROOT):
+    dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", ".cache", "bin", ".tanstack")]
+    for fn in filenames:
+        if fn.endswith(".md"):
+            md_files.append(os.path.join(dirpath, fn))
+
+for path in sorted(md_files):
+    rel = os.path.relpath(path, ROOT)
+    for line_no, line in enumerate(open(path, encoding="utf-8"), 1):
+        for target in LINK.findall(line):
+            if target.startswith(("http://", "https://", "#", "mailto:")):
+                continue
+            target = target.split("#")[0]
+            if not target:
+                continue
+            resolved = os.path.normpath(os.path.join(os.path.dirname(path), target))
+            if not os.path.exists(resolved):
+                err(f"{rel}:{line_no} 끊어진 링크 → {target}")
+checked += 1
+
+# ── 5. AGENTS.md 상한 ───────────────────────────────────────────────
+agents = os.path.join(ROOT, "AGENTS.md")
+n = sum(1 for _ in open(agents, encoding="utf-8"))
+if n > AGENTS_MAX_LINES:
+    err(
+        f"AGENTS.md가 {n}줄이다 (상한 {AGENTS_MAX_LINES}). "
+        "지도는 짧아야 한다 — 세부를 docs/로 내릴 것"
+    )
+checked += 1
+
+# ── 결과 ────────────────────────────────────────────────────────────
+if errors:
+    print(f"✗ 문서 검사 실패 — {len(errors)}건\n")
+    for e in errors:
+        print(f"  {e}")
+    sys.exit(1)
+
+print(f"✓ 문서 검사 통과 — 검사 {checked}종, ADR {len(adr_files)}개, 마크다운 {len(md_files)}개")
+print(f"  AGENTS.md {n}줄 / 상한 {AGENTS_MAX_LINES}")

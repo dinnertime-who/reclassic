@@ -1,13 +1,33 @@
 # reclassic
 
 Project Gutenberg의 퍼블릭 도메인 도서를 장·문단 단위로 분해하고,
-사용자가 문단별 번역을 제안하면 검수를 거쳐 확정본을 공개하는 서비스.
+사용자가 문단별 번역을 제안하면 검수를 거쳐 **문단당 확정본 1개**를 공개하는 서비스.
+
+**떠 있는 주소** — 웹 [reclassic.dinnertimes.app](https://reclassic.dinnertimes.app) ·
+API [api-reclassic.dinnertimes.app](https://api-reclassic.dinnertimes.app)
 
 ## 시작하기
 
 ```bash
 make doctor   # 개발 환경 점검
 make help     # 사용 가능한 명령
+
+make dev      # Postgres + MinIO
+make migrate  # 스키마
+make run-api  # :8080
+make run-web  # :3100 (SSR)
+```
+
+`.env`에 `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`이 있어야 API가 기동한다.
+Google Cloud Console에서 OAuth 클라이언트를 만들고, 승인된 리디렉션 URI에
+`GOOGLE_REDIRECT_URL` 값을 그대로 등록한다.
+
+로컬에 도서를 채우려면:
+
+```bash
+make fetch-corpus   # 검증용 도서 내려받기
+make ingest         # 파싱해 DB에 적재 (멱등)
+# http://localhost:3100/books/1342/chapters/5
 ```
 
 ## 문서
@@ -15,17 +35,15 @@ make help     # 사용 가능한 명령
 | 문서 | 내용 |
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | **작업 지침 — 사람과 AI 모두 여기서 시작** |
+| [`docs/index.md`](docs/index.md) | 지식 베이스 전체 지도 |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 시스템 구조, 데이터 모델, 핵심 불변식 |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 설계 결정 이력 (ADR) |
-| [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | 코딩 규약 |
-| [`docs/SPIKE_PARSER.md`](docs/SPIKE_PARSER.md) | 파서 검증 스파이크 명세 |
-| [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md) | 파서 검증 결과와 권고 |
-| [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md) | 프로젝트 골격 명세 (완료) |
-| [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md) | 읽기 경로 명세 (완료) |
-| [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md) | 수집 자동화 명세 (완료) |
-| [`docs/SLICE_TRANSLATION.md`](docs/SLICE_TRANSLATION.md) | 번역(제안·검수) 명세 (완료) |
-| [`docs/SLICE_AUTH.md`](docs/SLICE_AUTH.md) | 세션 인증 명세 (완료) |
-| [`docs/SLICE_DEPLOY.md`](docs/SLICE_DEPLOY.md) | 현재 작업 — 배포(Railway) 명세 |
+| [`docs/decisions/index.md`](docs/decisions/index.md) | 설계 결정 이력 (ADR) |
+| [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | 코딩 규약, 기여 흐름 |
+| [`docs/slices/index.md`](docs/slices/index.md) | 진행 상황 — 무엇이 끝났고 무엇을 하는 중인지 |
+| [`docs/tech-debt.md`](docs/tech-debt.md) | 알면서 남겨둔 것 |
+
+**진행 상황은 [`docs/slices/index.md`](docs/slices/index.md) 한 곳에만 적는다.**
+여기에도 적으면 반드시 갈라진다.
 
 ## AI 에이전트 지침
 
@@ -35,57 +53,5 @@ Claude Code, Codex, Cursor, Augment 등이 공통으로 읽는 파일이다.
 도구별 지침 파일(`CLAUDE.md`, `.cursorrules`, `.github/copilot-instructions.md` 등)은
 **만들지 않는다.** 내용이 갈라지는 순간 도구마다 다르게 동작하게 된다.
 
-## 현재 상태
-
-**파서 검증 스파이크 완료** — [`docs/PARSER_REPORT.md`](docs/PARSER_REPORT.md).
-공식 신뢰도는 22/22 자동 구간이고 본문 커버리지는 높다.
-파서 후처리(ADR-013)와 `stable_id` 등장 순서(ADR-016)는 구현·검증이 끝났다.
-
-**골격 슬라이스 완료** — [`docs/SLICE_SKELETON.md`](docs/SLICE_SKELETON.md).
-goose · sqlc · oapi-codegen · orval · docker compose · TanStack Start이 한 저장소에서 맞물려 돈다.
-`GET /healthz` 하나가 Go API에서 SSR 화면까지 흐르고, `openapi.yaml`을 고치면
-Go와 TS 양쪽이 컴파일 에러를 낸다(ADR-009 검증).
-
-```bash
-make dev        # Postgres
-make migrate    # 스키마
-make run-api    # :8080
-make run-web    # :3100 (SSR)
-```
-
-**읽기 경로 슬라이스 완료** — [`docs/SLICE_READ_PATH.md`](docs/SLICE_READ_PATH.md).
-22권이 DB에 적재되고 golden과 수가 일치한다. 책 한 권이 자바스크립트 없이 브라우저에 뜬다.
-
-```bash
-make ingest       # 캐시된 22권 적재 (멱등)
-make succession   # stable_id 승계율 측정
-# http://localhost:3100/books/1342/chapters/5
-```
-
-**`stable_id` 승계율은 파서 미변경 상태에서 21권 37,125문단 100%다.**
-ADR-004가 전제한 "해시 일치 → 자동 승계"가 처음으로 수치로 확인됐다.
-
-**수집 자동화 슬라이스 완료** — [`docs/SLICE_INGEST_AUTOMATION.md`](docs/SLICE_INGEST_AUTOMATION.md).
-관리자가 도서 번호를 넣으면 수집·보관·파싱·적재가 자동으로 돈다.
-
-```bash
-curl -X POST localhost:8080/admin/books \
-  -H 'X-Admin-Token: local-dev-token' -H 'Content-Type: application/json' \
-  -d '{"gutenbergId":11,"title":"Alice'"'"'s Adventures in Wonderland"}'
-```
-
-**번역 슬라이스 완료** — [`docs/SLICE_TRANSLATION.md`](docs/SLICE_TRANSLATION.md).
-제안 → 검수 → 확정본이 흐르고, 승인 커버리지 80%를 넘으면 읽기 화면이 `index`로 바뀐다(ADR-023).
-미확정 문단은 원문으로 노출하고 진행률을 표시한다.
-
-**세션 인증 슬라이스 완료** — [`docs/SLICE_AUTH.md`](docs/SLICE_AUTH.md).
-Google 로그인 + Postgres 세션. 비밀번호를 다루지 않는다. 관리자는 `ADMIN_EMAIL`과
-일치하는 Google 계정이다. 임시 헤더는 전부 걷어냈다.
-
-`.env`에 `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`이 있어야 API가 기동한다.
-Google Cloud Console에서 OAuth 클라이언트를 만들고 승인된 리디렉션 URI에
-`GOOGLE_REDIRECT_URL` 값을 그대로 등록한다.
-
-**다음은 배포(Railway)다** — [`docs/SLICE_DEPLOY.md`](docs/SLICE_DEPLOY.md).
-ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없다.
-빌드는 Nixpacks가 아니라 Dockerfile이다 (ADR-029).
+`AGENTS.md`는 **지도이지 백과사전이 아니다.** 세부는 `docs/`에 두고 거기서 링크한다.
+`make docs-check`가 이 구조를 기계적으로 검사한다.

@@ -22,9 +22,10 @@ PR 제목은 Conventional Commits 를 따릅니다 — squash 머지라 그대�
 
 ## 체크리스트
 
-- [ ] `make lint && make test` 통과
+- [ ] `make lint && make test && make docs-check` 통과
 - [ ] **`DATABASE_URL` 없이도** `make test` 통과
-- [ ] 설계 판단이 있었으면 `docs/DECISIONS.md`에 ADR 추가
+- [ ] 설계 판단이 있었으면 `docs/decisions/ADR-NNN.md` 추가 + 색인에 줄 추가
+- [ ] 알면서 남긴 것이 있으면 `docs/tech-debt.md`에 기록
 - [ ] `openapi.yaml`을 고쳤으면 `make generate` 산출물까지 커밋
 - [ ] 마이그레이션을 추가했다면 **기존 파일은 수정하지 않았다**
 - [ ] 파서를 고쳤으면 golden 눈 검증 + `make succession`으로 승계 영향 측정
