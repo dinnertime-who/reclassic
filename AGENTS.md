@@ -31,11 +31,12 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 ## 지금 하는 것
 
-**슬라이스 7 — 편집·검수 화면, 도서 목록, 관리자 확인 큐.** 명세가 아직 없습니다.
-[`docs/slices/index.md`](docs/slices/index.md)를 읽고 `docs/slices/active/`에 명세를 쓴 뒤 시작합니다.
+**슬라이스 7 — 편집·검수 화면 (CSR).**
+명세는 [`docs/slices/active/editor.md`](docs/slices/active/editor.md)입니다. **먼저 읽으세요.**
 
-**화면 작업으로 보이지만 아닙니다** — 확인 큐·역할 부여·목록은 API도 쿼리도 없습니다.
-`openapi.yaml`과 `internal/db/queries/`부터 손대야 합니다. 목록은 [`docs/tech-debt.md`](docs/tech-debt.md)에 있습니다.
+기존 계약 9개로 성립하는 것을 확인했습니다 — **`openapi.yaml`을 고치지 않습니다.**
+도서 목록·관리자 큐·역할 부여는 슬라이스 8입니다. 셋 다 없는 쿼리부터 만들어야 합니다
+([`docs/tech-debt.md`](docs/tech-debt.md) D1·D2·D3·D5).
 
 ## 기술 스택
 
@@ -114,7 +115,8 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 ## 열려 있는 질문
 
-임의로 정하지 말고 `Proposed` ADR로 남기고 사람에게 확인을 요청하세요.
+**지금은 없습니다.** 마지막 항목(번역 프로젝트의 공개 기준)은 ADR-036으로 닫혔습니다 —
+**관리자가 손으로 공개합니다.**
 
-- **번역 프로젝트 전체의 공개 기준** (챕터 색인 기준 80%와는 별개 — ADR-023).
-  `translation_projects.status`에 `published`가 있는데 그리로 가는 경로가 없습니다.
+새로 판단이 필요한 것이 생기면 임의로 정하지 말고 `Proposed` ADR로 남기고 확인을 요청하세요.
+`docs/decisions/ADR-NNN.md` 파일을 만들고 [색인](docs/decisions/index.md)에 줄을 추가합니다.

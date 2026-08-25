@@ -11,31 +11,37 @@
 | 4 | 번역 (제안·검수) | [translation.md](completed/translation.md) | 완료 |
 | 5 | 세션 인증 | [auth.md](completed/auth.md) | 완료 |
 | 6 | 배포 (Railway) | [deploy.md](completed/deploy.md) | 완료 (2026-08-25) |
-| 7 | 편집·검수 화면, 도서 목록, 관리자 확인 큐 | **미작성** | **진행 중** |
+| 7 | 편집·검수 화면 (CSR) | [active/editor.md](active/editor.md) | **진행 중** |
+| 8 | 도서 목록 · 관리자 확인 큐 · 역할 부여 | 미작성 | |
 
 ## 슬라이스 7 — 지금 하는 것
 
-**명세가 아직 없다.** `active/`에 쓰고 시작한다.
+**편집·검수 화면 하나만 한다.** 명세는 [active/editor.md](active/editor.md).
 
-프론트 스택은 [ADR-035](../decisions/ADR-035.md)로 고정됐다 —
-TanStack Query · Tailwind v4 · shadcn/ui · 폼 라이브러리 없음 · Vitest + ESLint.
+답해야 할 질문은 **"[ADR-035](../decisions/ADR-035.md)가 고른 스택이 SSR 라우터 안에서
+CSR 화면을 실제로 지탱하는가"**다. 지금까지 화면은 전부 로더로만 돌았고
+뮤테이션·부분 갱신을 한 번도 안 해봤다. 스택은 문서로만 있고 `web/`에 설치돼 있지 않다.
 
-**화면 작업으로 보이지만 아니다.** 아래 셋은 API도 쿼리도 없다.
-`openapi.yaml`과 `internal/db/queries/`부터 손대야 한다. 자세한 것은
-[tech-debt.md](../tech-debt.md)의 "결정은 있는데 코드가 없는 것".
+**기존 계약 9개로 이 화면이 성립하는 것을 확인했다** — `openapi.yaml`을 고치지 않는다.
+
+**알고 시작할 제약 둘.** 검수는 지금 **관리자만** 할 수 있고(`reviewer`를 만들 방법이 없다),
+문단별 "내 제안 상태"를 주는 필드가 계약에 없다. 자세한 것은 명세 §2.
+
+## 슬라이스 8 — 다음
+
+**도서 목록 · 관리자 확인 큐 · 역할 부여.** 셋 다 **화면보다 없는 쿼리가 먼저다.**
 
 | 조작 | API | 화면 |
 |---|---|---|
 | 도서 수집 지시 | `POST /admin/books` 있음 | 없음 |
 | 번역 프로젝트 생성 | `POST /admin/projects` 있음 | 없음 |
-| 제안 검수 | `POST /proposals/{id}/review` 있음 | 없음 |
 | `needs_review` 큐 확인 | **없음** | 없음 |
 | 승계 고아 번역 확인 | **없음** | 없음 |
 | 역할 부여 (reviewer) | **없음** | 없음 |
+| 프로젝트 공개 (`open → published`) | **없음** | 없음 |
 
-**착수 전에 닫아야 할 결정이 하나 있다** — 번역 프로젝트 전체의 공개 기준.
-`translation_projects.status`에 `published`가 있는데 그리로 가는 경로가 없다.
-임의로 정하지 말고 `Proposed` ADR로 남기고 확인받을 것.
+목록은 [tech-debt.md](../tech-debt.md) D1·D2·D3·D5에 있다.
+프로젝트 공개 방식은 [ADR-036](../decisions/ADR-036.md)으로 정해졌다 — **관리자가 손으로 한다.**
 
 ---
 

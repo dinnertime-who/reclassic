@@ -17,7 +17,7 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | D1 | **`needs_review` 큐를 읽을 방법이 없다** | [ADR-014](decisions/ADR-014.md) | 쓰기(`SetBookStatus`)만 있고 목록 쿼리가 없다. `ListBooks` 계열 자체가 없다 | **이미 아프다.** 셰익스피어 전집이 큐에 갇혀 있는데 확인할 수단이 없다 |
 | D2 | **승계 고아 번역을 볼 수 없다** | [ADR-004](decisions/ADR-004.md) 불변식 1 | `revision_successions.orphan_ids`에 기록만 된다. 읽기 쿼리 0건. `WHERE orphaned > 0` 부분 인덱스까지 만들어 놓고 조회하는 코드가 없다 | 파서를 고쳐 재파싱하는 순간. 사람이 쓴 번역이 갈 곳을 잃는데 아무도 모른다 |
 | D3 | **`reviewer` 역할을 만들 방법이 없다** | [ADR-027](decisions/ADR-027.md) | CHECK에 3역할, `CanReview`/`IsAdmin`도 있는데 역할 변경 쿼리가 없다. 관리자는 `ADMIN_EMAIL` 일치로만 결정된다 | **이미 아프다.** 검수를 관리자 한 명만 할 수 있다 |
-| D4 | **`translation_projects.status`가 `published`로 갈 수 없다** | 스키마 CHECK + `published_at` | `CreateProject`만 있고 상태 전이 쿼리가 없다 | 프로젝트 공개 기준을 정하는 순간. **그 기준 자체가 아직 열린 질문이다** — 임의로 정하지 말 것 |
+| D4 | **`translation_projects.status`가 `published`로 갈 수 없다** | [ADR-036](decisions/ADR-036.md) | `CreateProject`만 있고 상태 전이 쿼리가 없다. **기준은 정해졌다 — 관리자가 손으로 옮긴다.** 구현은 슬라이스 8 | 도서 목록을 만드는 순간. `published`가 "목록에 뜨는가"를 가른다 |
 | D5 | **목록 API가 하나도 없다** | — | openapi 오퍼레이션 9개가 전부 단건 조회거나 쓰기. `CountBooks`는 만들어 놓고 쓰는 곳이 없다 | 도서 목록·검수 큐 화면을 만드는 순간 |
 | D6 | **`book_glossary`가 테이블뿐이다** | [ADR-010](decisions/ADR-010.md) | 쿼리 0건 | **의도된 미구현.** 여러 사람이 같은 책을 번역해 인명·호칭이 갈리기 시작할 때 |
 
