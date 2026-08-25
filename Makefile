@@ -85,6 +85,10 @@ lint: web-install ## 린트 (Go + TS 타입 검사)
 	@echo "── tsc ──"
 	cd $(WEB) && $(PNPM) run typecheck
 
+.PHONY: docs-check
+docs-check: ## 문서 구조 검사 (ADR 번호·색인·끊어진 링크·AGENTS.md 길이)
+	@./scripts/docs-check
+
 .PHONY: fmt
 fmt: ## 포맷
 	$(call need,$(GO),brew install go)
@@ -150,6 +154,17 @@ run-web-lan: web-install ## 웹 개발 서버를 LAN에 노출 (휴대폰 등에
 web-install: ## web/ 의존성 설치 (없을 때만)
 	$(call need,$(PNPM),corepack enable)
 	@test -d $(WEB)/node_modules || { cd $(WEB) && $(PNPM) install --frozen-lockfile; }
+
+.PHONY: ui-add
+ui-add: web-install ## shadcn 컴포넌트 추가 (예: make ui-add C=button). 먼저 shadcn에 있는지 찾을 것 (ADR-035)
+	@test -n "$(C)" || { echo "✗ 컴포넌트 이름이 필요합니다. 예: make ui-add C=button"; exit 1; }
+	@# 이미 있는 컴포넌트를 다시 add하면 손으로 고친 내용이 덮어써집니다 (ADR-035).
+	@for c in $(C); do \
+		test ! -f $(WEB)/src/components/ui/$$c.tsx || { \
+			echo "✗ $$c 는 이미 있습니다. 다시 add하면 수정한 내용이 덮어써집니다 (ADR-035)."; \
+			echo "  정말 갈아엎으려면 파일을 먼저 지우세요."; exit 1; }; \
+	done
+	cd $(WEB) && $(PNPM) dlx shadcn@latest add $(C)
 
 .PHONY: ingest
 ingest: ## 캐시된 원문을 파싱해 DB에 적재 (멱등). ONLY=1342 로 한 권만

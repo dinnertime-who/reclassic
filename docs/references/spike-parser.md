@@ -1,7 +1,7 @@
 # 스파이크 명세 — Gutenberg 파서 검증
 
 **작업 종류:** 스파이크 (탐색적 구현)
-**선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` (특히 ADR-011)
+**선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions/index.md` (특히 ADR-011)
 **작업 시작 전에 위 세 문서를 반드시 읽을 것.**
 
 ---
@@ -19,7 +19,7 @@
 | 60% 미만 | 스키마에 "관리자 보정 레이어"가 필요. 원본 파싱 결과 위에 덮어쓰는 구조로 재설계 |
 
 **따라서 이 스파이크의 진짜 산출물은 코드가 아니라 리포트다.**
-코드는 그 숫자를 얻기 위한 수단이며, 결론이 담긴 `docs/PARSER_REPORT.md`가 최종 결과물이다.
+코드는 그 숫자를 얻기 위한 수단이며, 결론이 담긴 `docs/references/parser-report.md`가 최종 결과물이다.
 
 ---
 
@@ -31,7 +31,7 @@
 - 추출 전략 여러 개 + 신뢰도 점수
 - 권별 추출 결과 스냅샷(golden) 생성
 - 사람이 눈으로 품질을 확인할 수 있는 HTML 리포트
-- 결론과 권고가 담긴 `docs/PARSER_REPORT.md`
+- 결론과 권고가 담긴 `docs/references/parser-report.md`
 
 ### 하지 않는 것 — 건드리면 안 됨
 - 데이터베이스, 마이그레이션, sqlc
@@ -51,7 +51,7 @@ golang.org/x/net/html
 ```
 
 이 둘과 표준 라이브러리만 사용한다. 다른 패키지가 필요하다고 판단되면
-추가하기 전에 `docs/DECISIONS.md`에 `Proposed` ADR로 남기고 사람에게 확인할 것.
+추가하기 전에 `docs/decisions/index.md`에 `Proposed` ADR로 남기고 사람에게 확인할 것.
 
 ---
 
@@ -80,7 +80,7 @@ go get github.com/PuerkitoBio/goquery
 | `internal/parse/testdata/corpus.json` | O | 검증 대상 도서 목록 |
 | `internal/parse/testdata/golden/*.json` | O | 권별 추출 결과 스냅샷 |
 | `internal/parse/parse_test.go` | O | golden 회귀 테스트 |
-| `docs/PARSER_REPORT.md` | O | **결론과 권고** |
+| `docs/references/parser-report.md` | O | **결론과 권고** |
 | `.cache/gutenberg/*.html` | **X** | 내려받은 원본. gitignore 대상 |
 | `.cache/report.html` | **X** | 상세 리포트 (로컬 확인용) |
 
@@ -316,7 +316,7 @@ confidence = clamp(
 - **각 챕터 첫 문단 앞 200자** — 실제 추출 품질을 눈으로 확인하는 용도
 - 경고 목록
 
-**`docs/PARSER_REPORT.md`** — 커밋 대상. 이것이 최종 산출물이다.
+**`docs/references/parser-report.md`** — 커밋 대상. 이것이 최종 산출물이다.
 `§8`의 형식을 따른다.
 
 ---
@@ -358,7 +358,7 @@ confidence = clamp(
 5. **판정 기준을 맞추려고 수치를 조작하지 말 것.** 성공률이 낮게 나오는 것도 유효한 결과다.
    오히려 그 경우가 설계에 더 큰 정보를 준다.
 6. 작업 종료 전 `make lint && make test` 통과.
-7. 새 설계 판단이 필요하면 임의로 정하지 말고 `docs/DECISIONS.md`에 `Proposed` ADR로 남길 것.
+7. 새 설계 판단이 필요하면 임의로 정하지 말고 `docs/decisions/index.md`에 `Proposed` ADR로 남길 것.
 
 ---
 
@@ -368,10 +368,10 @@ confidence = clamp(
 - [x] 4개 전략이 모두 구현되고 권별로 전 전략 점수가 기록됨
 - [x] 권별 golden 스냅샷 생성, `make test` 통과
 - [x] `.cache/report.html` 생성 — 챕터별 첫 문단 미리보기 포함
-- [x] `docs/PARSER_REPORT.md` 작성 (아래 형식)
+- [x] `docs/references/parser-report.md` 작성 (아래 형식)
 - [x] `make lint && make test` 통과
 
-### `docs/PARSER_REPORT.md` 형식
+### `docs/references/parser-report.md` 형식
 
 ```markdown
 # 파서 검증 결과
@@ -406,6 +406,6 @@ confidence = clamp(
 
 ## 9. 작업 완료 후
 
-`docs/PARSER_REPORT.md`의 **요약**과 **권고**를 사람에게 보고할 것.
+`docs/references/parser-report.md`의 **요약**과 **권고**를 사람에게 보고할 것.
 코드 설명보다 **숫자와 판단**이 중요하다.
 이 스파이크의 목적은 다음 설계 결정을 내리는 것이지 파서를 완성하는 것이 아니다.

@@ -1,11 +1,11 @@
 # 슬라이스 명세 — 수집 자동화 (River + R2)
 
 **작업 종류:** 구현 슬라이스 (수직)
-**선행 슬라이스:** `docs/SLICE_READ_PATH.md` — 적재 로직(`internal/book.Ingester`)이 있어야 한다.
+**선행 슬라이스:** `docs/slices/completed/read-path.md` — 적재 로직(`internal/book.Ingester`)이 있어야 한다.
 이 슬라이스는 그것을 CLI가 아니라 잡 핸들러가 부르게 만든다.
 **선행 문서:** `AGENTS.md`, `docs/ARCHITECTURE.md` (특히 "수집 파이프라인"),
-`docs/DECISIONS.md` (특히 ADR-001 / 003 / 008 / 014)
-**다음 슬라이스:** `docs/SLICE_TRANSLATION.md`
+`docs/decisions/index.md` (특히 ADR-001 / 003 / 008 / 014)
+**다음 슬라이스:** `docs/slices/completed/translation.md`
 
 ---
 
@@ -193,5 +193,5 @@ POST /admin/books  { gutenbergId, title, language? }
 
 ## 7. 다음
 
-`docs/SLICE_TRANSLATION.md` — 번역 테이블 4개, 제안·검수, 승계 실행, 사이트맵.
+`docs/slices/completed/translation.md` — 번역 테이블 4개, 제안·검수, 승계 실행, 사이트맵.
 **여기서 SEO 값어치가 나온다.**
