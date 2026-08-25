@@ -22,7 +22,7 @@ Project Gutenberg의 퍼블릭 도메인 도서를 내려받아 장·문단 단�
 | `docs/SLICE_INGEST_AUTOMATION.md` | 수집 자동화 명세 (완료) |
 | `docs/SLICE_TRANSLATION.md` | 번역(제안·검수) 명세 (완료) |
 | `docs/SLICE_AUTH.md` | 세션 인증 명세 (완료) |
-| `docs/SLICE_DEPLOY.md` | **현재 작업 — 배포(Railway) 명세** |
+| `docs/SLICE_DEPLOY.md` | 배포(Railway) 명세 (완료) |
 
 **코드를 쓰기 전에 `docs/ARCHITECTURE.md`를 먼저 읽으세요.** 이 파일에는 요약만 있습니다.
 
@@ -57,23 +57,34 @@ FetchSource → R2 → ParseBook → 적재가 자동으로 돕니다.
 임시 헤더(`X-User-Handle`·`X-Admin-Token`)는 코드·계약·환경변수에서 전부 사라졌습니다.
 관리자는 `ADMIN_EMAIL`과 일치하는 Google 계정입니다 (ADR-027).
 
-**현재 작업은 배포(Railway)입니다** — `docs/SLICE_DEPLOY.md`.
-ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 —
-`[::]` 바인딩, `railway.internal`, 서브도메인 간 쿠키 공유가 전부 미확인입니다.
+**슬라이스 6(배포)도 끝났습니다 — 프로덕션이 실제로 떠 있습니다** (2026-08-25).
+`https://reclassic.dinnertimes.app` · `https://api-reclassic.dinnertimes.app`.
+
+ADR-002의 4서비스 구성이 처음으로 실물 검증됐습니다.
+**`[::]` 바인딩과 `api.railway.internal`이 맞물리고**(불변식 4),
+**웹과 API가 다른 서브도메인인데 세션 쿠키가 공유됩니다**(ADR-033).
+관리자 로그인 후 도서 한 권(1342)을 지시해 **수집→R2→파싱→적재가 2.5초에 완주했고,
+챕터 63 / 문단 2131이 골든과 정확히 일치**했습니다. 원본 sha256까지 같습니다.
 
 빌드는 Nixpacks가 아니라 Dockerfile이고(ADR-029),
 마이그레이션은 pre-deploy 명령으로 돕니다(ADR-030).
-빌드·배포 설정은 서비스별 `railway.json`에 둡니다 — `.railway/railway.ts`가 아닙니다 (ADR-031).
+빌드·배포 설정은 서비스별 `railway.json`에 두고(ADR-031),
+**설정 파일 경로와 메모리 상한이 둘 다 실물에서 먹는 것을 확인했습니다** — ADR-031의 미확인 항목은 없습니다.
+
+**ADR-028의 숙제도 닫혔습니다.** 운영이 아프지 않았으므로 안 C(Cloudflare 이전)를 열지 않습니다.
+
+**남은 것 셋입니다.**
+
+- **ADR-034 — Cloudflare 프록시가 켜진 채로 서 있습니다.** 문서(§6.1)는 회색으로 두라고 적었는데
+  실물은 주황이고, 그대로 동작합니다. **Rocket Loader가 HTML의 스크립트 태그를 고쳐 씁니다** —
+  지금은 하이드레이션이 살아 있지만 보장이 아닙니다. 켤지 끌지 정해야 하고, **되돌리는 것도 무중단이 아닙니다.**
+- **미검증 둘** — 마이그레이션 실패 게이트와 파서 메모리 피크. 프로덕션에서 확인할 성질이 아닙니다.
+- **`make lint`가 `golangci-lint` 없이 `go vet`으로 대체됩니다.** 의도한 강도가 아닙니다.
 
 **Railway 설정은 대부분 `railway` CLI로 합니다** — 명령은 `SLICE_DEPLOY.md` §5에 있습니다.
-**사람이 직접 해야 하는 것은 §6입니다** — 도메인 발급과 DNS 레코드, R2, Google 프로덕션 클라이언트.
-**남은 블로커는 도메인 하나입니다.**
+**사람이 직접 해야 하는 것은 §6입니다** — 도메인·DNS 레코드, R2, Google 프로덕션 클라이언트.
 
-**저장소 쪽 산출물은 들어왔고 로컬에서 검증했습니다** — `Dockerfile`·`web/Dockerfile`·
-`.dockerignore`·`railway.api.json`·`railway.worker.json`·`railway.web.json`.
-두 이미지가 빌드되고, 컨테이너 둘을 띄워 **SSR이 내부 호스트로 API를 부르는 것**과
-`db: ok`까지 확인했습니다 (2026-08-20). 자세한 것은 아래 "배포 (Railway)" 절입니다.
-**아직 Railway에 올려본 적은 없습니다** — 남은 것은 도메인과 §6의 사람 작업입니다.
+**현재 작업은 슬라이스 7(편집·검수 화면)입니다** — 명세는 아직 없습니다.
 
 계획된 순서:
 
@@ -84,8 +95,8 @@ ADR-002가 정한 4서비스 구성이 실물로 검증된 적이 없습니다 �
 | 3 | 수집 자동화 (River + R2) | `docs/SLICE_INGEST_AUTOMATION.md` — **완료** |
 | 4 | 번역 (제안·검수) — **여기서 SEO 값어치가 나온다** | `docs/SLICE_TRANSLATION.md` — **완료** |
 | 5 | 세션 인증 — 임시 헤더를 걷어낸다 | `docs/SLICE_AUTH.md` — **완료** |
-| 6 | 배포 (Railway) | `docs/SLICE_DEPLOY.md` ← **지금** |
-| 7 | 편집·검수 화면, 도서 목록, 관리자 확인 큐 | 미작성 |
+| 6 | 배포 (Railway) | `docs/SLICE_DEPLOY.md` — **완료** |
+| 7 | 편집·검수 화면, 도서 목록, 관리자 확인 큐 | 미작성 ← **지금** |
 
 슬라이스 2에서 책이 브라우저에 뜨지만 **원문 전용 페이지라 `noindex`입니다**(ADR-007).
 색인 대상이 되는 것은 번역 페이지이고 그건 슬라이스 4입니다.
@@ -150,6 +161,9 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
 
 전체 절차와 사람이 직접 해야 하는 것은 `docs/SLICE_DEPLOY.md`에 있습니다. 여기는 요약입니다.
 
+**떠 있는 주소** — 웹 `https://reclassic.dinnertimes.app` · API `https://api-reclassic.dinnertimes.app`.
+**둘 다 Cloudflare 프록시 뒤에 있습니다.** 문서가 지시한 상태가 아닙니다 — ADR-034를 먼저 읽으세요.
+
 **서비스 넷이 같은 저장소를 봅니다.** 빌드·배포 설정은 서비스마다 파일로 저장소에 있습니다 (ADR-031).
 
 | 서비스 | 설정 파일 | 이미지 | 실행 | 메모리 |
@@ -169,9 +183,16 @@ ADR-011이 걸어둔 게이트("스파이크가 끝나기 전에는 DB·API·웹
   `web/Dockerfile`이 `ARG`로 받습니다. **값이 바뀌면 재시작이 아니라 재빌드입니다.**
 - **웹 빌드 컨텍스트는 저장소 루트입니다.** Railway에서 `source.rootDirectory`를
   건드리지 않는 것이 곧 이 조건입니다 (ADR-029).
+- **설정 파일 경로는 대시보드에서 서비스당 한 번 넣어야 합니다** (`/railway.api.json` 같은 저장소 절대 경로).
+  넣고 나면 **서비스 레벨 builder가 `RAILPACK`으로 남아 있어도 파일이 이깁니다** — 그 표시에 속지 마세요.
 
 배포 상태는 `railway deployment list --json`이 `SUCCESS`를 줄 때까지 성공이 아닙니다.
 빌드가 큐에 들어간 것과 뜬 것은 다릅니다.
+
+**`worker`의 `SUCCESS`는 믿을 수 없습니다.** `railway.worker.json`에 healthcheck가 없어서
+**크래시 루프 중에도 배포가 `SUCCESS`로 찍힙니다.** 실제로 이것 때문에 한 번 속았습니다 —
+`worker`는 상태가 아니라 `railway logs --service worker`로 `worker 기동`과
+`River client started`가 찍혔는지 봐야 합니다.
 
 ## 작업 규칙
 
