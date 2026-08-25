@@ -20,7 +20,7 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | D4 | **`translation_projects.status`가 `published`로 갈 수 없다** | [ADR-036](decisions/ADR-036.md) | `CreateProject`만 있고 상태 전이 쿼리가 없다. **기준은 정해졌다 — 관리자가 손으로 옮긴다.** 구현은 슬라이스 8 | 도서 목록을 만드는 순간. `published`가 "목록에 뜨는가"를 가른다 |
 | D5 | **목록 API가 하나도 없다** | — | openapi 오퍼레이션 9개가 전부 단건 조회거나 쓰기. `CountBooks`는 만들어 놓고 쓰는 곳이 없다 | 도서 목록·검수 큐 화면을 만드는 순간 |
 | D6 | **`book_glossary`가 테이블뿐이다** | [ADR-010](decisions/ADR-010.md) | 쿼리 0건 | **의도된 미구현.** 여러 사람이 같은 책을 번역해 인명·호칭이 갈리기 시작할 때 |
-| D7 | **문단마다 "내 제안 상태"를 주는 필드가 없다** | [ARCHITECTURE.md](ARCHITECTURE.md) 스케치의 `my_proposal_status` | `TranslatedParagraph`는 `stableId`·`sourceText`·`approvedTranslation`·`proposalCount`뿐이다. 인증이 없어 [translation.md](slices/completed/translation.md)에서 미뤘고 아직 계약에 없다 | **이미 아프다.** 편집 화면이 **펼친 문단의 제안만 부른다**([editor.md](slices/active/editor.md) §4.5) — 전부 부르면 챕터 하나에 요청이 수백 개다. 내 제안이 어디에 있는지 한눈에 볼 방법이 없다 |
+| D7 | **문단마다 "내 제안 상태"를 주는 필드가 없다** | [ARCHITECTURE.md](ARCHITECTURE.md) 스케치의 `my_proposal_status` | `TranslatedParagraph`는 `stableId`·`sourceText`·`approvedTranslation`·`proposalCount`뿐이다. 인증이 없어 [translation.md](slices/completed/translation.md)에서 미뤘고 아직 계약에 없다 | **이미 아프다.** 편집 화면이 **펼친 문단의 제안만 부른다**([editor.md](slices/completed/editor.md) §4.5) — 전부 부르면 챕터 하나에 요청이 수백 개다. 내 제안이 어디에 있는지 한눈에 볼 방법이 없다 |
 
 ## 만들어 놓고 부르지 않는 것
 

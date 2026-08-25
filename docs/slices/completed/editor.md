@@ -1,7 +1,7 @@
 # 슬라이스 명세 — 편집·검수 화면 (CSR)
 
-**선행 슬라이스:** [auth.md](../completed/auth.md) — 세션과 역할이 있어야 한다.
-[deploy.md](../completed/deploy.md) — 프로덕션이 떠 있다.
+**선행 슬라이스:** [auth.md](auth.md) — 세션과 역할이 있어야 한다.
+[deploy.md](deploy.md) — 프로덕션이 떠 있다.
 
 **선행 문서:** `AGENTS.md`, [ARCHITECTURE.md](../../ARCHITECTURE.md),
 [ADR-035](../../decisions/ADR-035.md)(프론트 스택), [ADR-024](../../decisions/ADR-024.md)(동시 승인),
@@ -218,8 +218,19 @@ export function getRouter() {
       각 테스트에 변이를 넣어 실제로 빨개지는 것까지 확인했다(챕터뷰 무효화 제거 · 409 재조회
       제거 · `canReview` 항상 true 등 5가지)
 - [x] `make lint`가 ESLint를 돌린다
-- [ ] **실물(`https://reclassic.dinnertimes.app`)에서 한 번 확인한다** — 아직이다.
-      머지·배포 뒤에 한다. **이 한 줄 때문에 이 명세는 아직 `active/`에 있다.**
+- [x] **실물(`https://reclassic.dinnertimes.app`)에서 한 번 확인한다** — 머지·배포 후 확인했다.
+      Railway 4서비스가 전부 `SUCCESS`이고 `/healthz`의 `version`이 머지 커밋과 일치한다.
+      **읽기 화면이 Cloudflare를 통과한 뒤에도 자바스크립트 실행 0으로 본문 문단 15개를 낸다**
+      (`/books/1342/chapters/1`). 응답 본문에 Rocket Loader·Mirage 주입 흔적은 없다 (ADR-034).
+      `VITE_` 둘이 프로덕션 값으로 박혔고 `localhost` 잔재는 0건이다 (ADR-032).
+      **읽기 라우트 청크는 669·186바이트이고 API URL도 react-query도 0건이다** —
+      §5.2가 지켜졌다는 가장 강한 증거다. react-query가 딸려 들어갔다면 수십 KB가 됐을 것이다.
+
+      **다만 프로덕션에서 제안 → 승인까지 돌려보지는 못했다.** 프로덕션에 번역 프로젝트가
+      하나도 없다(id 1~12 전부 404). 만들려면 `POST /admin/projects`를 직접 불러야 하는데
+      **그 화면이 없다**(`tech-debt.md` D5). 편집 경로는 로컬에서 실물 API·DB로 확인했고,
+      **프로덕션 확인은 슬라이스 8로 넘긴다** — 거기서 도서 목록과 프로젝트 생성 화면을
+      만들므로 그때 프로덕션에서 자연스럽게 처음 돈다. §7에 적었다.
 
 ### 이 슬라이스가 답한 것
 
@@ -262,3 +273,7 @@ escape로 고친 뒤, 읽기 라우트에 `useQuery`와 `Button`을 주입해 �
 프로젝트 공개 전이(`open → published`)도 거기서 구현한다.
 
 이 슬라이스가 남기는 것은 `docs/tech-debt.md`에 적는다.
+
+**슬라이스 8이 이어받는 숙제 하나:** 프로덕션에서 **제안 → 승인이 실제로 도는 것**을
+아직 못 봤다. 프로덕션에 번역 프로젝트가 없어서였다. 슬라이스 8이 프로젝트 생성 화면을
+만드는 순간 그 경로가 프로덕션에서 처음 돈다 — **그때 한 번 확인하고 이 줄을 지운다.**

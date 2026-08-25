@@ -31,15 +31,15 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 ## 지금 하는 것
 
-**슬라이스 7 — 편집·검수 화면 (CSR). 구현은 끝났고 프로덕션 확인만 남았습니다.**
-명세와 확인된 수치는 [`docs/slices/active/editor.md`](docs/slices/active/editor.md) §6에 있습니다.
+**슬라이스 8 — 도서 목록 · 관리자 확인 큐 · 역할 부여.**
+명세는 [`docs/slices/active/admin.md`](docs/slices/active/admin.md)입니다. **먼저 읽으세요.**
 
-**web 스택이 실물로 섰습니다** — react-query·Tailwind v4·shadcn·Vitest·ESLint (ADR-035).
+셋 다 **화면보다 없는 쿼리가 먼저입니다** ([`docs/tech-debt.md`](docs/tech-debt.md) D1~D5).
+슬라이스 7과 반대로 **이번에는 `openapi.yaml`을 늘립니다** — 계약부터 고치세요 (작업 규칙 5).
+
+슬라이스 7에서 **web 스택이 실물로 섰습니다** — react-query·Tailwind v4·shadcn·Vitest·ESLint (ADR-035).
 **경로 별칭은 `#/*`입니다.** shadcn 기본값 `@/*`가 아닙니다 — `web/components.json`에서 맞춰져
 있으니 그대로 두세요 (ADR-019).
-
-다음은 슬라이스 8 — 도서 목록·관리자 큐·역할 부여입니다. 셋 다 없는 쿼리부터 만들어야 합니다
-([`docs/tech-debt.md`](docs/tech-debt.md) D1·D2·D3·D5).
 
 ## 기술 스택
 
