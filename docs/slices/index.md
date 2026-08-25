@@ -11,31 +11,31 @@
 | 4 | 번역 (제안·검수) | [translation.md](completed/translation.md) | 완료 |
 | 5 | 세션 인증 | [auth.md](completed/auth.md) | 완료 |
 | 6 | 배포 (Railway) | [deploy.md](completed/deploy.md) | 완료 (2026-08-25) |
-| 7 | 편집·검수 화면, 도서 목록, 관리자 확인 큐 | **미작성** | **진행 중** |
+| 7 | 편집·검수 화면 (CSR) | [active/editor.md](active/editor.md) | 구현 완료 (2026-08-25) · **프로덕션 확인 대기** |
+| 8 | 도서 목록 · 관리자 확인 큐 · 역할 부여 | 미작성 | |
 
-## 슬라이스 7 — 지금 하는 것
+## 슬라이스 7 — 남은 것 하나
 
-**명세가 아직 없다.** `active/`에 쓰고 시작한다.
+**화면과 스택은 끝났고 로컬에서 전부 확인됐다.** 확인된 수치는 [active/editor.md](active/editor.md) §6에 있다.
 
-프론트 스택은 [ADR-035](../decisions/ADR-035.md)로 고정됐다 —
-TanStack Query · Tailwind v4 · shadcn/ui · 폼 라이브러리 없음 · Vitest + ESLint.
+**`active/`에 남아 있는 이유는 한 줄이다** — 명세 §6의 마지막 항목,
+**프로덕션 실물 확인**을 아직 안 했다. 머지·배포 뒤에 하고 그때 `completed/`로 옮긴다.
 
-**화면 작업으로 보이지만 아니다.** 아래 셋은 API도 쿼리도 없다.
-`openapi.yaml`과 `internal/db/queries/`부터 손대야 한다. 자세한 것은
-[tech-debt.md](../tech-debt.md)의 "결정은 있는데 코드가 없는 것".
+## 슬라이스 8 — 다음
+
+**도서 목록 · 관리자 확인 큐 · 역할 부여.** 셋 다 **화면보다 없는 쿼리가 먼저다.**
 
 | 조작 | API | 화면 |
 |---|---|---|
 | 도서 수집 지시 | `POST /admin/books` 있음 | 없음 |
 | 번역 프로젝트 생성 | `POST /admin/projects` 있음 | 없음 |
-| 제안 검수 | `POST /proposals/{id}/review` 있음 | 없음 |
 | `needs_review` 큐 확인 | **없음** | 없음 |
 | 승계 고아 번역 확인 | **없음** | 없음 |
 | 역할 부여 (reviewer) | **없음** | 없음 |
+| 프로젝트 공개 (`open → published`) | **없음** | 없음 |
 
-**착수 전에 닫아야 할 결정이 하나 있다** — 번역 프로젝트 전체의 공개 기준.
-`translation_projects.status`에 `published`가 있는데 그리로 가는 경로가 없다.
-임의로 정하지 말고 `Proposed` ADR로 남기고 확인받을 것.
+목록은 [tech-debt.md](../tech-debt.md) D1·D2·D3·D5에 있다.
+프로젝트 공개 방식은 [ADR-036](../decisions/ADR-036.md)으로 정해졌다 — **관리자가 손으로 한다.**
 
 ---
 
@@ -96,5 +96,23 @@ API `https://api-reclassic.dinnertimes.app`.
 [ADR-031](../decisions/ADR-031.md)의 미확인 항목은 없다 — 설정 파일 경로와 메모리 상한이
 둘 다 실물에서 먹는 것을 확인했다. [ADR-028](../decisions/ADR-028.md)의 숙제도 닫혔다:
 운영이 아프지 않았으므로 Cloudflare 이전을 열지 않는다.
+
+
+### 7. 편집·검수 화면 (로컬까지)
+
+**ADR-035가 고른 스택이 SSR 라우터 안에서 CSR 화면을 지탱한다.** 요청마다 만든 `QueryClient`가
+SSR을 통과하고, 뮤테이션 뒤 부분 갱신이 돌고, 읽기 화면의 무자바스크립트 성질이 옆에서 유지된다.
+
+**읽기 화면이 자바스크립트 실행 0으로 문단 38개를 SSR HTML에 담아 온다** — `curl`로 확인했다.
+편집 라우트를 옆에 두고도 ADR-007·023의 SEO 전제가 살아 있다.
+
+**계약은 한 줄도 늘지 않았다** — `openapi.yaml` 0줄, 읽기 라우트 셋 0줄, `api/http.ts` 0줄.
+승인 한 번에 커버리지가 27/33 → 28/33으로 움직이고(챕터 뷰 무효화), 문단 33개를 그려도
+`/proposals` 요청은 0건이다. `reviewProposal` 409는 실패가 아니라 재조회로 회복한다 (ADR-024).
+
+**여기서 조용한 고장이 둘 나왔다 — 둘 다 SSR·빌드·테스트가 전부 통과한 채로 숨어 있었다.**
+Tailwind preflight가 읽기 화면 타이포를 납작하게 만든 것, 그리고 읽기 화면 순수성을 지키려고
+넣은 ESLint 가드가 **정작 아무것도 잡지 못하고 있던 것**(group 패턴이 gitignore 문법이라
+`#/`의 `#`이 주석으로 먹혔다). ADR-035가 경고한 실패 모양 그대로다.
 
 **이 슬라이스가 남긴 부채는 [tech-debt.md](../tech-debt.md)에 있다.**

@@ -31,11 +31,15 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 ## 지금 하는 것
 
-**슬라이스 7 — 편집·검수 화면, 도서 목록, 관리자 확인 큐.** 명세가 아직 없습니다.
-[`docs/slices/index.md`](docs/slices/index.md)를 읽고 `docs/slices/active/`에 명세를 쓴 뒤 시작합니다.
+**슬라이스 7 — 편집·검수 화면 (CSR). 구현은 끝났고 프로덕션 확인만 남았습니다.**
+명세와 확인된 수치는 [`docs/slices/active/editor.md`](docs/slices/active/editor.md) §6에 있습니다.
 
-**화면 작업으로 보이지만 아닙니다** — 확인 큐·역할 부여·목록은 API도 쿼리도 없습니다.
-`openapi.yaml`과 `internal/db/queries/`부터 손대야 합니다. 목록은 [`docs/tech-debt.md`](docs/tech-debt.md)에 있습니다.
+**web 스택이 실물로 섰습니다** — react-query·Tailwind v4·shadcn·Vitest·ESLint (ADR-035).
+**경로 별칭은 `#/*`입니다.** shadcn 기본값 `@/*`가 아닙니다 — `web/components.json`에서 맞춰져
+있으니 그대로 두세요 (ADR-019).
+
+다음은 슬라이스 8 — 도서 목록·관리자 큐·역할 부여입니다. 셋 다 없는 쿼리부터 만들어야 합니다
+([`docs/tech-debt.md`](docs/tech-debt.md) D1·D2·D3·D5).
 
 ## 기술 스택
 
@@ -61,7 +65,7 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 | 목적 | 명령 |
 |---|---|
-| 빌드 · 테스트 · 린트 · 포맷 | `make build` · `make test` · `make lint` · `make fmt` |
+| 빌드 · 테스트 · 린트 · 포맷 (뒤 셋은 Go + web 한 번에) | `make build` · `make test` · `make lint` · `make fmt` |
 | 문서 구조 검사 | `make docs-check` |
 | 코드 생성 (sqlc / oapi-codegen / orval) | `make generate` |
 | 마이그레이션 적용 | `make migrate` |
@@ -114,7 +118,8 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 
 ## 열려 있는 질문
 
-임의로 정하지 말고 `Proposed` ADR로 남기고 사람에게 확인을 요청하세요.
+**지금은 없습니다.** 마지막 항목(번역 프로젝트의 공개 기준)은 ADR-036으로 닫혔습니다 —
+**관리자가 손으로 공개합니다.**
 
-- **번역 프로젝트 전체의 공개 기준** (챕터 색인 기준 80%와는 별개 — ADR-023).
-  `translation_projects.status`에 `published`가 있는데 그리로 가는 경로가 없습니다.
+새로 판단이 필요한 것이 생기면 임의로 정하지 말고 `Proposed` ADR로 남기고 확인을 요청하세요.
+`docs/decisions/ADR-NNN.md` 파일을 만들고 [색인](docs/decisions/index.md)에 줄을 추가합니다.

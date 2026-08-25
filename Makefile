@@ -12,6 +12,9 @@ WEB     ?= web
 CACHE   ?= .cache/gutenberg
 CORPUS  ?= internal/parse/testdata/corpus.json
 
+# web 의존성 설치 완료 스탬프 (web-install 참조). node_modules 안이라 .gitignore가 이미 덮는다.
+WEB_STAMP := $(WEB)/node_modules/.install-stamp
+
 # 같은 네트워크의 다른 기기에서 접속할 때 쓸 주소.
 # 인터페이스 이름을 넘겨짚지 않는다 — 기본 라우트가 쓰는 것을 찾는다 (en0일 수도 en1일 수도 있다).
 # 못 찾으면 LAN_IP=192.168.x.x 로 직접 지정한다.
@@ -70,13 +73,17 @@ build: ## 바이너리 빌드 (bin/)
 	$(GO) build -o bin/ ./cmd/...
 
 .PHONY: test
-test: ## 테스트 실행
+test: web-install ## 테스트 실행 (Go + web)
 	$(call need,$(GO),brew install go)
 	@test -f go.mod || { echo "✗ go.mod 없음."; exit 1; }
+	@echo "── go test ──"
 	$(GO) test ./...
+	@# web 테스트는 DATABASE_URL 없이, API 없이 돈다 (ADR-035 · PR 체크리스트 2).
+	@echo "── vitest ──"
+	cd $(WEB) && $(PNPM) run test
 
 .PHONY: lint
-lint: web-install ## 린트 (Go + TS 타입 검사)
+lint: web-install ## 린트 (Go + tsc + ESLint)
 	$(call need,$(GO),brew install go)
 	@test -f go.mod || { echo "✗ go.mod 없음."; exit 1; }
 	@command -v golangci-lint >/dev/null 2>&1 \
@@ -84,15 +91,21 @@ lint: web-install ## 린트 (Go + TS 타입 검사)
 		|| { echo "· golangci-lint 미설치 — go vet 으로 대체"; $(GO) vet ./...; }
 	@echo "── tsc ──"
 	cd $(WEB) && $(PNPM) run typecheck
+	@echo "── eslint ──"
+	cd $(WEB) && $(PNPM) run lint
 
 .PHONY: docs-check
 docs-check: ## 문서 구조 검사 (ADR 번호·색인·끊어진 링크·AGENTS.md 길이)
 	@./scripts/docs-check
 
 .PHONY: fmt
-fmt: ## 포맷
+fmt: web-install ## 포맷 (Go + web)
 	$(call need,$(GO),brew install go)
+	@echo "── go fmt ──"
 	$(GO) fmt ./...
+	@# 웹은 포매터를 따로 두지 않는다 (ADR-035에 없다). ESLint의 자동 수정으로 갈음한다.
+	@echo "── eslint --fix ──"
+	cd $(WEB) && $(PNPM) run fmt
 
 .PHONY: generate
 generate: web-install ## 코드 생성 (sqlc / oapi-codegen / orval)
@@ -151,9 +164,20 @@ run-web-lan: web-install ## 웹 개발 서버를 LAN에 노출 (휴대폰 등에
 	cd $(WEB) && env $(WEB_ENV) VITE_API_URL=http://$(LAN_IP):8080 $(PNPM) run dev --host
 
 .PHONY: web-install
-web-install: ## web/ 의존성 설치 (없을 때만)
+web-install: $(WEB_STAMP) ## web/ 의존성 설치 (lockfile 이 설치보다 새로울 때만)
 	$(call need,$(PNPM),corepack enable)
-	@test -d $(WEB)/node_modules || { cd $(WEB) && $(PNPM) install --frozen-lockfile; }
+
+# 설치 완료 스탬프. `test -d node_modules`로 판정하면 **디렉터리가 있기만 하면 건너뛰어서**
+# 브랜치를 옮겨 의존성이 늘어도, 캐시가 있는 CI에서도 낡은 채로 진행한다.
+# make의 타깃 의존 규칙에 맡긴다 — lockfile·package.json이 스탬프보다 새로우면 다시 깐다.
+#
+# 스탬프를 node_modules 안에 두는 이유: node_modules를 지우면 스탬프도 같이 사라져
+# 반드시 다시 깔린다. 밖에 두면 "스탬프는 있는데 node_modules는 없는" 상태가 생긴다.
+$(WEB_STAMP): $(WEB)/pnpm-lock.yaml $(WEB)/package.json
+	$(call need,$(PNPM),corepack enable)
+	@# --frozen-lockfile 을 뗄 수 없다 (ADR-019). lockfile 이 유일한 진실이다.
+	cd $(WEB) && $(PNPM) install --frozen-lockfile
+	@touch $@
 
 .PHONY: ui-add
 ui-add: web-install ## shadcn 컴포넌트 추가 (예: make ui-add C=button). 먼저 shadcn에 있는지 찾을 것 (ADR-035)

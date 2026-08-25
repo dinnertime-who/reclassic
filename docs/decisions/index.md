@@ -49,3 +49,4 @@
 | [033](ADR-033.md) | 도메인은 `reclassic.dinnertimes.app`. API는 하이픈으로 옆에 둔다 | Accepted (2026-08-20) |
 | [034](ADR-034.md) | 웹·API는 Cloudflare 프록시 뒤에 둔다 | Accepted (2026-08-25) |
 | [035](ADR-035.md) | 편집·검수 화면의 프론트 스택을 고정한다 | Accepted (2026-08-25) |
+| [036](ADR-036.md) | 번역 프로젝트의 공개는 관리자가 손으로 한다 | Accepted (2026-08-25) |
