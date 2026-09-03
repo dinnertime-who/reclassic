@@ -88,13 +88,23 @@
   --paper-faint: #a09685; /* 꼬리표 */
   --paper-rule: #e0d8c8;  /* 괘선 */
   --paper-track: #ebe5d9; /* 진행 막대 트랙 */
+  --paper-label: #6b6155; /* 설정 시트의 항목 이름. 본문보다 물러서고 메타보다 진하다 */
+  --paper-grip: #ded6c6;  /* 시트 손잡이 · 꺼진 점 */
+  --paper-seg: #efe9de;   /* 단계 선택기 바탕 */
 
   /* 읽기 화면 전용 타입 스케일. 시안 값이 여기 한 곳에만 있다 (ADR-038).
      본문 17.5px · 제목 30px가 좁은 폭 기준이고, 넓어지면 clamp가 흐른다. */
-  --reader-text: clamp(1.09375rem, 1.034rem + 0.246vw, 1.1875rem); /* 17.5 → 19px */
-  --reader-title: clamp(1.875rem, 1.635rem + 0.984vw, 2.25rem);    /* 30 → 36px */
-  --reader-source-size: 1rem;   /* 번역 없는 원문 문단 16px */
+  --reader-text: calc(clamp(1.09375rem, 1.034rem + 0.246vw, 1.1875rem) * var(--reader-scale)); /* 17.5 → 19px */
+  --reader-title: calc(clamp(1.875rem, 1.635rem + 0.984vw, 2.25rem) * var(--reader-scale));    /* 30 → 36px */
+  --reader-source-size: calc(1rem * var(--reader-scale)); /* 번역 없는 원문 문단 16px */
   --reader-leading: 1.9;
+
+  /* 읽기 설정이 움직이는 값 (ADR-040). 여기 적힌 것이 **가운데 단계**(크기 3 · 행간 2 ·
+     여백 2)이고, 쿠키가 없으면 이 값으로 뜬다. 단계별 값은 아래 `html[data-reader-*]` 표에
+     모여 있다 — 배율 하나로 제목·본문·원문이 같이 움직여야 타입 스케일이 버틴다.
+     **위 세 줄이 `:root`에 있어야 하는 이유:** 커스텀 속성 안의 `var()`는 그 속성이 선언된
+     요소에서 치환된다. 배율을 body에서 덮으면 `--reader-text`는 이미 굳은 뒤라 안 따라온다. */
+  --reader-scale: 1;
   --reader-rule-width: 2.25rem; /* 제목 아래 강조 괘선 36px */
 
   --text-2xs: 0.625rem; /* 꼬리표 전용 10px. 본문에 쓰지 말 것 */
@@ -524,6 +534,277 @@ body:has(main.reader, main.contents-page) .site-header {
 /* 이전이 없으면 다음이 폭을 다 쓴다 — 좁은 칸에 남으면 방향이 거짓말이 된다. */
 .reader-nav .btn:only-child {
   grid-column: 1 / -1;
+}
+
+/* ── 읽기 설정 (ADR-040) ────────────────────────────────────────────────
+   **쿠키에서 넘어오는 것은 단계 번호뿐이고, 치수는 전부 여기 있다.**
+   서버가 쿠키를 허용 목록으로 좁혀 `<html data-reader-*>`에 얹으면 나머지는 이 표가 한다 —
+   사용자 문자열이 `style`에 닿는 경로가 아예 없으므로 CSS 주입이 성립하지 않는다.
+   단계를 유한하게 둔 이유의 절반이 이것이다.
+
+   **가운데 단계(크기 3 · 행간 2 · 여백 2)에는 규칙이 없다** — 위 `:root` 기본값이 그것이다.
+   여기에 없는 값(`data-reader-size="9"`)은 아무 규칙에도 걸리지 않아 기본값으로 떨어진다. */
+
+/* 글자 크기 5단계. 배율 하나로 제목·본문·원문이 함께 움직인다 —
+   연속 슬라이더로 두면 여기서 제목과 본문의 비율이 무너진다 (ADR-040). */
+html[data-reader-size="1"] {
+  --reader-scale: 0.875;
+}
+
+html[data-reader-size="2"] {
+  --reader-scale: 0.9375;
+}
+
+html[data-reader-size="4"] {
+  --reader-scale: 1.125;
+}
+
+html[data-reader-size="5"] {
+  --reader-scale: 1.25;
+}
+
+/* 행간 3단계. */
+html[data-reader-leading="1"] {
+  --reader-leading: 1.6;
+}
+
+html[data-reader-leading="3"] {
+  --reader-leading: 2.2;
+}
+
+/* 좌우 여백 3단계. 폰에서는 `--gutter`가, 넓은 화면에서는 `--measure`가 실제로 보인다.
+   **`body:has(main.reader)`로 좁히는 이유:** 두 변수는 목록·관리 화면도 쓴다.
+   `<html>`에서 바로 덮으면 읽기와 무관한 화면의 폭까지 따라 움직인다. */
+html[data-reader-margin="1"] body:has(main.reader) {
+  --measure: 42rem;
+  --gutter: 1rem;
+}
+
+html[data-reader-margin="3"] body:has(main.reader) {
+  --measure: 33rem;
+  --gutter: 2rem;
+}
+
+/* 하단 조작 바의 도구 줄 — 위치 표시와 설정 버튼이 한 줄에 선다.
+   **`.reader-nav` 격자는 건드리지 않는다.** 장 이동 격자는 장 전환 작업이 다시 짠다. */
+.reader-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block: 0.875rem 1.125rem;
+}
+
+/* 위 여백은 줄이 갖는다. `.reader-foot-meta` 자체는 그대로 둔다. */
+.reader-tools > .reader-foot-meta {
+  margin: 0;
+}
+
+.reader-tools > .reader-set-open {
+  margin-left: auto;
+}
+
+/* 아이콘만 있는 정사각 표적. 44px은 협상 대상이 아니다 (ADR-038). */
+.btn-icon {
+  min-width: var(--tap);
+  padding-inline: 0;
+  color: var(--paper-label);
+}
+
+.btn-icon svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+}
+
+/* ── 읽기 설정 시트 ─────────────────────────────────────────────────────
+   **시트가 열려도 읽던 화면은 뒤에 남는다.** 글자 크기를 고르는 동안 본문이 보이지 않으면
+   무엇을 고르는지 알 수가 없다 — 그래서 막을 거의 투명하게 둔다. */
+.reader-set-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: color-mix(in oklch, var(--paper-ink) 8%, transparent);
+}
+
+.reader-set-sheet {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  width: min(var(--measure), 100%);
+  margin-inline: auto;
+  padding: 0.625rem 1.5rem 1.625rem;
+  padding-bottom: max(1.625rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--paper-rule);
+  border-radius: 1.125rem 1.125rem 0 0;
+  background: var(--paper);
+  box-shadow: 0 -0.75rem 2rem color-mix(in oklch, var(--paper-ink) 10%, transparent);
+  animation: reader-sheet-up 160ms ease-out;
+}
+
+@keyframes reader-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-set-sheet {
+    animation: none;
+  }
+}
+
+/* 아래에서 올라온 상자라는 것을 말하는 손잡이. 끌 수는 없다 — 표시다. */
+.reader-set-grip {
+  width: 2.25rem;
+  height: 4px;
+  margin-inline: auto;
+  border-radius: 2px;
+  background: var(--paper-grip);
+}
+
+.reader-set-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* 제목은 제목이다 — 본문 서체가 여기까지 이어진다 (ADR-039). */
+.reader-set-head h2 {
+  margin: 0;
+  margin-right: auto;
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.reader-set-reset {
+  border: 0;
+  padding: 0.5rem 0;
+  background: none;
+  color: var(--paper-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.reader-set-reset:hover {
+  color: var(--paper-body);
+}
+
+/* 닫기는 테두리 없이 둔다. 시트 안에서 두 번째로 중요한 조작이다. */
+.reader-set-close {
+  border-color: transparent;
+  background: none;
+}
+
+.reader-set-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+.reader-set-label {
+  flex: none;
+  width: 3.5rem;
+  color: var(--paper-label);
+  font-size: var(--text-sm);
+}
+
+.reader-set-size {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1 1 auto;
+}
+
+/* 작은 가 · 큰 가. 본문 서체로 두어야 무엇이 바뀌는지가 버튼에 보인다. */
+.reader-set-smaller,
+.reader-set-bigger {
+  flex: none;
+  font-family: var(--font-serif);
+  color: var(--paper-body);
+}
+
+.reader-set-smaller {
+  font-size: var(--text-sm);
+}
+
+.reader-set-bigger {
+  font-size: var(--text-xl);
+}
+
+.reader-set-size .btn:disabled {
+  color: var(--paper-faint);
+  background: none;
+  cursor: default;
+}
+
+/* 지금이 몇 단계인지. 조작이 아니라 표시라 표적 크기를 갖지 않는다. */
+.reader-set-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+}
+
+.reader-set-dots > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--paper-grip);
+}
+
+.reader-set-dots > span[data-on] {
+  width: 10px;
+  height: 10px;
+  background: var(--link);
+}
+
+/* 행간·여백은 세 칸짜리 선택기다. 켜진 칸이 종이 위로 떠오른다. */
+.reader-set-seg {
+  display: flex;
+  gap: 4px;
+  flex: 1 1 auto;
+  padding: 4px;
+  border-radius: 0.75rem;
+  background: var(--paper-seg);
+}
+
+.reader-set-seg > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-height: var(--tap);
+  border: 0;
+  border-radius: 0.5625rem;
+  background: none;
+  color: var(--paper-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.reader-set-seg > button svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.reader-set-seg > button[aria-checked="true"] {
+  background: var(--paper);
+  color: var(--link);
+  box-shadow: 0 1px 3px color-mix(in oklch, var(--paper-ink) 12%, transparent);
+}
+
+/* 어디에 저장되는지, 무엇이 범위 밖인지를 한 줄로 말한다 (ADR-040). */
+.reader-set-note {
+  margin: 1rem 0 0;
+  color: var(--paper-faint);
+  font-size: var(--text-2xs);
+  line-height: 1.6;
 }
 
 /* ── 도서 목록 ──────────────────────────────────────────────────────────

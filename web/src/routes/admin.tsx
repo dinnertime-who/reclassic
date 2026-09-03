@@ -82,7 +82,7 @@ export function listErrorNotice(err: unknown, fallback: string): Notice {
 }
 
 function AdminLayout() {
-  const user = useLoaderData({ from: '__root__' })
+  const { user } = useLoaderData({ from: '__root__' })
   const loginUrl = import.meta.env.VITE_LOGIN_URL
 
   return (

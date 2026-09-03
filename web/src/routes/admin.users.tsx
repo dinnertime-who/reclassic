@@ -52,7 +52,7 @@ export function roleNotice(err: unknown): Notice {
 }
 
 function AdminUsers() {
-  const actor = useLoaderData({ from: '__root__' })
+  const { user: actor } = useLoaderData({ from: '__root__' })
   const queryClient = useQueryClient()
   const [notice, setNotice] = useState<Notice | null>(null)
   const usersQuery = useListUsers()
