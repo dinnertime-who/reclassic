@@ -1,7 +1,9 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
+import type { CSSProperties } from 'react'
 
 import { getBookChapter } from '#/api/gen/reclassic'
 import { ApiError } from '#/api/http'
+import { chapterProgress, readingMinutes } from '#/lib/reading'
 
 export const Route = createFileRoute('/books/$gutenbergId/chapters/$idx')({
   loader: async ({ params }) => {
@@ -45,45 +47,77 @@ function ChapterPage() {
 
   const current = Number(idx)
   const to = '/books/$gutenbergId/chapters/$idx'
+  const progress = chapterProgress(current, totalChapters)
+  const minutes = readingMinutes(paragraphs.map((p) => p.sourceText))
 
+  // 상단은 정보만, 하단은 조작만이다 (ADR-038). 리듬과 색은 전부 styles.css에 있다.
   return (
-    <main className="reader">
-      <p className="reader-meta">
+    <>
+      <div className="reader-top">
         <span>원문</span>
         <span>
-          {current + 1} / {totalChapters}장
+          <span className="visually-hidden">읽는 위치 </span>
+          {progress}%
         </span>
-      </p>
-      <h1>{chapter.title || `(제목 없음) ${chapter.idx}`}</h1>
-
-      <div className="reader-body">
-        {paragraphs.map((p) => (
-          // key는 stable_id다. 번역이 붙는 키와 같다 (ADR-004/016).
-          <p key={p.stableId}>{p.sourceText}</p>
-        ))}
       </div>
 
-      {/* 모바일에서는 CSS가 세로로 쌓고 각 링크가 표적 하나가 된다 (ADR-038). */}
-      <nav className="chapter-nav">
-        {current > 0 && (
-          <Link
-            to={to}
-            params={{ gutenbergId, idx: String(current - 1) }}
-            className="btn"
-          >
-            ← 이전 장
-          </Link>
-        )}
-        {current + 1 < totalChapters && (
-          <Link
-            to={to}
-            params={{ gutenbergId, idx: String(current + 1) }}
-            className="btn"
-          >
-            다음 장 →
-          </Link>
-        )}
-      </nav>
-    </main>
+      <main className="reader">
+        <p className="reader-eyebrow">제 {chapter.idx + 1} 장</p>
+        <h1 className="reader-title">
+          {chapter.title || `(제목 없음) ${chapter.idx}`}
+        </h1>
+        <div className="reader-rule" />
+
+        <div className="reader-body">
+          {paragraphs.map((p) => (
+            // key는 stable_id다. 번역이 붙는 키와 같다 (ADR-004/016).
+            // lang은 원문 언어다 — 문서는 ko인데 이 화면의 본문은 전부 영문이다.
+            <p key={p.stableId} lang="en">
+              {p.sourceText}
+            </p>
+          ))}
+        </div>
+      </main>
+
+      <div className="reader-foot">
+        <div
+          className="reader-progress"
+          role="progressbar"
+          aria-label="읽은 분량"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          {/* 퍼센트는 데이터라 여기서 넘기고, 단위는 CSS가 붙인다 (ADR-038). */}
+          <span style={{ '--reader-progress': progress } as CSSProperties} />
+        </div>
+
+        <p className="reader-foot-meta">
+          {current + 1} / {totalChapters}장 · 이 장 {minutes}분
+        </p>
+
+        <nav className="reader-nav">
+          {current > 0 && (
+            <Link
+              to={to}
+              params={{ gutenbergId, idx: String(current - 1) }}
+              className="btn btn-prev"
+            >
+              <span className="visually-hidden">이전 장</span>
+              <span aria-hidden="true">‹</span>
+            </Link>
+          )}
+          {current + 1 < totalChapters && (
+            <Link
+              to={to}
+              params={{ gutenbergId, idx: String(current + 1) }}
+              className="btn btn-primary"
+            >
+              다음 장 ›
+            </Link>
+          )}
+        </nav>
+      </div>
+    </>
   )
 }

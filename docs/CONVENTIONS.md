@@ -96,6 +96,22 @@ const baseURL = typeof window === 'undefined'
   그 사이에서 크기가 튄다.
 - 읽기 화면의 리듬(행간·문단 간격·본문 폭)은 **`styles.css`의 시맨틱 클래스에 모은다.**
   유틸리티로 흩으면 라우트 네 곳에 복사되고, 한 곳을 고칠 때 나머지가 조용히 어긋난다.
+- **시맨틱 클래스 이름을 Tailwind 유틸리티와 겹치지 않게 짓는다.** 겹치면 유틸리티가
+  같이 나가서 우리 규칙을 덮는다 — `main.contents`가 `display: contents`에 걸려 상자를
+  통째로 잃었던 것이 그 예다(그래서 `contents-page`다). **SSR도 빌드도 테스트도 통과하고
+  브라우저에서만 드러난다.** 흔한 지뢰: `contents` · `grid` · `flex` · `table` · `visible` · `hidden`.
+
+### 본문 서체 — ADR-039
+
+- **세리프는 본문과 제목에만 쓴다.** 헤더·메타·버튼 같은 UI 크롬은 시스템 산세리프(`--font-sans`)로
+  남긴다. 폰트 비용을 본문에만 쓰는 것이 그 결정이다.
+- **`@fontsource/noto-serif-kr/korean.css`(와 `korean-<weight>.css`)를 import하지 않는다.**
+  그것은 **한 덩어리 949KB**다. 쓰는 것은 `400.css` — `unicode-range`가 붙은 서브셋 124벌이라
+  브라우저가 **화면에 실제로 쓰인 글자가 든 조각만** 받는다.
+  **잘못 import해도 화면은 똑같이 뜬다.** 드러나는 곳은 청구서와 느린 회선뿐이다.
+- **`font-display`는 `optional`이다.** Fontsource CSS는 `swap`으로 오므로 `vite.config.ts`의
+  플러그인이 바꾼다. `@font-face` 디스크립터는 캐스케이드로 덮이지 않아 거기서 고칠 수밖에 없다.
+- web 의존성은 **`make web-add PKG=…`** 로 더한다. `package.json`과 `pnpm-lock.yaml`을 함께 커밋한다.
 
 ## 보안
 

@@ -53,9 +53,10 @@
    **색값과 px를 화면 파일에 쓰지 않는다. 전부 여기서 나간다.**
    고치면 읽기·목록·관리가 한꺼번에 움직여야 한다 — 그것이 이 블록의 존재 이유다. */
 :root {
-  /* 강조색. 링크와 주요 조작에만 쓴다. 본문에는 쓰지 않는다. */
-  --link: oklch(0.52 0.19 258);
-  --link-hover: oklch(0.43 0.19 258);
+  /* 강조색. 링크와 주요 조작에만 쓴다. 본문에는 쓰지 않는다.
+     파랑에서 옥스블러드로 옮겼다 (ADR-039). 종이색 바탕(--paper)에서 대비 8.23:1 · 10.48:1이다. */
+  --link: oklch(0.43 0.13 25);        /* #892a29 */
+  --link-hover: oklch(0.37 0.115 25); /* #701f1e */
 
   /* 폭. `main`이 자기 값을 읽어 컨테이너 폭을 정한다. */
   --page-width: 46rem;   /* 기본 — 목록·관리 */
@@ -78,8 +79,36 @@
   --leading-body: 1.75;
   --leading-tight: 1.3;
 
+  /* 읽기 화면 종이색 (ADR-039). **본문 화면에만 건다** — 관리·편집은 지금 톤 그대로다.
+     아래 `body:has(main.reader)` 가 이 값들을 기본 토큰 자리에 끼워 넣는다. */
+  --paper: #fbf9f4;       /* 바탕 */
+  --paper-ink: #1f1b16;   /* 제목 */
+  --paper-body: #2b251d;  /* 본문 */
+  --paper-muted: #8c8375; /* 메타·원문 */
+  --paper-faint: #a09685; /* 꼬리표 */
+  --paper-rule: #e0d8c8;  /* 괘선 */
+  --paper-track: #ebe5d9; /* 진행 막대 트랙 */
+
+  /* 읽기 화면 전용 타입 스케일. 시안 값이 여기 한 곳에만 있다 (ADR-038).
+     본문 17.5px · 제목 30px가 좁은 폭 기준이고, 넓어지면 clamp가 흐른다. */
+  --reader-text: clamp(1.09375rem, 1.034rem + 0.246vw, 1.1875rem); /* 17.5 → 19px */
+  --reader-title: clamp(1.875rem, 1.635rem + 0.984vw, 2.25rem);    /* 30 → 36px */
+  --reader-source-size: 1rem;   /* 번역 없는 원문 문단 16px */
+  --reader-leading: 1.9;
+  --reader-rule-width: 2.25rem; /* 제목 아래 강조 괘선 36px */
+
+  --text-2xs: 0.625rem; /* 꼬리표 전용 10px. 본문에 쓰지 말 것 */
+
   --font-sans: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic",
     "Noto Sans KR", sans-serif;
+
+  /* 본문·제목 전용 (ADR-039). **UI 크롬(헤더·메타·버튼)에는 쓰지 않는다** —
+     폰트 비용을 본문에만 쓰는 것이 그 결정이다.
+     가변 폰트의 패밀리 이름은 'Literata Variable'이다. 'Literata'만 적으면 걸리지 않는다.
+     `font-display: optional`이라 **첫 방문은 폴백으로 끝난다** — 그래서 폴백을 메트릭이
+     가까운 것으로 골랐다. 라틴은 Georgia, 한글은 시스템 명조다. */
+  --font-serif: "Literata Variable", Literata, "Noto Serif KR", Georgia,
+    "Nanum Myeongjo", Batang, serif;
 }
 
 /* Tailwind v4는 CSS-first다 — tailwind.config.js를 만들지 않는다 (ADR-035).
@@ -104,6 +133,7 @@
   --color-link: var(--link);
 
   --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -212,6 +242,8 @@ main {
 
 main.reader {
   --page-width: var(--measure);
+  /* 아래 여백은 .reader-foot이 갖는다 — 하단 조작이 main 밖의 형제다. */
+  padding-block: 2.5rem 0;
 }
 
 main.wide {
@@ -323,58 +355,175 @@ main.wide {
 }
 
 /* ── 읽기 화면 ──────────────────────────────────────────────────────────
-   본문 리듬은 전부 여기에 있다. 라우트 파일로 흩지 않는다 (ADR-038). */
-.reader-meta {
+   본문 리듬은 전부 여기에 있다. 라우트 파일로 흩지 않는다 (ADR-038).
+
+   **상단은 정보만, 하단은 조작만이다.** 폰을 한 손으로 쥐면 오른쪽 위가 가장 안 닿는다 —
+   장을 넘기는 조작을 거기 두면 수십 번 손을 고쳐 쥐게 된다.
+
+   종이색은 본문 화면에만 건다. `:has()`로 판정하는 이유는 읽기 라우트가 자바스크립트 없이
+   떠야 해서(ADR-007·023) "지금이 읽기 화면"이라고 스크립트로 표시할 수 없기 때문이다.
+   `:has()`가 없는 브라우저는 흰 바탕으로 떨어진다 — 읽는 데 지장이 없다. */
+body:has(main.reader, main.contents-page) {
+  --background: var(--paper);
+  --foreground: var(--paper-ink);
+  --border: var(--paper-rule);
+  --muted-foreground: var(--paper-muted);
+  /* 목차의 진행 막대 트랙과 줄 hover가 이 값을 읽는다. 흰 계열로 두면
+     종이 위에서 그 자리만 차갑게 뜬다. */
+  --secondary: var(--paper-track);
+  background: var(--paper);
+  color: var(--paper-ink);
+}
+
+/* 사이트 헤더도 읽기 화면에서는 본문 폭에 맞춘다. 헤더만 넓으면 괘선이 두 겹으로
+   어긋나 보이고, 읽는 사람 눈에는 그것이 화면이 어긋난 것으로 읽힌다. */
+body:has(main.reader, main.contents-page) .site-header {
+  --page-width: var(--measure);
+}
+
+/* 상·하단 크롬은 main의 형제라 폭 규칙을 따로 갖는다. 본문과 같은 폭에 서야 한다. */
+.reader-top,
+.reader-foot {
+  width: min(var(--measure), calc(100% - var(--gutter) * 2));
+  margin-inline: auto;
+}
+
+/* 상단 — 정보만. 조작은 하나도 두지 않는다. */
+.reader-top {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  margin-block: 0 0.75rem;
-  color: var(--muted-foreground);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-block: 0.875rem;
+  border-bottom: 1px solid var(--paper-rule);
+  color: var(--paper-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 장 번호. 제목 위에 얹히는 꼬리표라 본문 서체를 쓰되 크기로 물러선다. */
+.reader-eyebrow {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: var(--text-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
+}
+
+.reader-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--reader-title);
+  line-height: 1.2;
+  /* 400이다. Noto Serif KR은 400 한 벌만 싣는다 (ADR-039) —
+     굵게 잡으면 라틴만 진짜 굵어지고 한글은 합성 볼드로 뭉갠다. */
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--paper-ink);
+}
+
+/* 제목과 본문을 가르는 강조 괘선. 읽기 화면에서 강조색이 칠해지는 자리는 여기와 진행 막대뿐이다. */
+.reader-rule {
+  width: var(--reader-rule-width);
+  height: 2px;
+  margin-block: 1.5rem 2.25rem;
+  background: var(--link);
+}
+
+.reader-body {
+  font-family: var(--font-serif);
+  font-size: var(--reader-text);
+  line-height: var(--reader-leading);
+  color: var(--paper-body);
+}
+
+.reader-body > p {
+  margin-block: 0 1.15em;
+  /* 영문 원문에는 줄바꿈 자리가 없는 긴 토큰이 나온다. body의 keep-all과 함께 쓴다. */
+  overflow-wrap: break-word;
+}
+
+.reader-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* 확정 번역이 없어 원문을 그대로 보여 주는 문단.
+   색만 흐리게 두면 "흐린 번역"으로 읽힌다 — 다른 종류의 글이라는 것을 괘선과 꼬리표가 말한다. */
+.reader-source {
+  margin-block: 0 1.15em;
+  padding-left: 0.875rem;
+  border-left: 2px solid var(--paper-rule);
+}
+
+/* 꼬리표는 UI 크롬이다 — 시스템 산세리프로 둔다 (ADR-039). */
+.reader-source-label {
+  margin: 0 0 0.375rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-faint);
+}
+
+.reader-source-text {
+  margin: 0;
+  font-size: var(--reader-source-size);
+  line-height: 1.75;
+  color: var(--paper-muted);
+  overflow-wrap: break-word;
+}
+
+/* ── 읽기 화면 하단 — 조작만 ────────────────────────────────────────────
+   진행 막대 · 위치 · 장 이동. 표적은 전부 44px 이상이다 (ADR-038). */
+.reader-foot {
+  margin-top: 3.5rem;
+  padding-bottom: 3rem;
+}
+
+.reader-progress {
+  height: 2px;
+  background: var(--paper-track);
+}
+
+/* 폭은 데이터다 — 라우트가 `--reader-progress`에 단위 없는 숫자만 넘긴다.
+   단위를 여기 두어야 화면 파일에 px가 새지 않는다 (ADR-038). */
+.reader-progress > span {
+  display: block;
+  height: 100%;
+  width: calc(var(--reader-progress, 0) * 1%);
+  background: var(--link);
+}
+
+.reader-foot-meta {
+  margin: 0.875rem 0 1.125rem;
+  color: var(--paper-muted);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
 }
 
-.reader-body p {
-  margin-block: 0 1.25em;
-  /* 영문 원문에는 줄바꿈 자리가 없는 긴 토큰이 나온다. keep-all과 함께 쓴다. */
-  overflow-wrap: break-word;
-}
-
-.reader-body p:last-child {
-  margin-bottom: 0;
-}
-
-/* 확정 번역이 없어 원문을 그대로 보여 주는 문단. 읽는 사람이 구분할 수 있어야 한다. */
-.reader-body p[lang="en"] {
-  color: color-mix(in oklch, var(--foreground) 62%, var(--background));
-}
-
-.reader-body small {
-  color: var(--muted-foreground);
-}
-
-/* 챕터 이동. 모바일에서는 세로로 쌓고 각각이 표적 하나가 된다. */
-.chapter-nav {
+/* 이전은 아이콘 하나, 다음은 남은 폭 전부. 다음 장으로 가는 것이 기본 동작이다. */
+.reader-nav {
   display: grid;
+  grid-template-columns: auto 1fr;
   gap: 0.5rem;
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
 }
 
-.chapter-nav .btn {
-  width: 100%;
+.reader-nav .btn {
+  min-height: var(--tap);
 }
 
-@media (min-width: 30rem) {
-  .chapter-nav {
-    grid-template-columns: 1fr 1fr;
-  }
+.reader-nav .btn-prev {
+  min-width: var(--tap);
+  padding-inline: 0;
+  font-size: var(--text-lg);
+  line-height: 1;
+}
 
-  /* 이전이 없으면 다음이 오른쪽 칸에 남아야 한다 — 왼쪽으로 당겨지면 방향이 거짓말이 된다. */
-  .chapter-nav .btn:only-child:last-child {
-    grid-column: 2;
-  }
+/* 이전이 없으면 다음이 폭을 다 쓴다 — 좁은 칸에 남으면 방향이 거짓말이 된다. */
+.reader-nav .btn:only-child {
+  grid-column: 1 / -1;
 }
 
 /* ── 도서 목록 ──────────────────────────────────────────────────────────
@@ -417,9 +566,20 @@ main.wide {
    장 목록. 전자책이 목차를 먼저 주는 이유를 그대로 따른다 —
    63장을 이전·다음으로만 넘게 두지 않는다.
    기존 토큰만 쓴다. 새 색값을 만들지 않는다 (ADR-038). */
-main.contents {
+/* 클래스 이름이 `contents`가 **아닌** 이유 — Tailwind에 `contents` 유틸리티가 있다
+   (`display: contents`). 같은 이름을 쓰면 `main`이 상자를 만들지 않아 폭·여백 규칙이
+   통째로 사라진다. **SSR도 빌드도 테스트도 통과하고 브라우저에서만 드러난다.**
+   `styles.css`에 시맨틱 클래스를 둘 때(ADR-038) 유틸리티 이름을 피해야 하는 이유다. */
+main.contents-page {
   /* 읽기 본문과 같은 폭. 목차에서 장으로 들어갈 때 칸이 흔들리지 않는다. */
   --page-width: var(--measure);
+}
+
+/* 책 제목은 제목이다 — 목차에서 장으로 들어가도 같은 서체가 이어져야 한다 (ADR-039). */
+main.contents-page h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .contents-meta {

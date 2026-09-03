@@ -41,7 +41,6 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | T2 | **CI가 없다** | 지금은 범위 밖. `make lint && make test`가 사람 손에 달려 있다 |
 | T3 | **`make fmt`의 web 몫이 사실상 비어 있다** — 슬라이스 7에서 `eslint . --fix`를 넣어 Go 전용은 아니게 됐지만, **ESLint 9+ 코어에는 포매팅 규칙이 없어 실제로 재포맷되는 것이 없다.** 정석은 prettier인데 [ADR-035](decisions/ADR-035.md)가 고정한 스택 밖이라 **의존성을 늘리는 결정은 `Proposed` ADR 감이다**(AGENTS.md 작업 규칙 2). 슬라이스 7에서는 넣지 않기로 정했다 | **이미 아프다.** web 코드가 늘어나는데 포맷 기준이 사람 에디터 설정에 달려 있다. **`make fmt`가 성공해서 포맷 게이트가 있다고 착각한다** — 실제로는 비어 있다 |
 | T4 | **`web-install`의 재설치 판정은 mtime 스탬프다** — `web/node_modules/.install-stamp`가 `pnpm-lock.yaml`·`package.json`보다 오래되면 다시 깐다. 그래서 **lockfile은 그대로인 채 `node_modules` 안만 망가진 상태는 잡지 못한다** | 손으로 패키지를 지웠을 때. 증상이 나면 `rm -rf web/node_modules && make web-install`로 복구한다 (스탬프도 같이 지워진다) |
-| T5 | **web 의존성을 늘릴 make 경로가 없다** — `web-install`은 `--frozen-lockfile` 전용이고([ADR-019](decisions/ADR-019.md)) lockfile을 갱신하는 타깃이 없다. `make ui-add`(shadcn)만 예외적으로 자기 의존성을 깐다 | 다음에 web 의존성을 늘리는 순간. `pnpm install`을 직접 쳐야 해서 **"Makefile이 유일한 진입점"이 깨진다.** 의존성 추가 자체가 ADR을 요구하는 일이라 지금은 타깃을 만들지 않았다 |
 
 ## 로컬에만 있는 것
 
@@ -53,14 +52,16 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 
 ## 디자인에서 미룬 것
 
-[ADR-038](decisions/ADR-038.md)이 여는 조건까지 같이 적어 둔 것들이다.
+[ADR-038](decisions/ADR-038.md)·[ADR-039](decisions/ADR-039.md)가 여는 조건까지 같이 적어 둔 것들이다.
 
 | | 무엇 | 언제 아픈가 |
 |---|---|---|
-| S1 | **한글 웹폰트가 없다** — 시스템 스택이라 기기마다 본문이 다르게 보인다 | **결정은 끝났다** ([ADR-039](decisions/ADR-039.md): Literata + Noto Serif KR, Fontsource 자체 호스팅). **막고 있는 것은 T5다** — web 의존성을 더할 make 경로가 없다. 그 타깃부터 만든 뒤 얹는다 |
 | S2 | **다크 모드가 없다** — `.dark` 토큰은 shadcn 때문에 있지만 전환 수단이 없다 | 밤에 읽는 사람이 생길 때. **읽기 화면에는 자바스크립트가 없어서**(ADR-007·023) 토글을 달 수 없다. `prefers-color-scheme`만으로 열면 토큰 두 벌을 처음부터 같이 관리해야 한다 |
 | S3 | **읽기 HTML이 읽는 사람마다 갈린다** — 읽기 설정 쿠키를 SSR이 읽어 렌더한다 ([ADR-040](decisions/ADR-040.md)) | 지금은 HTML을 캐시하지 않아 무해하다(ADR-034). **HTML 캐시를 켜는 순간 `reclassic_reader` 쿠키가 `Vary` 대상이 된다** — 빠뜨리면 남의 글자 크기가 캐시에서 나온다. 캐시를 켤 때 이 줄을 먼저 볼 것 |
-| S4 | **읽기 화면에서 목차로 돌아가는 링크가 없다** — 목차로 가는 입구는 `/books` 카드 하나뿐이다. 디자인 시안의 "읽던 자리" 표시도 함께 미뤘다 | 장을 읽다가 목차로 가려면 브라우저 뒤로가기나 `/books`를 거쳐야 한다. **63장을 이전·다음으로만 넘던 문제를 절반만 푼 상태다.** 링크를 넣으려면 `.chapter-nav`의 2열 격자(이전/다음)를 3칸으로 다시 짜야 하는데, 그 리듬을 같은 시기에 [ADR-041](decisions/ADR-041.md)이 건드리고 있어 이번에는 손대지 않았다. **읽기 화면의 전환 작업이 머지된 직후가 넣을 자리다.** "읽던 자리"는 그와 별개로 쿠키(ADR-040)가 먼저 있어야 한다 |
+| S4 | **읽기 화면에서 목차로 돌아가는 링크가 없다** — 목차로 가는 입구는 `/books` 카드 하나뿐이다. 디자인 시안의 "읽던 자리" 표시도 함께 미뤘다 | 장을 읽다가 목차로 가려면 브라우저 뒤로가기나 `/books`를 거쳐야 한다. **63장을 이전·다음으로만 넘던 문제를 절반만 푼 상태다.** 막고 있던 `.chapter-nav`의 2열 격자는 [ADR-039](decisions/ADR-039.md) 작업에서 `.reader-nav`로 다시 짜였다 — **지금은 `[목차]` 칸 하나를 더하는 일이고, 그 자리에 ⚙(ADR-040)도 같이 온다.** "읽던 자리"는 그와 별개로 쿠키(ADR-040)가 먼저 있어야 한다 |
+| S5 | **폰트 시트가 모든 화면에 실린다** — `fonts.css`를 `__root.tsx`가 링크한다. 본문 서체를 쓰는 것은 읽기 화면뿐인데(ADR-039) 목록·관리·편집도 @font-face 선언 **gzip 24.9KB**를 함께 받는다. 폰트 파일 자체는 `unicode-range`가 막아 받지 않는다 | 관리 화면이 무거워질 때. 고치는 방법은 링크를 읽기 라우트의 `head()`로 내리는 것인데, **SSR HTML과 클라이언트 이동 양쪽에서 링크가 실제로 붙는지 확인해야 한다** — 빠지면 서체만 조용히 사라지고 빌드는 성공한다 |
+| S6 | **한글에 굵은 글씨가 없다** — Noto Serif KR은 400 한 벌만 싣는다. 700을 더하면 산출물이 3.5MB에서 8MB로 는다(내려받는 양이 아니라 이미지 크기다). 그래서 읽기 화면의 제목도 400이다 | 본문 안에 `<strong>`이 필요해질 때. 지금은 라틴만 진짜 굵어지고 한글은 브라우저가 합성한다 — **한글에서 획이 뭉갠다** |
+| S7 | **챕터 계약에 책 제목이 없다** — `ChapterView`·`ProjectChapterView` 어디에도 없어 읽기 화면 상단에 지금 읽는 책 이름을 쓸 수 없다. 시안이 요구하는 자리다 | **이미 아프다.** 장을 여럿 오가면 어느 책인지가 화면에서 사라진다. 고치려면 `openapi.yaml` → 핸들러 → `books` 조인까지 내려가야 해서 서체 PR에 넣지 않았다 |
 
 ## 프록시 뒤라서 생긴 것
 
@@ -79,3 +80,5 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | D3 | `reviewer` 역할을 만들 방법이 없다 | `SetUserRole` + `POST /admin/users/{id}/role`. `member ↔ reviewer`만. 재로그인은 `Promote()`가 지킨다 |
 | D4 | `translation_projects.status`가 `published`로 갈 수 없다 | `SetProjectStatus` + `POST /admin/projects/{id}/status`. `published_at`은 처음 공개 시각을 남기고 내릴 때 비우지 않는다 (ADR-036) |
 | D5 | 목록 API가 하나도 없다 | `GET /books` · `GET /projects` · 관리자 목록들. 응답은 `{ items }` (ADR-037) |
+| T5 | web 의존성을 늘릴 make 경로가 없다 | `make web-add PKG=… (DEV=1)`. **lockfile을 고치는 자리가 여기 하나다** — `web-install`은 `--frozen-lockfile` 전용으로 남았다 (ADR-019). 설치 스탬프를 같이 앞세워 뒤이은 `web-install`이 통째로 다시 깔지 않는다 |
+| S1 | 한글 웹폰트가 없어 기기마다 본문이 다르다 | Fontsource 자체 호스팅 (ADR-039). Literata 7벌 + Noto Serif KR 124벌, 전부 `unicode-range`·`font-display: optional`. `korean.css`(통짜 949KB)는 쓰지 않는다 — **그것을 import하면 화면은 똑같고 청구서만 는다** |

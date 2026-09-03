@@ -35,7 +35,7 @@ export const Route = createFileRoute('/projects/$projectId/chapters/')({
     ],
   }),
   notFoundComponent: () => (
-    <main className="contents">
+    <main className="contents-page">
       <p>목차를 찾을 수 없습니다.</p>
     </main>
   ),
@@ -57,7 +57,7 @@ function Contents() {
   const lang = LANG_LABEL[book.targetLang] ?? book.targetLang
 
   return (
-    <main className="contents">
+    <main className="contents-page">
       <h1>{book.title}</h1>
       <p className="contents-meta">
         {book.author ? `${book.author} · ` : null}
