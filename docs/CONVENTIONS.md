@@ -76,7 +76,11 @@ const baseURL = typeof window === 'undefined'
   서버에서 돌려야 하면 `useSuspenseQuery`다.
 - `staleTime`을 0보다 크게 둔다(60초). 0이면 하이드레이션 직후 전부 다시 요청한다.
 - **읽기 화면(`/books/…`·`/projects/…`)에 react-query 훅이나 shadcn 컴포넌트를 넣지 않는다.**
-  자바스크립트 없이 뜨는 성질이 ADR-007·023의 SEO 전제다. Tailwind 클래스는 써도 된다.
+  Tailwind 클래스는 써도 된다. 지켜야 할 것은 **본문이 SSR HTML에 담겨 자바스크립트 없이
+  렌더되는 것**이고(ADR-007·023), 그 위에 얹는 작은 스크립트는 허용된다 — 읽기 설정이 그것이다
+  ([ADR-040](decisions/ADR-040.md)). 스크립트가 없으면 본문이 안 보이는 구조는 금지다.
+- **읽기 설정 쿠키(`reclassic_reader`) 값을 CSS에 그대로 넣지 않는다.** 단계 번호를 허용 목록으로
+  좁혀 미리 정해 둔 값에만 매핑한다. **문자열을 `style`에 이어 붙이면 CSS 주입이다** (ADR-040).
 - 컴포넌트는 **shadcn/ui에 있는지 먼저 찾고, 없을 때만 직접 만든다.**
   shadcn이 복사해 넣은 파일은 우리 소스이고 고쳐도 된다 — 다만 고친 것을 다시 `add`하지 않는다.
 
