@@ -513,6 +513,64 @@ func (q *Queries) ListProjectChapterCoverage(ctx context.Context, id int64) ([]L
 	return items, nil
 }
 
+const listProjects = `-- name: ListProjects :many
+SELECT
+    p.id,
+    p.book_id,
+    p.target_lang,
+    p.status,
+    p.published_at,
+    b.gutenberg_id,
+    b.title,
+    b.author
+FROM translation_projects p
+JOIN books b ON b.id = p.book_id
+WHERE $1::text IS NULL OR p.status = $1
+ORDER BY b.title, p.target_lang
+`
+
+type ListProjectsRow struct {
+	ID          int64
+	BookID      int64
+	TargetLang  string
+	Status      string
+	PublishedAt pgtype.Timestamptz
+	GutenbergID int32
+	Title       string
+	Author      pgtype.Text
+}
+
+// 번역 프로젝트 목록. 상태 필터는 선택이다 — 공개 목록은 published,
+// 관리자 목록은 필터 없이 open도 본다 (D4 · D5 · ADR-036).
+func (q *Queries) ListProjects(ctx context.Context, status pgtype.Text) ([]ListProjectsRow, error) {
+	rows, err := q.db.Query(ctx, listProjects, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListProjectsRow
+	for rows.Next() {
+		var i ListProjectsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookID,
+			&i.TargetLang,
+			&i.Status,
+			&i.PublishedAt,
+			&i.GutenbergID,
+			&i.Title,
+			&i.Author,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listProposals = `-- name: ListProposals :many
 SELECT p.id, p.project_id, p.paragraph_stable_id, p.text, p.author_id, p.status, p.reviewed_by, p.reviewed_at, p.review_note, p.created_at, u.handle AS author_handle
 FROM translation_proposals p
@@ -670,6 +728,38 @@ func (q *Queries) RejectProposal(ctx context.Context, arg RejectProposalParams) 
 		&i.ReviewedBy,
 		&i.ReviewedAt,
 		&i.ReviewNote,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const setProjectStatus = `-- name: SetProjectStatus :one
+UPDATE translation_projects
+   SET status = $1,
+       published_at = CASE
+           WHEN $1 = 'published' AND published_at IS NULL THEN now()
+           ELSE published_at
+       END
+ WHERE id = $2
+RETURNING id, book_id, target_lang, status, published_at, created_at
+`
+
+type SetProjectStatusParams struct {
+	Status string
+	ID     int64
+}
+
+// 공개 전이. published_at은 처음 published가 된 시각만 찍고,
+// open으로 내려올 때 비우지 않는다 (ADR-036).
+func (q *Queries) SetProjectStatus(ctx context.Context, arg SetProjectStatusParams) (TranslationProject, error) {
+	row := q.db.QueryRow(ctx, setProjectStatus, arg.Status, arg.ID)
+	var i TranslationProject
+	err := row.Scan(
+		&i.ID,
+		&i.BookID,
+		&i.TargetLang,
+		&i.Status,
+		&i.PublishedAt,
 		&i.CreatedAt,
 	)
 	return i, err

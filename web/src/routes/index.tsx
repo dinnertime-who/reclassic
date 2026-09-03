@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { getHealthz } from '#/api/gen/reclassic'
 
@@ -15,6 +15,9 @@ function Skeleton() {
   return (
     <main>
       <h1>reclassic</h1>
+      <p>
+        <Link to="/books">도서 목록</Link>
+      </p>
       <p>골격 슬라이스. Go API의 /healthz를 SSR로 불러 표시한다.</p>
       <dl>
         <dt>status</dt>

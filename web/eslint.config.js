@@ -26,6 +26,7 @@ export default tseslint.config(
     // 편집 라우트(`*.edit.tsx`)는 CSR이므로 대상이 아니다. `__root.tsx`도 아니다 — 타입만 연다.
     files: [
       'src/routes/index.tsx',
+      'src/routes/books.index.tsx',
       'src/routes/books.*.tsx',
       'src/routes/projects.$projectId.chapters.$idx.tsx',
     ],

@@ -7,16 +7,12 @@
  *
  * OpenAPI spec version: 0.1.0
  */
-import type { ProjectStatus } from './projectStatus.ts';
+import type { UserListItemRole } from './userListItemRole.ts';
 
-export interface Project {
+export interface UserListItem {
   id: number;
-  bookId: number;
-  targetLang: string;
-  status: ProjectStatus;
-  /**
-     * 처음 published가 된 시각. open으로 내려와도 비우지 않는다 (ADR-036)
-     * @nullable
-     */
-  publishedAt?: string | null;
+  handle: string;
+  displayName: string;
+  /** 목록에는 admin이 보일 수 있다. 부여는 member↔reviewer만 */
+  role: UserListItemRole;
 }

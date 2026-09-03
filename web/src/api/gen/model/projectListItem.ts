@@ -7,16 +7,16 @@
  *
  * OpenAPI spec version: 0.1.0
  */
-import type { ProjectStatus } from './projectStatus.ts';
+import type { ProjectListItemStatus } from './projectListItemStatus.ts';
 
-export interface Project {
+export interface ProjectListItem {
   id: number;
   bookId: number;
+  gutenbergId: number;
+  title: string;
+  author?: string;
   targetLang: string;
-  status: ProjectStatus;
-  /**
-     * 처음 published가 된 시각. open으로 내려와도 비우지 않는다 (ADR-036)
-     * @nullable
-     */
+  status: ProjectListItemStatus;
+  /** @nullable */
   publishedAt?: string | null;
 }

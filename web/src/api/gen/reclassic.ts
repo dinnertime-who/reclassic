@@ -27,19 +27,27 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BookList,
   BookRequest,
   BookRequestAccepted,
   ChapterView,
   CurrentUser,
   Error,
   Health,
+  NeedsReviewBookList,
+  OrphanedSuccessionList,
   Project,
   ProjectChapterView,
   ProjectInput,
+  ProjectList,
+  ProjectStatusInput,
   Proposal,
   ProposalInput,
   ReviewInput,
-  ReviewResult
+  ReviewResult,
+  UserList,
+  UserListItem,
+  UserRoleInput
 } from './model';
 
 import { apiFetch } from '../http.ts';
@@ -164,6 +172,123 @@ export function useGetHealthz<TData = Awaited<ReturnType<typeof getHealthz>>, TE
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetHealthzQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type listBooksResponse200 = {
+  data: BookList
+  status: 200
+}
+
+export type listBooksResponseSuccess = (listBooksResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listBooksResponse = (listBooksResponseSuccess)
+
+export const getListBooksUrl = () => {
+
+
+
+
+  return `/books`
+}
+
+/**
+ * `published`의 의미는 하나다: 이 목록에 노출되는가 (ADR-036).
+ * 한 책에 대상 언어가 여럿이면 행이 여러 개다 — 화면이 프로젝트로 링크를 걸려면
+ * 프로젝트 식별자가 행마다 필요하기 때문이다.
+ * 응답은 `{ items }`로 감싼다. 페이지네이션은 아직 없다 (ADR-037).
+ * @summary 공개 도서 목록 — published 프로젝트만
+ */
+export const listBooks = async ( options?: Parameters<typeof apiFetch>[1]): Promise<listBooksResponse> => {
+
+  return apiFetch<listBooksResponse>(getListBooksUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListBooksQueryKey = () => {
+    return [
+    `/books`
+    ] as const;
+    }
+
+
+export const getListBooksQueryOptions = <TData = Awaited<ReturnType<typeof listBooks>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listBooks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListBooksQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listBooks>>> = ({ signal }) => listBooks({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listBooks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListBooksQueryResult = NonNullable<Awaited<ReturnType<typeof listBooks>>>
+export type ListBooksQueryError = unknown
+
+
+export function useListBooks<TData = Awaited<ReturnType<typeof listBooks>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listBooks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listBooks>>,
+          TError,
+          Awaited<ReturnType<typeof listBooks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListBooks<TData = Awaited<ReturnType<typeof listBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listBooks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listBooks>>,
+          TError,
+          Awaited<ReturnType<typeof listBooks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListBooks<TData = Awaited<ReturnType<typeof listBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listBooks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 공개 도서 목록 — published 프로젝트만
+ */
+
+export function useListBooks<TData = Awaited<ReturnType<typeof listBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listBooks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListBooksQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -612,6 +737,614 @@ export const useRequestBook = <TError = Error,
       > => {
       return useMutation(getRequestBookMutationOptions(options), queryClient);
     }
+
+export type listNeedsReviewBooksResponse200 = {
+  data: NeedsReviewBookList
+  status: 200
+}
+
+export type listNeedsReviewBooksResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type listNeedsReviewBooksResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type listNeedsReviewBooksResponseSuccess = (listNeedsReviewBooksResponse200) & {
+  headers: Headers;
+};
+export type listNeedsReviewBooksResponseError = (listNeedsReviewBooksResponse401 | listNeedsReviewBooksResponse403) & {
+  headers: Headers;
+};
+
+export type listNeedsReviewBooksResponse = (listNeedsReviewBooksResponseSuccess | listNeedsReviewBooksResponseError)
+
+export const getListNeedsReviewBooksUrl = () => {
+
+
+
+
+  return `/admin/books/needs-review`
+}
+
+/**
+ * ADR-014 크기 게이트(챕터 200 / 문단 15,000)에 걸려 `needs_review`가 된 책.
+ * 챕터 수·문단 수가 없으면 화면이 임계값과 나란히 보여줄 수 없다.
+ * 이 슬라이스에서는 읽기만 한다. 상태를 바꾸는 조작은 넣지 않는다.
+ * @summary 관리자 확인 큐 — 합본 게이트에 걸린 도서
+ */
+export const listNeedsReviewBooks = async ( options?: Parameters<typeof apiFetch>[1]): Promise<listNeedsReviewBooksResponse> => {
+
+  return apiFetch<listNeedsReviewBooksResponse>(getListNeedsReviewBooksUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListNeedsReviewBooksQueryKey = () => {
+    return [
+    `/admin/books/needs-review`
+    ] as const;
+    }
+
+
+export const getListNeedsReviewBooksQueryOptions = <TData = Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError = Error>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListNeedsReviewBooksQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listNeedsReviewBooks>>> = ({ signal }) => listNeedsReviewBooks({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListNeedsReviewBooksQueryResult = NonNullable<Awaited<ReturnType<typeof listNeedsReviewBooks>>>
+export type ListNeedsReviewBooksQueryError = Error
+
+
+export function useListNeedsReviewBooks<TData = Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError = Error>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listNeedsReviewBooks>>,
+          TError,
+          Awaited<ReturnType<typeof listNeedsReviewBooks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListNeedsReviewBooks<TData = Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listNeedsReviewBooks>>,
+          TError,
+          Awaited<ReturnType<typeof listNeedsReviewBooks>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListNeedsReviewBooks<TData = Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 관리자 확인 큐 — 합본 게이트에 걸린 도서
+ */
+
+export function useListNeedsReviewBooks<TData = Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listNeedsReviewBooks>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListNeedsReviewBooksQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type listOrphanedSuccessionsResponse200 = {
+  data: OrphanedSuccessionList
+  status: 200
+}
+
+export type listOrphanedSuccessionsResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type listOrphanedSuccessionsResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type listOrphanedSuccessionsResponseSuccess = (listOrphanedSuccessionsResponse200) & {
+  headers: Headers;
+};
+export type listOrphanedSuccessionsResponseError = (listOrphanedSuccessionsResponse401 | listOrphanedSuccessionsResponse403) & {
+  headers: Headers;
+};
+
+export type listOrphanedSuccessionsResponse = (listOrphanedSuccessionsResponseSuccess | listOrphanedSuccessionsResponseError)
+
+export const getListOrphanedSuccessionsUrl = () => {
+
+
+
+
+  return `/admin/successions/orphans`
+}
+
+/**
+ * `revision_successions.orphaned > 0`인 행. 사람이 쓴 번역이 재파싱 뒤
+ * 새 revision에 대응 문단이 없는 것이다 (ADR-004 불변식 1).
+ * 읽기만 한다. 되살리거나 다시 붙이는 조작은 `stable_id` 규칙(ADR-016)에 닿는다.
+ * @summary 승계 고아 목록 — 확정 번역이 갈 곳을 잃은 기록
+ */
+export const listOrphanedSuccessions = async ( options?: Parameters<typeof apiFetch>[1]): Promise<listOrphanedSuccessionsResponse> => {
+
+  return apiFetch<listOrphanedSuccessionsResponse>(getListOrphanedSuccessionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListOrphanedSuccessionsQueryKey = () => {
+    return [
+    `/admin/successions/orphans`
+    ] as const;
+    }
+
+
+export const getListOrphanedSuccessionsQueryOptions = <TData = Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError = Error>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListOrphanedSuccessionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listOrphanedSuccessions>>> = ({ signal }) => listOrphanedSuccessions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListOrphanedSuccessionsQueryResult = NonNullable<Awaited<ReturnType<typeof listOrphanedSuccessions>>>
+export type ListOrphanedSuccessionsQueryError = Error
+
+
+export function useListOrphanedSuccessions<TData = Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError = Error>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listOrphanedSuccessions>>,
+          TError,
+          Awaited<ReturnType<typeof listOrphanedSuccessions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListOrphanedSuccessions<TData = Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listOrphanedSuccessions>>,
+          TError,
+          Awaited<ReturnType<typeof listOrphanedSuccessions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListOrphanedSuccessions<TData = Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 승계 고아 목록 — 확정 번역이 갈 곳을 잃은 기록
+ */
+
+export function useListOrphanedSuccessions<TData = Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listOrphanedSuccessions>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListOrphanedSuccessionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type listUsersResponse200 = {
+  data: UserList
+  status: 200
+}
+
+export type listUsersResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type listUsersResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type listUsersResponseSuccess = (listUsersResponse200) & {
+  headers: Headers;
+};
+export type listUsersResponseError = (listUsersResponse401 | listUsersResponse403) & {
+  headers: Headers;
+};
+
+export type listUsersResponse = (listUsersResponseSuccess | listUsersResponseError)
+
+export const getListUsersUrl = () => {
+
+
+
+
+  return `/admin/users`
+}
+
+/**
+ * 역할 부여 화면이 고를 수 있게 전체를 내린다. 이메일은 넣지 않는다 —
+ * 개인정보고 화면이 쓰지 않는다.
+ * `admin`도 목록에는 보인다. 다만 부여 경로가 없다 (ADR-027).
+ * @summary 사용자 목록
+ */
+export const listUsers = async ( options?: Parameters<typeof apiFetch>[1]): Promise<listUsersResponse> => {
+
+  return apiFetch<listUsersResponse>(getListUsersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUsersQueryKey = () => {
+    return [
+    `/admin/users`
+    ] as const;
+    }
+
+
+export const getListUsersQueryOptions = <TData = Awaited<ReturnType<typeof listUsers>>, TError = Error>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUsersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUsers>>> = ({ signal }) => listUsers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listUsers>>>
+export type ListUsersQueryError = Error
+
+
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = Error>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listUsers>>,
+          TError,
+          Awaited<ReturnType<typeof listUsers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listUsers>>,
+          TError,
+          Awaited<ReturnType<typeof listUsers>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 사용자 목록
+ */
+
+export function useListUsers<TData = Awaited<ReturnType<typeof listUsers>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listUsers>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListUsersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type setUserRoleResponse200 = {
+  data: UserListItem
+  status: 200
+}
+
+export type setUserRoleResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type setUserRoleResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type setUserRoleResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type setUserRoleResponse409 = {
+  data: Error
+  status: 409
+}
+
+export type setUserRoleResponseSuccess = (setUserRoleResponse200) & {
+  headers: Headers;
+};
+export type setUserRoleResponseError = (setUserRoleResponse401 | setUserRoleResponse403 | setUserRoleResponse404 | setUserRoleResponse409) & {
+  headers: Headers;
+};
+
+export type setUserRoleResponse = (setUserRoleResponseSuccess | setUserRoleResponseError)
+
+export const getSetUserRoleUrl = (userId: number,) => {
+
+
+
+
+  return `/admin/users/${userId}/role`
+}
+
+/**
+ * `admin`은 ADMIN_EMAIL이 유일한 출처다 (ADR-027). 이 계약으로 부여하지 않는다.
+ * 자기 자신의 역할을 내리는 것은 거절한다 — 되돌릴 손이 사라진다.
+ * @summary 역할 부여 — member와 reviewer만
+ */
+export const setUserRole = async (userId: number,
+    userRoleInput: UserRoleInput, options?: Parameters<typeof apiFetch>[1]): Promise<setUserRoleResponse> => {
+
+  return apiFetch<setUserRoleResponse>(getSetUserRoleUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(userRoleInput)
+  }
+);}
+
+
+
+
+
+export const getSetUserRoleMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setUserRole>>, TError,{userId: number;data: UserRoleInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setUserRole>>, TError,{userId: number;data: UserRoleInput}, TContext> => {
+
+const mutationKey = ['setUserRole'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setUserRole>>, {userId: number;data: UserRoleInput}> = (props) => {
+          const {userId,data} = props ?? {};
+
+          return  setUserRole(userId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetUserRoleMutationResult = NonNullable<Awaited<ReturnType<typeof setUserRole>>>
+    export type SetUserRoleMutationBody = UserRoleInput
+    export type SetUserRoleMutationError = Error
+
+    /**
+ * @summary 역할 부여 — member와 reviewer만
+ */
+export const useSetUserRole = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setUserRole>>, TError,{userId: number;data: UserRoleInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setUserRole>>,
+        TError,
+        {userId: number;data: UserRoleInput},
+        TContext
+      > => {
+      return useMutation(getSetUserRoleMutationOptions(options), queryClient);
+    }
+
+export type listProjectsResponse200 = {
+  data: ProjectList
+  status: 200
+}
+
+export type listProjectsResponseSuccess = (listProjectsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listProjectsResponse = (listProjectsResponseSuccess)
+
+export const getListProjectsUrl = () => {
+
+
+
+
+  return `/projects`
+}
+
+/**
+ * 도서 목록과 같은 공개 범위다 (ADR-036). `open`은 여기 없다.
+ * 관리자가 공개할 것을 고르려면 GET /admin/projects를 쓴다.
+ * 응답은 `{ items }`로 감싼다 (ADR-037).
+ * @summary 공개 번역 프로젝트 목록 — published만
+ */
+export const listProjects = async ( options?: Parameters<typeof apiFetch>[1]): Promise<listProjectsResponse> => {
+
+  return apiFetch<listProjectsResponse>(getListProjectsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProjectsQueryKey = () => {
+    return [
+    `/projects`
+    ] as const;
+    }
+
+
+export const getListProjectsQueryOptions = <TData = Awaited<ReturnType<typeof listProjects>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProjectsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProjects>>> = ({ signal }) => listProjects({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListProjectsQueryResult = NonNullable<Awaited<ReturnType<typeof listProjects>>>
+export type ListProjectsQueryError = unknown
+
+
+export function useListProjects<TData = Awaited<ReturnType<typeof listProjects>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProjects>>,
+          TError,
+          Awaited<ReturnType<typeof listProjects>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProjects<TData = Awaited<ReturnType<typeof listProjects>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProjects>>,
+          TError,
+          Awaited<ReturnType<typeof listProjects>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProjects<TData = Awaited<ReturnType<typeof listProjects>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 공개 번역 프로젝트 목록 — published만
+ */
+
+export function useListProjects<TData = Awaited<ReturnType<typeof listProjects>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjects>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListProjectsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export type getProjectChapterResponse200 = {
   data: ProjectChapterView
@@ -1073,6 +1806,135 @@ export const useReviewProposal = <TError = Error,
       return useMutation(getReviewProposalMutationOptions(options), queryClient);
     }
 
+export type listAdminProjectsResponse200 = {
+  data: ProjectList
+  status: 200
+}
+
+export type listAdminProjectsResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type listAdminProjectsResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type listAdminProjectsResponseSuccess = (listAdminProjectsResponse200) & {
+  headers: Headers;
+};
+export type listAdminProjectsResponseError = (listAdminProjectsResponse401 | listAdminProjectsResponse403) & {
+  headers: Headers;
+};
+
+export type listAdminProjectsResponse = (listAdminProjectsResponseSuccess | listAdminProjectsResponseError)
+
+export const getListAdminProjectsUrl = () => {
+
+
+
+
+  return `/admin/projects`
+}
+
+/**
+ * 공개할 것을 고르려면 `open`이 보여야 한다. 공개 목록(GET /projects)은
+ * published만 내려서 여기와 섞지 않는다.
+ * archived도 CHECK에 있으므로 행으로 내려준다. 다만 이 슬라이스의
+ * 상태 전이는 open ↔ published뿐이다.
+ * @summary 관리자용 번역 프로젝트 목록 — open도 포함한다
+ */
+export const listAdminProjects = async ( options?: Parameters<typeof apiFetch>[1]): Promise<listAdminProjectsResponse> => {
+
+  return apiFetch<listAdminProjectsResponse>(getListAdminProjectsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminProjectsQueryKey = () => {
+    return [
+    `/admin/projects`
+    ] as const;
+    }
+
+
+export const getListAdminProjectsQueryOptions = <TData = Awaited<ReturnType<typeof listAdminProjects>>, TError = Error>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminProjects>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminProjectsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminProjects>>> = ({ signal }) => listAdminProjects({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminProjects>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListAdminProjectsQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminProjects>>>
+export type ListAdminProjectsQueryError = Error
+
+
+export function useListAdminProjects<TData = Awaited<ReturnType<typeof listAdminProjects>>, TError = Error>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminProjects>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminProjects>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminProjects>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAdminProjects<TData = Awaited<ReturnType<typeof listAdminProjects>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminProjects>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listAdminProjects>>,
+          TError,
+          Awaited<ReturnType<typeof listAdminProjects>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListAdminProjects<TData = Awaited<ReturnType<typeof listAdminProjects>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminProjects>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 관리자용 번역 프로젝트 목록 — open도 포함한다
+ */
+
+export function useListAdminProjects<TData = Awaited<ReturnType<typeof listAdminProjects>>, TError = Error>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listAdminProjects>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListAdminProjectsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export type createProjectResponse201 = {
   data: Project
   status: 201
@@ -1171,4 +2033,109 @@ export const useCreateProject = <TError = Error,
         TContext
       > => {
       return useMutation(getCreateProjectMutationOptions(options), queryClient);
+    }
+
+export type setProjectStatusResponse200 = {
+  data: Project
+  status: 200
+}
+
+export type setProjectStatusResponse401 = {
+  data: Error
+  status: 401
+}
+
+export type setProjectStatusResponse403 = {
+  data: Error
+  status: 403
+}
+
+export type setProjectStatusResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type setProjectStatusResponseSuccess = (setProjectStatusResponse200) & {
+  headers: Headers;
+};
+export type setProjectStatusResponseError = (setProjectStatusResponse401 | setProjectStatusResponse403 | setProjectStatusResponse404) & {
+  headers: Headers;
+};
+
+export type setProjectStatusResponse = (setProjectStatusResponseSuccess | setProjectStatusResponseError)
+
+export const getSetProjectStatusUrl = (projectId: number,) => {
+
+
+
+
+  return `/admin/projects/${projectId}/status`
+}
+
+/**
+ * `published`로 올리면 도서 목록에 노출된다 (ADR-036).
+ * `published_at`은 처음 published가 된 시각을 기록하고, open으로 내려올 때
+ * 비우지 않는다 — "언제 처음 공개됐는가"가 사라지면 복구할 수 없다.
+ * archived는 CHECK에 있지만 이 조작의 대상이 아니다.
+ * @summary 프로젝트 공개 전이 — open ↔ published
+ */
+export const setProjectStatus = async (projectId: number,
+    projectStatusInput: ProjectStatusInput, options?: Parameters<typeof apiFetch>[1]): Promise<setProjectStatusResponse> => {
+
+  return apiFetch<setProjectStatusResponse>(getSetProjectStatusUrl(projectId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(projectStatusInput)
+  }
+);}
+
+
+
+
+
+export const getSetProjectStatusMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectStatus>>, TError,{projectId: number;data: ProjectStatusInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setProjectStatus>>, TError,{projectId: number;data: ProjectStatusInput}, TContext> => {
+
+const mutationKey = ['setProjectStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setProjectStatus>>, {projectId: number;data: ProjectStatusInput}> = (props) => {
+          const {projectId,data} = props ?? {};
+
+          return  setProjectStatus(projectId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetProjectStatusMutationResult = NonNullable<Awaited<ReturnType<typeof setProjectStatus>>>
+    export type SetProjectStatusMutationBody = ProjectStatusInput
+    export type SetProjectStatusMutationError = Error
+
+    /**
+ * @summary 프로젝트 공개 전이 — open ↔ published
+ */
+export const useSetProjectStatus = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setProjectStatus>>, TError,{projectId: number;data: ProjectStatusInput}, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setProjectStatus>>,
+        TError,
+        {projectId: number;data: ProjectStatusInput},
+        TContext
+      > => {
+      return useMutation(getSetProjectStatusMutationOptions(options), queryClient);
     }

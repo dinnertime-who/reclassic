@@ -59,8 +59,8 @@ func TestPromoteKeepsManualReviewer(t *testing.T) {
 		{RoleAdmin, RoleMember, RoleMember},
 	}
 	for _, tt := range tests {
-		if got := promote(tt.existing, tt.fromLogin); got != tt.want {
-			t.Errorf("promote(%q, %q) = %q, want %q", tt.existing, tt.fromLogin, got, tt.want)
+		if got := Promote(tt.existing, tt.fromLogin); got != tt.want {
+			t.Errorf("Promote(%q, %q) = %q, want %q", tt.existing, tt.fromLogin, got, tt.want)
 		}
 	}
 }

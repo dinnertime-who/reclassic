@@ -24,6 +24,35 @@ SELECT sqlc.embed(p), sqlc.embed(b)
 FROM translation_projects p JOIN books b ON b.id = p.book_id
 WHERE p.id = $1;
 
+-- 번역 프로젝트 목록. 상태 필터는 선택이다 — 공개 목록은 published,
+-- 관리자 목록은 필터 없이 open도 본다 (D4 · D5 · ADR-036).
+-- name: ListProjects :many
+SELECT
+    p.id,
+    p.book_id,
+    p.target_lang,
+    p.status,
+    p.published_at,
+    b.gutenberg_id,
+    b.title,
+    b.author
+FROM translation_projects p
+JOIN books b ON b.id = p.book_id
+WHERE sqlc.narg('status')::text IS NULL OR p.status = sqlc.narg('status')
+ORDER BY b.title, p.target_lang;
+
+-- 공개 전이. published_at은 처음 published가 된 시각만 찍고,
+-- open으로 내려올 때 비우지 않는다 (ADR-036).
+-- name: SetProjectStatus :one
+UPDATE translation_projects
+   SET status = sqlc.arg('status'),
+       published_at = CASE
+           WHEN sqlc.arg('status') = 'published' AND published_at IS NULL THEN now()
+           ELSE published_at
+       END
+ WHERE id = sqlc.arg('id')
+RETURNING *;
+
 -- name: CreateProposal :one
 INSERT INTO translation_proposals (project_id, paragraph_stable_id, text, author_id)
 VALUES ($1, $2, $3, $4)

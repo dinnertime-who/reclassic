@@ -10,6 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as BooksIndexRouteImport } from './routes/books.index'
 import { Route as BooksGutenbergIdChaptersIdxRouteImport } from './routes/books.$gutenbergId.chapters.$idx'
 import { Route as ProjectsProjectIdChaptersIdxRouteImport } from './routes/projects.$projectId.chapters.$idx'
 import { Route as ProjectsProjectIdChaptersIdxEditRouteImport } from './routes/projects.$projectId.chapters.$idx_.edit'
@@ -17,6 +22,31 @@ import { Route as ProjectsProjectIdChaptersIdxEditRouteImport } from './routes/p
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProjectsRoute = AdminProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const BooksIndexRoute = BooksIndexRouteImport.update({
+  id: '/books/',
+  path: '/books/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksGutenbergIdChaptersIdxRoute =
@@ -40,12 +70,21 @@ const ProjectsProjectIdChaptersIdxEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/projects': typeof AdminProjectsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/': typeof AdminIndexRoute
+  '/books/': typeof BooksIndexRoute
   '/books/$gutenbergId/chapters/$idx': typeof BooksGutenbergIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx': typeof ProjectsProjectIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx/edit': typeof ProjectsProjectIdChaptersIdxEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/projects': typeof AdminProjectsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin': typeof AdminIndexRoute
+  '/books': typeof BooksIndexRoute
   '/books/$gutenbergId/chapters/$idx': typeof BooksGutenbergIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx': typeof ProjectsProjectIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx/edit': typeof ProjectsProjectIdChaptersIdxEditRoute
@@ -53,6 +92,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/projects': typeof AdminProjectsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/': typeof AdminIndexRoute
+  '/books/': typeof BooksIndexRoute
   '/books/$gutenbergId/chapters/$idx': typeof BooksGutenbergIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx': typeof ProjectsProjectIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx_/edit': typeof ProjectsProjectIdChaptersIdxEditRoute
@@ -61,18 +105,32 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/admin/projects'
+    | '/admin/users'
+    | '/admin/'
+    | '/books/'
     | '/books/$gutenbergId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin/projects'
+    | '/admin/users'
+    | '/admin'
+    | '/books'
     | '/books/$gutenbergId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx/edit'
   id:
     | '__root__'
     | '/'
+    | '/admin'
+    | '/admin/projects'
+    | '/admin/users'
+    | '/admin/'
+    | '/books/'
     | '/books/$gutenbergId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx_/edit'
@@ -80,6 +138,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  BooksIndexRoute: typeof BooksIndexRoute
   BooksGutenbergIdChaptersIdxRoute: typeof BooksGutenbergIdChaptersIdxRoute
   ProjectsProjectIdChaptersIdxRoute: typeof ProjectsProjectIdChaptersIdxRoute
   ProjectsProjectIdChaptersIdxEditRoute: typeof ProjectsProjectIdChaptersIdxEditRoute
@@ -92,6 +152,41 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/projects': {
+      id: '/admin/projects'
+      path: '/projects'
+      fullPath: '/admin/projects'
+      preLoaderRoute: typeof AdminProjectsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/books/': {
+      id: '/books/'
+      path: '/books'
+      fullPath: '/books/'
+      preLoaderRoute: typeof BooksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books/$gutenbergId/chapters/$idx': {
@@ -118,8 +213,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminProjectsRoute: typeof AdminProjectsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminProjectsRoute: AdminProjectsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  BooksIndexRoute: BooksIndexRoute,
   BooksGutenbergIdChaptersIdxRoute: BooksGutenbergIdChaptersIdxRoute,
   ProjectsProjectIdChaptersIdxRoute: ProjectsProjectIdChaptersIdxRoute,
   ProjectsProjectIdChaptersIdxEditRoute: ProjectsProjectIdChaptersIdxEditRoute,

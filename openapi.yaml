@@ -26,6 +26,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/Health"
 
+  /books:
+    get:
+      operationId: listBooks
+      summary: 공개 도서 목록 — published 프로젝트만
+      description: |
+        `published`의 의미는 하나다: 이 목록에 노출되는가 (ADR-036).
+        한 책에 대상 언어가 여럿이면 행이 여러 개다 — 화면이 프로젝트로 링크를 걸려면
+        프로젝트 식별자가 행마다 필요하기 때문이다.
+        응답은 `{ items }`로 감싼다. 페이지네이션은 아직 없다 (ADR-037).
+      responses:
+        "200":
+          description: 공개된 번역 프로젝트와 그 원서
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookList"
+
   # 잠정 계약이다. 최종은 번역 프로젝트 기반의 GET /projects/{id}/chapters/{idx}이고
   # (ARCHITECTURE "API 계약"), 그건 translation_projects가 생겨야 성립한다.
   # 번역 슬라이스에서 교체하며, 그때 이 엔드포인트를 남길지 없앨지 함께 정한다.
@@ -139,6 +156,154 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /admin/books/needs-review:
+    get:
+      operationId: listNeedsReviewBooks
+      summary: 관리자 확인 큐 — 합본 게이트에 걸린 도서
+      description: |
+        ADR-014 크기 게이트(챕터 200 / 문단 15,000)에 걸려 `needs_review`가 된 책.
+        챕터 수·문단 수가 없으면 화면이 임계값과 나란히 보여줄 수 없다.
+        이 슬라이스에서는 읽기만 한다. 상태를 바꾸는 조작은 넣지 않는다.
+      security:
+        - session: []
+      responses:
+        "200":
+          description: 확인이 필요한 도서
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NeedsReviewBookList"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/successions/orphans:
+    get:
+      operationId: listOrphanedSuccessions
+      summary: 승계 고아 목록 — 확정 번역이 갈 곳을 잃은 기록
+      description: |
+        `revision_successions.orphaned > 0`인 행. 사람이 쓴 번역이 재파싱 뒤
+        새 revision에 대응 문단이 없는 것이다 (ADR-004 불변식 1).
+        읽기만 한다. 되살리거나 다시 붙이는 조작은 `stable_id` 규칙(ADR-016)에 닿는다.
+      security:
+        - session: []
+      responses:
+        "200":
+          description: 고아가 있는 승계 기록
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrphanedSuccessionList"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/users:
+    get:
+      operationId: listUsers
+      summary: 사용자 목록
+      description: |
+        역할 부여 화면이 고를 수 있게 전체를 내린다. 이메일은 넣지 않는다 —
+        개인정보고 화면이 쓰지 않는다.
+        `admin`도 목록에는 보인다. 다만 부여 경로가 없다 (ADR-027).
+      security:
+        - session: []
+      responses:
+        "200":
+          description: 사용자
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/users/{userId}/role:
+    post:
+      operationId: setUserRole
+      summary: 역할 부여 — member와 reviewer만
+      description: |
+        `admin`은 ADMIN_EMAIL이 유일한 출처다 (ADR-027). 이 계약으로 부여하지 않는다.
+        자기 자신의 역할을 내리는 것은 거절한다 — 되돌릴 손이 사라진다.
+      security:
+        - session: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRoleInput"
+      responses:
+        "200":
+          description: 변경됨
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListItem"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: 그런 사용자가 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "409":
+          description: 자기 자신의 역할을 바꿀 수 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /projects:
+    get:
+      operationId: listProjects
+      summary: 공개 번역 프로젝트 목록 — published만
+      description: |
+        도서 목록과 같은 공개 범위다 (ADR-036). `open`은 여기 없다.
+        관리자가 공개할 것을 고르려면 GET /admin/projects를 쓴다.
+        응답은 `{ items }`로 감싼다 (ADR-037).
+      responses:
+        "200":
+          description: 공개된 번역 프로젝트
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectList"
 
   /projects/{projectId}/chapters/{idx}:
     get:
@@ -270,6 +435,33 @@ paths:
               schema: { $ref: "#/components/schemas/Error" }
 
   /admin/projects:
+    get:
+      operationId: listAdminProjects
+      summary: 관리자용 번역 프로젝트 목록 — open도 포함한다
+      description: |
+        공개할 것을 고르려면 `open`이 보여야 한다. 공개 목록(GET /projects)은
+        published만 내려서 여기와 섞지 않는다.
+        archived도 CHECK에 있으므로 행으로 내려준다. 다만 이 슬라이스의
+        상태 전이는 open ↔ published뿐이다.
+      security:
+        - session: []
+      responses:
+        "200":
+          description: 모든 번역 프로젝트
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectList"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
     post:
       operationId: createProject
       summary: 번역 프로젝트 생성
@@ -300,6 +492,51 @@ paths:
               schema: { $ref: "#/components/schemas/Error" }
         "404":
           description: 그런 책이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /admin/projects/{projectId}/status:
+    post:
+      operationId: setProjectStatus
+      summary: 프로젝트 공개 전이 — open ↔ published
+      description: |
+        `published`로 올리면 도서 목록에 노출된다 (ADR-036).
+        `published_at`은 처음 published가 된 시각을 기록하고, open으로 내려올 때
+        비우지 않는다 — "언제 처음 공개됐는가"가 사라지면 복구할 수 없다.
+        archived는 CHECK에 있지만 이 조작의 대상이 아니다.
+      security:
+        - session: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectStatusInput"
+      responses:
+        "200":
+          description: 변경됨
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          description: 로그인이 필요하다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: 관리자 권한이 없다
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: 그런 프로젝트가 없다
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -515,6 +752,142 @@ components:
         status:
           type: string
           enum: [open, published, archived]
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: 처음 published가 된 시각. open으로 내려와도 비우지 않는다 (ADR-036)
+
+    BookList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BookListItem"
+      description: 배열이 아니라 객체다. nextCursor를 나중에 붙여도 깨지지 않는다 (ADR-037)
+
+    BookListItem:
+      type: object
+      required: [gutenbergId, title, projectId, targetLang]
+      properties:
+        gutenbergId: { type: integer }
+        title: { type: string }
+        author:
+          type: string
+          description: 원서에 저자가 없으면 빈 문자열
+        projectId: { type: integer, format: int64 }
+        targetLang: { type: string }
+
+    ProjectList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectListItem"
+
+    ProjectListItem:
+      type: object
+      required: [id, bookId, gutenbergId, title, targetLang, status]
+      properties:
+        id: { type: integer, format: int64 }
+        bookId: { type: integer, format: int64 }
+        gutenbergId: { type: integer }
+        title: { type: string }
+        author: { type: string }
+        targetLang: { type: string }
+        status:
+          type: string
+          enum: [open, published, archived]
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    NeedsReviewBookList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NeedsReviewBook"
+
+    NeedsReviewBook:
+      type: object
+      required: [gutenbergId, title, chapterCount, paragraphCount]
+      properties:
+        gutenbergId: { type: integer }
+        title: { type: string }
+        author: { type: string }
+        chapterCount:
+          type: integer
+          description: 최신 revision의 챕터 수. ADR-014 임계값(200)과 나란히 보여 준다
+        paragraphCount:
+          type: integer
+          description: 최신 revision의 문단 수. ADR-014 임계값(15,000)과 나란히 보여 준다
+
+    OrphanedSuccessionList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrphanedSuccession"
+
+    OrphanedSuccession:
+      type: object
+      required: [gutenbergId, title, orphaned, createdAt]
+      properties:
+        gutenbergId: { type: integer }
+        title: { type: string }
+        orphaned:
+          type: integer
+          description: 갈 곳을 잃은 확정 번역 수
+        createdAt: { type: string, format: date-time }
+
+    UserList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserListItem"
+
+    UserListItem:
+      type: object
+      required: [id, handle, displayName, role]
+      properties:
+        id: { type: integer, format: int64 }
+        handle: { type: string }
+        displayName: { type: string }
+        role:
+          type: string
+          enum: [member, reviewer, admin]
+          description: 목록에는 admin이 보일 수 있다. 부여는 member↔reviewer만
+
+    UserRoleInput:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [member, reviewer]
+          description: admin은 ADMIN_EMAIL이 유일한 출처다 (ADR-027)
+
+    ProjectStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [open, published]
+          description: archived는 CHECK에 있지만 이 슬라이스의 전이가 아니다
 
     CurrentUser:
       type: object

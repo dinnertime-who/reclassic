@@ -30,18 +30,30 @@ type GoogleLogin interface {
 // 인증이 필요한 오퍼레이션. openapi.yaml의 security 선언과 같아야 한다 —
 // 여기 넣는 것을 잊으면 무인증으로 열린다.
 var authedOperations = map[string]bool{
-	"CreateProposal": true,
-	"ReviewProposal": true,
-	"GetCurrentUser": true,
-	"Logout":         true,
-	"RequestBook":    true,
-	"CreateProject":  true,
+	"CreateProposal":          true,
+	"ReviewProposal":          true,
+	"GetCurrentUser":          true,
+	"Logout":                  true,
+	"RequestBook":             true,
+	"CreateProject":           true,
+	"ListNeedsReviewBooks":    true,
+	"ListOrphanedSuccessions": true,
+	"ListUsers":               true,
+	"SetUserRole":             true,
+	"SetProjectStatus":        true,
+	"ListAdminProjects":       true,
 }
 
 // 그중 admin만 할 수 있는 것.
 var adminOperations = map[string]bool{
-	"RequestBook":   true,
-	"CreateProject": true,
+	"RequestBook":             true,
+	"CreateProject":           true,
+	"ListNeedsReviewBooks":    true,
+	"ListOrphanedSuccessions": true,
+	"ListUsers":               true,
+	"SetUserRole":             true,
+	"SetProjectStatus":        true,
+	"ListAdminProjects":       true,
 }
 
 type userKey struct{}
@@ -96,6 +108,18 @@ func unauthorized(operationID string) any {
 		return gen.CreateProposal401JSONResponse{Message: msg}
 	case "ReviewProposal":
 		return gen.ReviewProposal401JSONResponse{Message: msg}
+	case "ListNeedsReviewBooks":
+		return gen.ListNeedsReviewBooks401JSONResponse{Message: msg}
+	case "ListOrphanedSuccessions":
+		return gen.ListOrphanedSuccessions401JSONResponse{Message: msg}
+	case "ListUsers":
+		return gen.ListUsers401JSONResponse{Message: msg}
+	case "SetUserRole":
+		return gen.SetUserRole401JSONResponse{Message: msg}
+	case "SetProjectStatus":
+		return gen.SetProjectStatus401JSONResponse{Message: msg}
+	case "ListAdminProjects":
+		return gen.ListAdminProjects401JSONResponse{Message: msg}
 	default:
 		return gen.GetCurrentUser401JSONResponse{Message: msg}
 	}
@@ -106,6 +130,18 @@ func forbidden(operationID string) any {
 	switch operationID {
 	case "CreateProject":
 		return gen.CreateProject403JSONResponse{Message: msg}
+	case "ListNeedsReviewBooks":
+		return gen.ListNeedsReviewBooks403JSONResponse{Message: msg}
+	case "ListOrphanedSuccessions":
+		return gen.ListOrphanedSuccessions403JSONResponse{Message: msg}
+	case "ListUsers":
+		return gen.ListUsers403JSONResponse{Message: msg}
+	case "SetUserRole":
+		return gen.SetUserRole403JSONResponse{Message: msg}
+	case "SetProjectStatus":
+		return gen.SetProjectStatus403JSONResponse{Message: msg}
+	case "ListAdminProjects":
+		return gen.ListAdminProjects403JSONResponse{Message: msg}
 	default:
 		return gen.RequestBook403JSONResponse{Message: msg}
 	}

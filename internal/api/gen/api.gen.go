@@ -32,19 +32,19 @@ func (e BookRequestAcceptedStatus) Valid() bool {
 
 // Defines values for CurrentUserRole.
 const (
-	Admin    CurrentUserRole = "admin"
-	Member   CurrentUserRole = "member"
-	Reviewer CurrentUserRole = "reviewer"
+	CurrentUserRoleAdmin    CurrentUserRole = "admin"
+	CurrentUserRoleMember   CurrentUserRole = "member"
+	CurrentUserRoleReviewer CurrentUserRole = "reviewer"
 )
 
 // Valid indicates whether the value is a known member of the CurrentUserRole enum.
 func (e CurrentUserRole) Valid() bool {
 	switch e {
-	case Admin:
+	case CurrentUserRoleAdmin:
 		return true
-	case Member:
+	case CurrentUserRoleMember:
 		return true
-	case Reviewer:
+	case CurrentUserRoleReviewer:
 		return true
 	default:
 		return false
@@ -86,19 +86,58 @@ func (e HealthStatus) Valid() bool {
 
 // Defines values for ProjectStatus.
 const (
-	Archived  ProjectStatus = "archived"
-	Open      ProjectStatus = "open"
-	Published ProjectStatus = "published"
+	ProjectStatusArchived  ProjectStatus = "archived"
+	ProjectStatusOpen      ProjectStatus = "open"
+	ProjectStatusPublished ProjectStatus = "published"
 )
 
 // Valid indicates whether the value is a known member of the ProjectStatus enum.
 func (e ProjectStatus) Valid() bool {
 	switch e {
-	case Archived:
+	case ProjectStatusArchived:
 		return true
-	case Open:
+	case ProjectStatusOpen:
 		return true
-	case Published:
+	case ProjectStatusPublished:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ProjectListItemStatus.
+const (
+	ProjectListItemStatusArchived  ProjectListItemStatus = "archived"
+	ProjectListItemStatusOpen      ProjectListItemStatus = "open"
+	ProjectListItemStatusPublished ProjectListItemStatus = "published"
+)
+
+// Valid indicates whether the value is a known member of the ProjectListItemStatus enum.
+func (e ProjectListItemStatus) Valid() bool {
+	switch e {
+	case ProjectListItemStatusArchived:
+		return true
+	case ProjectListItemStatusOpen:
+		return true
+	case ProjectListItemStatusPublished:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for ProjectStatusInputStatus.
+const (
+	ProjectStatusInputStatusOpen      ProjectStatusInputStatus = "open"
+	ProjectStatusInputStatusPublished ProjectStatusInputStatus = "published"
+)
+
+// Valid indicates whether the value is a known member of the ProjectStatusInputStatus enum.
+func (e ProjectStatusInputStatus) Valid() bool {
+	switch e {
+	case ProjectStatusInputStatusOpen:
+		return true
+	case ProjectStatusInputStatusPublished:
 		return true
 	default:
 		return false
@@ -166,6 +205,60 @@ func (e ReviewResultStatus) Valid() bool {
 	default:
 		return false
 	}
+}
+
+// Defines values for UserListItemRole.
+const (
+	UserListItemRoleAdmin    UserListItemRole = "admin"
+	UserListItemRoleMember   UserListItemRole = "member"
+	UserListItemRoleReviewer UserListItemRole = "reviewer"
+)
+
+// Valid indicates whether the value is a known member of the UserListItemRole enum.
+func (e UserListItemRole) Valid() bool {
+	switch e {
+	case UserListItemRoleAdmin:
+		return true
+	case UserListItemRoleMember:
+		return true
+	case UserListItemRoleReviewer:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UserRoleInputRole.
+const (
+	UserRoleInputRoleMember   UserRoleInputRole = "member"
+	UserRoleInputRoleReviewer UserRoleInputRole = "reviewer"
+)
+
+// Valid indicates whether the value is a known member of the UserRoleInputRole enum.
+func (e UserRoleInputRole) Valid() bool {
+	switch e {
+	case UserRoleInputRoleMember:
+		return true
+	case UserRoleInputRoleReviewer:
+		return true
+	default:
+		return false
+	}
+}
+
+// BookList 배열이 아니라 객체다. nextCursor를 나중에 붙여도 깨지지 않는다 (ADR-037)
+type BookList struct {
+	Items []BookListItem `json:"items"`
+}
+
+// BookListItem defines model for BookListItem.
+type BookListItem struct {
+	// Author 원서에 저자가 없으면 빈 문자열
+	Author      *string `json:"author,omitempty"`
+	GutenbergId int     `json:"gutenbergId"`
+	ProjectId   int64   `json:"projectId"`
+	TargetLang  string  `json:"targetLang"`
+	Title       string  `json:"title"`
 }
 
 // BookRequest defines model for BookRequest.
@@ -243,6 +336,39 @@ type HealthDb string
 // HealthStatus 프로세스가 살아 있으면 항상 ok
 type HealthStatus string
 
+// NeedsReviewBook defines model for NeedsReviewBook.
+type NeedsReviewBook struct {
+	Author *string `json:"author,omitempty"`
+
+	// ChapterCount 최신 revision의 챕터 수. ADR-014 임계값(200)과 나란히 보여 준다
+	ChapterCount int `json:"chapterCount"`
+	GutenbergId  int `json:"gutenbergId"`
+
+	// ParagraphCount 최신 revision의 문단 수. ADR-014 임계값(15,000)과 나란히 보여 준다
+	ParagraphCount int    `json:"paragraphCount"`
+	Title          string `json:"title"`
+}
+
+// NeedsReviewBookList defines model for NeedsReviewBookList.
+type NeedsReviewBookList struct {
+	Items []NeedsReviewBook `json:"items"`
+}
+
+// OrphanedSuccession defines model for OrphanedSuccession.
+type OrphanedSuccession struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	GutenbergId int       `json:"gutenbergId"`
+
+	// Orphaned 갈 곳을 잃은 확정 번역 수
+	Orphaned int    `json:"orphaned"`
+	Title    string `json:"title"`
+}
+
+// OrphanedSuccessionList defines model for OrphanedSuccessionList.
+type OrphanedSuccessionList struct {
+	Items []OrphanedSuccession `json:"items"`
+}
+
 // Paragraph defines model for Paragraph.
 type Paragraph struct {
 	SourceText string `json:"sourceText"`
@@ -253,10 +379,13 @@ type Paragraph struct {
 
 // Project defines model for Project.
 type Project struct {
-	BookId     int64         `json:"bookId"`
-	Id         int64         `json:"id"`
-	Status     ProjectStatus `json:"status"`
-	TargetLang string        `json:"targetLang"`
+	BookId int64 `json:"bookId"`
+	Id     int64 `json:"id"`
+
+	// PublishedAt 처음 published가 된 시각. open으로 내려와도 비우지 않는다 (ADR-036)
+	PublishedAt *time.Time    `json:"publishedAt,omitempty"`
+	Status      ProjectStatus `json:"status"`
+	TargetLang  string        `json:"targetLang"`
 }
 
 // ProjectStatus defines model for Project.Status.
@@ -278,6 +407,35 @@ type ProjectInput struct {
 	GutenbergId int    `json:"gutenbergId"`
 	TargetLang  string `json:"targetLang"`
 }
+
+// ProjectList defines model for ProjectList.
+type ProjectList struct {
+	Items []ProjectListItem `json:"items"`
+}
+
+// ProjectListItem defines model for ProjectListItem.
+type ProjectListItem struct {
+	Author      *string               `json:"author,omitempty"`
+	BookId      int64                 `json:"bookId"`
+	GutenbergId int                   `json:"gutenbergId"`
+	Id          int64                 `json:"id"`
+	PublishedAt *time.Time            `json:"publishedAt,omitempty"`
+	Status      ProjectListItemStatus `json:"status"`
+	TargetLang  string                `json:"targetLang"`
+	Title       string                `json:"title"`
+}
+
+// ProjectListItemStatus defines model for ProjectListItem.Status.
+type ProjectListItemStatus string
+
+// ProjectStatusInput defines model for ProjectStatusInput.
+type ProjectStatusInput struct {
+	// Status archived는 CHECK에 있지만 이 슬라이스의 전이가 아니다
+	Status ProjectStatusInputStatus `json:"status"`
+}
+
+// ProjectStatusInputStatus archived는 CHECK에 있지만 이 슬라이스의 전이가 아니다
+type ProjectStatusInputStatus string
 
 // Proposal defines model for Proposal.
 type Proposal struct {
@@ -327,6 +485,33 @@ type TranslatedParagraph struct {
 	StableId      string `json:"stableId"`
 }
 
+// UserList defines model for UserList.
+type UserList struct {
+	Items []UserListItem `json:"items"`
+}
+
+// UserListItem defines model for UserListItem.
+type UserListItem struct {
+	DisplayName string `json:"displayName"`
+	Handle      string `json:"handle"`
+	Id          int64  `json:"id"`
+
+	// Role 목록에는 admin이 보일 수 있다. 부여는 member↔reviewer만
+	Role UserListItemRole `json:"role"`
+}
+
+// UserListItemRole 목록에는 admin이 보일 수 있다. 부여는 member↔reviewer만
+type UserListItemRole string
+
+// UserRoleInput defines model for UserRoleInput.
+type UserRoleInput struct {
+	// Role admin은 ADMIN_EMAIL이 유일한 출처다 (ADR-027)
+	Role UserRoleInputRole `json:"role"`
+}
+
+// UserRoleInputRole admin은 ADMIN_EMAIL이 유일한 출처다 (ADR-027)
+type UserRoleInputRole string
+
 // ProjectId defines model for ProjectId.
 type ProjectId = int64
 
@@ -339,6 +524,12 @@ type RequestBookJSONRequestBody = BookRequest
 // CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
 type CreateProjectJSONRequestBody = ProjectInput
 
+// SetProjectStatusJSONRequestBody defines body for SetProjectStatus for application/json ContentType.
+type SetProjectStatusJSONRequestBody = ProjectStatusInput
+
+// SetUserRoleJSONRequestBody defines body for SetUserRole for application/json ContentType.
+type SetUserRoleJSONRequestBody = UserRoleInput
+
 // CreateProposalJSONRequestBody defines body for CreateProposal for application/json ContentType.
 type CreateProposalJSONRequestBody = ProposalInput
 
@@ -350,21 +541,45 @@ type ServerInterface interface {
 	// RequestBook 도서 수집 지시
 	// (POST /admin/books)
 	RequestBook(w http.ResponseWriter, r *http.Request)
+	// ListNeedsReviewBooks 관리자 확인 큐 — 합본 게이트에 걸린 도서
+	// (GET /admin/books/needs-review)
+	ListNeedsReviewBooks(w http.ResponseWriter, r *http.Request)
+	// ListAdminProjects 관리자용 번역 프로젝트 목록 — open도 포함한다
+	// (GET /admin/projects)
+	ListAdminProjects(w http.ResponseWriter, r *http.Request)
 	// CreateProject 번역 프로젝트 생성
 	// (POST /admin/projects)
 	CreateProject(w http.ResponseWriter, r *http.Request)
+	// SetProjectStatus 프로젝트 공개 전이 — open ↔ published
+	// (POST /admin/projects/{projectId}/status)
+	SetProjectStatus(w http.ResponseWriter, r *http.Request, projectId int64)
+	// ListOrphanedSuccessions 승계 고아 목록 — 확정 번역이 갈 곳을 잃은 기록
+	// (GET /admin/successions/orphans)
+	ListOrphanedSuccessions(w http.ResponseWriter, r *http.Request)
+	// ListUsers 사용자 목록
+	// (GET /admin/users)
+	ListUsers(w http.ResponseWriter, r *http.Request)
+	// SetUserRole 역할 부여 — member와 reviewer만
+	// (POST /admin/users/{userId}/role)
+	SetUserRole(w http.ResponseWriter, r *http.Request, userId int64)
 	// Logout 로그아웃 — 세션을 즉시 무효화한다
 	// (POST /auth/logout)
 	Logout(w http.ResponseWriter, r *http.Request)
 	// GetCurrentUser 현재 로그인한 사용자
 	// (GET /auth/me)
 	GetCurrentUser(w http.ResponseWriter, r *http.Request)
+	// ListBooks 공개 도서 목록 — published 프로젝트만
+	// (GET /books)
+	ListBooks(w http.ResponseWriter, r *http.Request)
 	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 	// (GET /books/{gutenbergId}/chapters/{idx})
 	GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int)
 	// GetHealthz 서비스와 DB 연결 상태
 	// (GET /healthz)
 	GetHealthz(w http.ResponseWriter, r *http.Request)
+	// ListProjects 공개 번역 프로젝트 목록 — published만
+	// (GET /projects)
+	ListProjects(w http.ResponseWriter, r *http.Request)
 	// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
 	// (GET /projects/{projectId}/chapters/{idx})
 	GetProjectChapter(w http.ResponseWriter, r *http.Request, projectId int64, idx int)
@@ -389,9 +604,45 @@ func (_ Unimplemented) RequestBook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// ListNeedsReviewBooks 관리자 확인 큐 — 합본 게이트에 걸린 도서
+// (GET /admin/books/needs-review)
+func (_ Unimplemented) ListNeedsReviewBooks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListAdminProjects 관리자용 번역 프로젝트 목록 — open도 포함한다
+// (GET /admin/projects)
+func (_ Unimplemented) ListAdminProjects(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // CreateProject 번역 프로젝트 생성
 // (POST /admin/projects)
 func (_ Unimplemented) CreateProject(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// SetProjectStatus 프로젝트 공개 전이 — open ↔ published
+// (POST /admin/projects/{projectId}/status)
+func (_ Unimplemented) SetProjectStatus(w http.ResponseWriter, r *http.Request, projectId int64) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListOrphanedSuccessions 승계 고아 목록 — 확정 번역이 갈 곳을 잃은 기록
+// (GET /admin/successions/orphans)
+func (_ Unimplemented) ListOrphanedSuccessions(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListUsers 사용자 목록
+// (GET /admin/users)
+func (_ Unimplemented) ListUsers(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// SetUserRole 역할 부여 — member와 reviewer만
+// (POST /admin/users/{userId}/role)
+func (_ Unimplemented) SetUserRole(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -407,6 +658,12 @@ func (_ Unimplemented) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// ListBooks 공개 도서 목록 — published 프로젝트만
+// (GET /books)
+func (_ Unimplemented) ListBooks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 // (GET /books/{gutenbergId}/chapters/{idx})
 func (_ Unimplemented) GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int) {
@@ -416,6 +673,12 @@ func (_ Unimplemented) GetBookChapter(w http.ResponseWriter, r *http.Request, gu
 // GetHealthz 서비스와 DB 연결 상태
 // (GET /healthz)
 func (_ Unimplemented) GetHealthz(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListProjects 공개 번역 프로젝트 목록 — published만
+// (GET /projects)
+func (_ Unimplemented) ListProjects(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -466,11 +729,119 @@ func (siw *ServerInterfaceWrapper) RequestBook(w http.ResponseWriter, r *http.Re
 	handler.ServeHTTP(w, r)
 }
 
+// ListNeedsReviewBooks operation middleware
+func (siw *ServerInterfaceWrapper) ListNeedsReviewBooks(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListNeedsReviewBooks(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListAdminProjects operation middleware
+func (siw *ServerInterfaceWrapper) ListAdminProjects(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListAdminProjects(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // CreateProject operation middleware
 func (siw *ServerInterfaceWrapper) CreateProject(w http.ResponseWriter, r *http.Request) {
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateProject(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// SetProjectStatus operation middleware
+func (siw *ServerInterfaceWrapper) SetProjectStatus(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SetProjectStatus(w, r, projectId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListOrphanedSuccessions operation middleware
+func (siw *ServerInterfaceWrapper) ListOrphanedSuccessions(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListOrphanedSuccessions(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListUsers operation middleware
+func (siw *ServerInterfaceWrapper) ListUsers(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListUsers(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// SetUserRole operation middleware
+func (siw *ServerInterfaceWrapper) SetUserRole(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "userId" -------------
+	var userId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "userId", chi.URLParam(r, "userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "userId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SetUserRole(w, r, userId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -499,6 +870,20 @@ func (siw *ServerInterfaceWrapper) GetCurrentUser(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetCurrentUser(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListBooks operation middleware
+func (siw *ServerInterfaceWrapper) ListBooks(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListBooks(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -548,6 +933,20 @@ func (siw *ServerInterfaceWrapper) GetHealthz(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetHealthz(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListProjects operation middleware
+func (siw *ServerInterfaceWrapper) ListProjects(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProjects(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -805,6 +1204,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/healthz", wrapper.GetHealthz)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/books", wrapper.ListBooks)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/books/{gutenbergId}/chapters/{idx}", wrapper.GetBookChapter)
 	})
 	r.Group(func(r chi.Router) {
@@ -815,6 +1217,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/books", wrapper.RequestBook)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/books/needs-review", wrapper.ListNeedsReviewBooks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/successions/orphans", wrapper.ListOrphanedSuccessions)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/users", wrapper.ListUsers)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/users/{userId}/role", wrapper.SetUserRole)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects", wrapper.ListProjects)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/chapters/{idx}", wrapper.GetProjectChapter)
@@ -829,7 +1246,13 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/proposals/{proposalId}/review", wrapper.ReviewProposal)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/admin/projects", wrapper.ListAdminProjects)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/admin/projects", wrapper.CreateProject)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/admin/projects/{projectId}/status", wrapper.SetProjectStatus)
 	})
 
 	return r
@@ -899,6 +1322,104 @@ func (response RequestBook409JSONResponse) VisitRequestBookResponse(w http.Respo
 	return err
 }
 
+type ListNeedsReviewBooksRequestObject struct {
+}
+
+type ListNeedsReviewBooksResponseObject interface {
+	VisitListNeedsReviewBooksResponse(w http.ResponseWriter) error
+}
+
+type ListNeedsReviewBooks200JSONResponse NeedsReviewBookList
+
+func (response ListNeedsReviewBooks200JSONResponse) VisitListNeedsReviewBooksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListNeedsReviewBooks401JSONResponse Error
+
+func (response ListNeedsReviewBooks401JSONResponse) VisitListNeedsReviewBooksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListNeedsReviewBooks403JSONResponse Error
+
+func (response ListNeedsReviewBooks403JSONResponse) VisitListNeedsReviewBooksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListAdminProjectsRequestObject struct {
+}
+
+type ListAdminProjectsResponseObject interface {
+	VisitListAdminProjectsResponse(w http.ResponseWriter) error
+}
+
+type ListAdminProjects200JSONResponse ProjectList
+
+func (response ListAdminProjects200JSONResponse) VisitListAdminProjectsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListAdminProjects401JSONResponse Error
+
+func (response ListAdminProjects401JSONResponse) VisitListAdminProjectsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListAdminProjects403JSONResponse Error
+
+func (response ListAdminProjects403JSONResponse) VisitListAdminProjectsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type CreateProjectRequestObject struct {
 	Body *CreateProjectJSONRequestBody
 }
@@ -963,6 +1484,248 @@ func (response CreateProject404JSONResponse) VisitCreateProjectResponse(w http.R
 	return err
 }
 
+type SetProjectStatusRequestObject struct {
+	ProjectId int64 `json:"projectId"`
+	Body      *SetProjectStatusJSONRequestBody
+}
+
+type SetProjectStatusResponseObject interface {
+	VisitSetProjectStatusResponse(w http.ResponseWriter) error
+}
+
+type SetProjectStatus200JSONResponse Project
+
+func (response SetProjectStatus200JSONResponse) VisitSetProjectStatusResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetProjectStatus401JSONResponse Error
+
+func (response SetProjectStatus401JSONResponse) VisitSetProjectStatusResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetProjectStatus403JSONResponse Error
+
+func (response SetProjectStatus403JSONResponse) VisitSetProjectStatusResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetProjectStatus404JSONResponse Error
+
+func (response SetProjectStatus404JSONResponse) VisitSetProjectStatusResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListOrphanedSuccessionsRequestObject struct {
+}
+
+type ListOrphanedSuccessionsResponseObject interface {
+	VisitListOrphanedSuccessionsResponse(w http.ResponseWriter) error
+}
+
+type ListOrphanedSuccessions200JSONResponse OrphanedSuccessionList
+
+func (response ListOrphanedSuccessions200JSONResponse) VisitListOrphanedSuccessionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListOrphanedSuccessions401JSONResponse Error
+
+func (response ListOrphanedSuccessions401JSONResponse) VisitListOrphanedSuccessionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListOrphanedSuccessions403JSONResponse Error
+
+func (response ListOrphanedSuccessions403JSONResponse) VisitListOrphanedSuccessionsResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListUsersRequestObject struct {
+}
+
+type ListUsersResponseObject interface {
+	VisitListUsersResponse(w http.ResponseWriter) error
+}
+
+type ListUsers200JSONResponse UserList
+
+func (response ListUsers200JSONResponse) VisitListUsersResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListUsers401JSONResponse Error
+
+func (response ListUsers401JSONResponse) VisitListUsersResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListUsers403JSONResponse Error
+
+func (response ListUsers403JSONResponse) VisitListUsersResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetUserRoleRequestObject struct {
+	UserId int64 `json:"userId"`
+	Body   *SetUserRoleJSONRequestBody
+}
+
+type SetUserRoleResponseObject interface {
+	VisitSetUserRoleResponse(w http.ResponseWriter) error
+}
+
+type SetUserRole200JSONResponse UserListItem
+
+func (response SetUserRole200JSONResponse) VisitSetUserRoleResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetUserRole401JSONResponse Error
+
+func (response SetUserRole401JSONResponse) VisitSetUserRoleResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetUserRole403JSONResponse Error
+
+func (response SetUserRole403JSONResponse) VisitSetUserRoleResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(403)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetUserRole404JSONResponse Error
+
+func (response SetUserRole404JSONResponse) VisitSetUserRoleResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type SetUserRole409JSONResponse Error
+
+func (response SetUserRole409JSONResponse) VisitSetUserRoleResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(409)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type LogoutRequestObject struct {
 }
 
@@ -1009,6 +1772,27 @@ func (response GetCurrentUser401JSONResponse) VisitGetCurrentUserResponse(w http
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(401)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListBooksRequestObject struct {
+}
+
+type ListBooksResponseObject interface {
+	VisitListBooksResponse(w http.ResponseWriter) error
+}
+
+type ListBooks200JSONResponse BookList
+
+func (response ListBooks200JSONResponse) VisitListBooksResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
 	_, err := buf.WriteTo(w)
 	return err
 }
@@ -1060,6 +1844,27 @@ type GetHealthzResponseObject interface {
 type GetHealthz200JSONResponse Health
 
 func (response GetHealthz200JSONResponse) VisitGetHealthzResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListProjectsRequestObject struct {
+}
+
+type ListProjectsResponseObject interface {
+	VisitListProjectsResponse(w http.ResponseWriter) error
+}
+
+type ListProjects200JSONResponse ProjectList
+
+func (response ListProjects200JSONResponse) VisitListProjectsResponse(w http.ResponseWriter) error {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(response); err != nil {
@@ -1267,21 +2072,45 @@ type StrictServerInterface interface {
 	// RequestBook 도서 수집 지시
 	// (POST /admin/books)
 	RequestBook(ctx context.Context, request RequestBookRequestObject) (RequestBookResponseObject, error)
+	// ListNeedsReviewBooks 관리자 확인 큐 — 합본 게이트에 걸린 도서
+	// (GET /admin/books/needs-review)
+	ListNeedsReviewBooks(ctx context.Context, request ListNeedsReviewBooksRequestObject) (ListNeedsReviewBooksResponseObject, error)
+	// ListAdminProjects 관리자용 번역 프로젝트 목록 — open도 포함한다
+	// (GET /admin/projects)
+	ListAdminProjects(ctx context.Context, request ListAdminProjectsRequestObject) (ListAdminProjectsResponseObject, error)
 	// CreateProject 번역 프로젝트 생성
 	// (POST /admin/projects)
 	CreateProject(ctx context.Context, request CreateProjectRequestObject) (CreateProjectResponseObject, error)
+	// SetProjectStatus 프로젝트 공개 전이 — open ↔ published
+	// (POST /admin/projects/{projectId}/status)
+	SetProjectStatus(ctx context.Context, request SetProjectStatusRequestObject) (SetProjectStatusResponseObject, error)
+	// ListOrphanedSuccessions 승계 고아 목록 — 확정 번역이 갈 곳을 잃은 기록
+	// (GET /admin/successions/orphans)
+	ListOrphanedSuccessions(ctx context.Context, request ListOrphanedSuccessionsRequestObject) (ListOrphanedSuccessionsResponseObject, error)
+	// ListUsers 사용자 목록
+	// (GET /admin/users)
+	ListUsers(ctx context.Context, request ListUsersRequestObject) (ListUsersResponseObject, error)
+	// SetUserRole 역할 부여 — member와 reviewer만
+	// (POST /admin/users/{userId}/role)
+	SetUserRole(ctx context.Context, request SetUserRoleRequestObject) (SetUserRoleResponseObject, error)
 	// Logout 로그아웃 — 세션을 즉시 무효화한다
 	// (POST /auth/logout)
 	Logout(ctx context.Context, request LogoutRequestObject) (LogoutResponseObject, error)
 	// GetCurrentUser 현재 로그인한 사용자
 	// (GET /auth/me)
 	GetCurrentUser(ctx context.Context, request GetCurrentUserRequestObject) (GetCurrentUserResponseObject, error)
+	// ListBooks 공개 도서 목록 — published 프로젝트만
+	// (GET /books)
+	ListBooks(ctx context.Context, request ListBooksRequestObject) (ListBooksResponseObject, error)
 	// GetBookChapter 활성 revision의 챕터 하나와 그 문단들
 	// (GET /books/{gutenbergId}/chapters/{idx})
 	GetBookChapter(ctx context.Context, request GetBookChapterRequestObject) (GetBookChapterResponseObject, error)
 	// GetHealthz 서비스와 DB 연결 상태
 	// (GET /healthz)
 	GetHealthz(ctx context.Context, request GetHealthzRequestObject) (GetHealthzResponseObject, error)
+	// ListProjects 공개 번역 프로젝트 목록 — published만
+	// (GET /projects)
+	ListProjects(ctx context.Context, request ListProjectsRequestObject) (ListProjectsResponseObject, error)
 	// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
 	// (GET /projects/{projectId}/chapters/{idx})
 	GetProjectChapter(ctx context.Context, request GetProjectChapterRequestObject) (GetProjectChapterResponseObject, error)
@@ -1366,6 +2195,54 @@ func (sh *strictHandler) RequestBook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ListNeedsReviewBooks operation middleware
+func (sh *strictHandler) ListNeedsReviewBooks(w http.ResponseWriter, r *http.Request) {
+	var request ListNeedsReviewBooksRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListNeedsReviewBooks(ctx, request.(ListNeedsReviewBooksRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListNeedsReviewBooks")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListNeedsReviewBooksResponseObject); ok {
+		if err := validResponse.VisitListNeedsReviewBooksResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListAdminProjects operation middleware
+func (sh *strictHandler) ListAdminProjects(w http.ResponseWriter, r *http.Request) {
+	var request ListAdminProjectsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListAdminProjects(ctx, request.(ListAdminProjectsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListAdminProjects")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListAdminProjectsResponseObject); ok {
+		if err := validResponse.VisitListAdminProjectsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // CreateProject operation middleware
 func (sh *strictHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 	var request CreateProjectRequestObject
@@ -1390,6 +2267,120 @@ func (sh *strictHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(CreateProjectResponseObject); ok {
 		if err := validResponse.VisitCreateProjectResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// SetProjectStatus operation middleware
+func (sh *strictHandler) SetProjectStatus(w http.ResponseWriter, r *http.Request, projectId int64) {
+	var request SetProjectStatusRequestObject
+
+	request.ProjectId = projectId
+
+	var body SetProjectStatusJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.SetProjectStatus(ctx, request.(SetProjectStatusRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SetProjectStatus")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(SetProjectStatusResponseObject); ok {
+		if err := validResponse.VisitSetProjectStatusResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListOrphanedSuccessions operation middleware
+func (sh *strictHandler) ListOrphanedSuccessions(w http.ResponseWriter, r *http.Request) {
+	var request ListOrphanedSuccessionsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListOrphanedSuccessions(ctx, request.(ListOrphanedSuccessionsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListOrphanedSuccessions")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListOrphanedSuccessionsResponseObject); ok {
+		if err := validResponse.VisitListOrphanedSuccessionsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListUsers operation middleware
+func (sh *strictHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	var request ListUsersRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListUsers(ctx, request.(ListUsersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListUsers")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListUsersResponseObject); ok {
+		if err := validResponse.VisitListUsersResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// SetUserRole operation middleware
+func (sh *strictHandler) SetUserRole(w http.ResponseWriter, r *http.Request, userId int64) {
+	var request SetUserRoleRequestObject
+
+	request.UserId = userId
+
+	var body SetUserRoleJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.SetUserRole(ctx, request.(SetUserRoleRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SetUserRole")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(SetUserRoleResponseObject); ok {
+		if err := validResponse.VisitSetUserRoleResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {
@@ -1445,6 +2436,30 @@ func (sh *strictHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// ListBooks operation middleware
+func (sh *strictHandler) ListBooks(w http.ResponseWriter, r *http.Request) {
+	var request ListBooksRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListBooks(ctx, request.(ListBooksRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListBooks")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListBooksResponseObject); ok {
+		if err := validResponse.VisitListBooksResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // GetBookChapter operation middleware
 func (sh *strictHandler) GetBookChapter(w http.ResponseWriter, r *http.Request, gutenbergId int, idx int) {
 	var request GetBookChapterRequestObject
@@ -1489,6 +2504,30 @@ func (sh *strictHandler) GetHealthz(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(GetHealthzResponseObject); ok {
 		if err := validResponse.VisitGetHealthzResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListProjects operation middleware
+func (sh *strictHandler) ListProjects(w http.ResponseWriter, r *http.Request) {
+	var request ListProjectsRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListProjects(ctx, request.(ListProjectsRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListProjects")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListProjectsResponseObject); ok {
+		if err := validResponse.VisitListProjectsResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

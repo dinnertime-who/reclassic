@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/cors"
 
 	"github.com/dinnertime/reclassic/internal/api/gen"
+	"github.com/dinnertime/reclassic/internal/auth"
 	"github.com/dinnertime/reclassic/internal/book"
 	"github.com/dinnertime/reclassic/internal/translate"
 )
@@ -29,6 +30,19 @@ type ChapterReader interface {
 	Chapter(ctx context.Context, gutenbergID, idx int) (*book.ChapterView, error)
 }
 
+// BookCatalog는 도서·고아 목록이다. Reader와 같은 객체일 수 있다.
+type BookCatalog interface {
+	ListPublished(ctx context.Context) ([]book.CatalogItem, error)
+	ListNeedsReview(ctx context.Context) ([]book.NeedsReviewItem, error)
+	ListOrphans(ctx context.Context) ([]book.OrphanItem, error)
+}
+
+// UserAdmin은 사용자 목록과 역할 부여다. admin은 여기서 만들지 않는다.
+type UserAdmin interface {
+	List(ctx context.Context) ([]auth.UserItem, error)
+	SetRole(ctx context.Context, id int64, role string) (*auth.UserItem, error)
+}
+
 // BookRequester는 관리자 수집 지시를 받는다.
 type BookRequester interface {
 	Request(ctx context.Context, gutenbergID int, title, language string) (int64, error)
@@ -38,6 +52,8 @@ type BookRequester interface {
 type Server struct {
 	db             Pinger
 	reader         ChapterReader
+	catalog        BookCatalog
+	users          UserAdmin
 	requester      BookRequester
 	translate      Translator
 	sessions       SessionStore
@@ -51,6 +67,8 @@ type Server struct {
 type Deps struct {
 	DB        Pinger
 	Reader    ChapterReader
+	Catalog   BookCatalog
+	Users     UserAdmin
 	Requester BookRequester
 	Translate Translator
 	Sessions  SessionStore
@@ -72,6 +90,8 @@ func NewServer(d Deps) *Server {
 	return &Server{
 		db:             d.DB,
 		reader:         d.Reader,
+		catalog:        d.Catalog,
+		users:          d.Users,
 		requester:      d.Requester,
 		translate:      d.Translate,
 		sessions:       d.Sessions,
