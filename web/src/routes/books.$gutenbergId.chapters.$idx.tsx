@@ -32,7 +32,7 @@ export const Route = createFileRoute('/books/$gutenbergId/chapters/$idx')({
     ],
   }),
   notFoundComponent: () => (
-    <main>
+    <main className="reader">
       <p>읽을 수 있는 챕터가 없습니다.</p>
     </main>
   ),
@@ -47,26 +47,40 @@ function ChapterPage() {
   const to = '/books/$gutenbergId/chapters/$idx'
 
   return (
-    <main>
-      <p>
-        {gutenbergId} — {current + 1} / {totalChapters}
+    <main className="reader">
+      <p className="reader-meta">
+        <span>원문</span>
+        <span>
+          {current + 1} / {totalChapters}장
+        </span>
       </p>
       <h1>{chapter.title || `(제목 없음) ${chapter.idx}`}</h1>
 
-      {paragraphs.map((p) => (
-        // key는 stable_id다. 번역이 붙는 키와 같다 (ADR-004/016).
-        <p key={p.stableId}>{p.sourceText}</p>
-      ))}
+      <div className="reader-body">
+        {paragraphs.map((p) => (
+          // key는 stable_id다. 번역이 붙는 키와 같다 (ADR-004/016).
+          <p key={p.stableId}>{p.sourceText}</p>
+        ))}
+      </div>
 
-      <nav>
+      {/* 모바일에서는 CSS가 세로로 쌓고 각 링크가 표적 하나가 된다 (ADR-038). */}
+      <nav className="chapter-nav">
         {current > 0 && (
-          <Link to={to} params={{ gutenbergId, idx: String(current - 1) }}>
-            ← 이전
+          <Link
+            to={to}
+            params={{ gutenbergId, idx: String(current - 1) }}
+            className="btn"
+          >
+            ← 이전 장
           </Link>
-        )}{' '}
+        )}
         {current + 1 < totalChapters && (
-          <Link to={to} params={{ gutenbergId, idx: String(current + 1) }}>
-            다음 →
+          <Link
+            to={to}
+            params={{ gutenbergId, idx: String(current + 1) }}
+            className="btn"
+          >
+            다음 장 →
           </Link>
         )}
       </nav>

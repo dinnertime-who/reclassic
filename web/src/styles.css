@@ -8,7 +8,7 @@
    출처: https://ui.shadcn.com/r/colors/neutral.json — components.json의 baseColor와 같다.
    shadcn 최신 스타일은 이 토큰을 `shadcn` npm 패키지의 tailwind.css로 공급하지만,
    ADR-035가 "토큰은 styles.css의 @theme에 둔다"고 정했으므로 여기 복사해 둔다.
-   **지금 쓰는 것만 옮겼다.** 컴포넌트를 추가하다 없는 토큰(--accent, --popover 등)을
+   **지금 쓰는 것만 옮겼다.** 컴포넌트를 추가하다 없는 토큰(--popover 등)을
    만나면 위 URL에서 그 줄만 더 가져온다. */
 :root {
   --background: oklch(1 0 0);
@@ -21,6 +21,8 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -39,10 +41,45 @@
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+}
+
+/* ── 화면 디자인 토큰 (ADR-038) ─────────────────────────────────────────
+   **색값과 px를 화면 파일에 쓰지 않는다. 전부 여기서 나간다.**
+   고치면 읽기·목록·관리가 한꺼번에 움직여야 한다 — 그것이 이 블록의 존재 이유다. */
+:root {
+  /* 강조색. 링크와 주요 조작에만 쓴다. 본문에는 쓰지 않는다. */
+  --link: oklch(0.52 0.19 258);
+  --link-hover: oklch(0.43 0.19 258);
+
+  /* 폭. `main`이 자기 값을 읽어 컨테이너 폭을 정한다. */
+  --page-width: 46rem;   /* 기본 — 목록·관리 */
+  --measure: 38rem;      /* 읽기 본문. 한 줄이 길어지면 눈이 줄을 놓친다 */
+  --gutter: 1.25rem;     /* 모바일 좌우 여백. 16px는 좁아서 20px로 둔다 */
+
+  /* 터치 표적 최소 크기. 44px 아래로 내리지 말 것 (ADR-038) */
+  --tap: 2.75rem;
+
+  /* 타입 스케일 — 중단점이 아니라 폭에 따라 흐른다 (ADR-038).
+     중단점마다 font-size를 다시 적으면 그 사이에서 크기가 튄다. */
+  --text-xs: clamp(0.75rem, 0.74rem + 0.05vw, 0.8125rem);
+  --text-sm: clamp(0.8125rem, 0.79rem + 0.11vw, 0.875rem);
+  --text-base: clamp(1.0625rem, 1.03rem + 0.18vw, 1.125rem);
+  --text-lg: clamp(1.1875rem, 1.14rem + 0.24vw, 1.3125rem);
+  --text-xl: clamp(1.375rem, 1.28rem + 0.47vw, 1.625rem);
+  --text-2xl: clamp(1.75rem, 1.55rem + 1vw, 2.25rem);
+
+  /* 읽기 리듬 */
+  --leading-body: 1.75;
+  --leading-tight: 1.3;
+
+  --font-sans: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic",
+    "Noto Sans KR", sans-serif;
 }
 
 /* Tailwind v4는 CSS-first다 — tailwind.config.js를 만들지 않는다 (ADR-035).
@@ -58,10 +95,15 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
+  --color-link: var(--link);
+
+  --font-sans: var(--font-sans);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -71,16 +113,15 @@
 
 /* ── 읽기 화면 되살리기 ─────────────────────────────────────────────────
    Tailwind의 preflight는 h1·p·dl·a의 브라우저 기본 여백·크기·밑줄을 전부 지운다.
-   읽기 라우트는 유틸리티 클래스를 쓰지 않으므로(ADR-035 "지금의 로더 + 순수 HTML을 유지")
-   그대로 두면 제목이 본문과 같은 크기로 납작해진다 —
+   읽기 라우트는 유틸리티 클래스로 리듬을 만들지 않으므로(ADR-038) 그대로 두면
+   제목이 본문과 같은 크기로 납작해진다 —
    **SSR도 빌드도 성공해서 브라우저에서만 드러나는 종류의 고장이다.**
-   읽기 라우트가 실제로 쓰는 태그만 되살린다. 여기가 @layer base인 이유는
-   편집 화면(CSR)이 유틸리티로 덮어쓸 수 있어야 하기 때문이다 — 레이어 밖에 두면 유틸리티가 진다. */
+   여기가 @layer base인 이유는 편집 화면(CSR)이 유틸리티로 덮어쓸 수 있어야 하기
+   때문이다 — 레이어 밖에 두면 유틸리티가 진다. */
 @layer base {
   /* Tailwind v4의 기본 테두리 색은 `currentColor`다. shadcn 컴포넌트는 `border-t`처럼
      색을 안 붙인 테두리 유틸리티를 쓰므로 그대로 두면 본문 색 테두리가 그려진다.
-     shadcn 기본 base 규칙과 같게 --border로 되돌린다.
-     읽기 라우트는 테두리 유틸리티를 쓰지 않아 영향이 없다(자기 색을 직접 쓴다). */
+     shadcn 기본 base 규칙과 같게 --border로 되돌린다. */
   *,
   ::after,
   ::before {
@@ -88,73 +129,396 @@
   }
 
   h1 {
-    font-size: 2em;
-    font-weight: bold;
-    margin-block: 0.67em;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-block: 0 0.75em;
   }
 
   h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-block: 0.75em;
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin-block: 1.5em 0.5em;
   }
 
-  p,
-  dl {
-    margin-block: 1em;
+  h3 {
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+    font-weight: 600;
+    margin-block: 1.25em 0.4em;
   }
 
-  dd {
-    margin-inline-start: 2.5em;
+  p {
+    margin-block: 0 1em;
   }
 
   small {
-    font-size: 0.8em;
+    font-size: var(--text-sm);
   }
 
   a:not([class]) {
-    color: -webkit-link;
+    color: var(--link);
     text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: from-font;
   }
 
-  /* 세션 바의 로그아웃 버튼. preflight가 버튼의 테두리·배경을 지워
-     클릭할 수 있어 보이지 않게 된다. 브라우저 기본값으로 되돌린다.
-     편집 화면은 shadcn Button을 쓰므로 여기 선택자에 걸리지 않는다. */
-  nav.session button {
-    all: revert;
+  a:not([class]):hover {
+    color: var(--link-hover);
+  }
+
+  /* 키보드 초점은 어디서나 보여야 한다. preflight가 outline을 지운 자리를 메운다. */
+  :focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 
 /* ── 아래는 읽기 화면(SSR)이 쓰는 순수 CSS다. 지우지 말 것. ─────────────
    읽기 라우트는 자바스크립트 없이 떠야 하고(ADR-007·023), 이 규칙들로 뜬다.
-   레이어 밖이라 Tailwind의 preflight보다 우선한다. */
+   레이어 밖이라 Tailwind의 preflight보다 우선한다.
+   **모바일이 기본이고 넓은 폭은 min-width로 더한다 (ADR-038).** */
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  /* 한글은 어절 단위로 끊어야 읽힌다. 영문 원문의 긴 단어는 아래에서 따로 푼다. */
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* 컨테이너. 폭은 자기 --page-width를 읽는다 — 화면마다 그 변수만 바꾼다. */
 main {
-  width: min(42rem, calc(100% - 2rem));
-  margin: 4rem auto;
+  width: min(var(--page-width), calc(100% - var(--gutter) * 2));
+  margin-inline: auto;
+  padding-block: 2rem 4rem;
 }
 
-nav.session {
-  display: flex;
-  gap: 0.5rem;
-  align-items: baseline;
-  justify-content: flex-end;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ddd;
-  font-size: 0.875rem;
+main.reader {
+  --page-width: var(--measure);
 }
 
-nav.session .session-links {
-  margin-right: auto;
+main.wide {
+  --page-width: 60rem;
+}
+
+/* ── 사이트 헤더 ────────────────────────────────────────────────────────
+   모바일에서 한 줄에 다 들어가야 한다. 이름은 좁은 폭에서 숨기고
+   로그아웃 버튼은 남긴다 — 지금 누구인지보다 나가는 길이 급하다. */
+.site-header {
   display: flex;
+  align-items: center;
   gap: 0.75rem;
+  width: min(var(--page-width), calc(100% - var(--gutter) * 2));
+  margin-inline: auto;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-sm);
+}
+
+.site-brand {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--foreground);
+  text-decoration: none;
+  /* 브랜드는 본문보다 조금 크게. 헤더의 기준점이 된다. */
+  font-size: var(--text-base);
+}
+
+.site-nav {
+  display: flex;
+  gap: 0.875rem;
+  margin-right: auto;
+}
+
+.site-nav a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+  /* 링크 자체는 작아도 눌리는 면적은 확보한다 */
+  padding-block: 0.5rem;
+}
+
+.site-nav a:hover,
+.site-nav a[data-status="active"] {
+  color: var(--foreground);
+}
+
+.site-session {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+}
+
+/* 좁은 폭에서는 이름을 숨긴다. 480px부터 보인다. */
+.site-user {
+  display: none;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 30rem) {
+  .site-user {
+    display: inline;
+  }
+}
+
+/* ── 버튼·링크 조작 ─────────────────────────────────────────────────────
+   읽기 화면은 shadcn을 못 쓴다(ADR-035). 여기 있는 것이 그 자리를 메운다. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: var(--tap);
+  padding-inline: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--secondary);
+}
+
+.btn-primary {
+  border-color: transparent;
+  background: var(--link);
+  color: var(--primary-foreground);
+}
+
+.btn-primary:hover {
+  background: var(--link-hover);
+}
+
+/* 헤더 안의 조작은 헤더 높이를 키우지 않도록 표적을 줄인다.
+   헤더 자체가 스크롤에 따라다니지 않으므로 44px을 고집하지 않는다. */
+.site-session .btn {
+  min-height: 2rem;
+  padding-inline: 0.625rem;
+  font-size: var(--text-xs);
+}
+
+/* ── 읽기 화면 ──────────────────────────────────────────────────────────
+   본문 리듬은 전부 여기에 있다. 라우트 파일로 흩지 않는다 (ADR-038). */
+.reader-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-block: 0 0.75rem;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.reader-body p {
+  margin-block: 0 1.25em;
+  /* 영문 원문에는 줄바꿈 자리가 없는 긴 토큰이 나온다. keep-all과 함께 쓴다. */
+  overflow-wrap: break-word;
+}
+
+.reader-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* 확정 번역이 없어 원문을 그대로 보여 주는 문단. 읽는 사람이 구분할 수 있어야 한다. */
+.reader-body p[lang="en"] {
+  color: color-mix(in oklch, var(--foreground) 62%, var(--background));
+}
+
+.reader-body small {
+  color: var(--muted-foreground);
+}
+
+/* 챕터 이동. 모바일에서는 세로로 쌓고 각각이 표적 하나가 된다. */
+.chapter-nav {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.chapter-nav .btn {
+  width: 100%;
+}
+
+@media (min-width: 30rem) {
+  .chapter-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* 이전이 없으면 다음이 오른쪽 칸에 남아야 한다 — 왼쪽으로 당겨지면 방향이 거짓말이 된다. */
+  .chapter-nav .btn:only-child:last-child {
+    grid-column: 2;
+  }
+}
+
+/* ── 도서 목록 ──────────────────────────────────────────────────────────
+   카드가 통째로 눌리는 것이 모바일에서 가장 확실하다. */
+.book-list {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.book-card a {
+  display: block;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-card a:hover {
+  border-color: color-mix(in oklch, var(--link) 40%, var(--border));
+  background: var(--secondary);
+}
+
+.book-card h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.book-card p {
+  margin: 0.25rem 0 0;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+}
+
+/* ── 홈 ─────────────────────────────────────────────────────────────────
+   서비스가 무엇인지 한 화면에서 말한다. 값을 나열하지 않는다 (ADR-038). */
+.hero {
+  padding-block: 2rem 0;
+}
+
+.hero p {
+  font-size: var(--text-lg);
+  color: color-mix(in oklch, var(--foreground) 75%, var(--background));
+  max-width: 34rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 1.75rem;
+}
+
+.steps {
+  list-style: none;
+  margin: 3.5rem 0 0;
+  padding: 2rem 0 0;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 40rem) {
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+.steps h2 {
+  margin: 0 0 0.375rem;
+  font-size: var(--text-base);
+  font-weight: 650;
+}
+
+.steps p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.steps .step-mark {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--link);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 관리 화면 탭 ───────────────────────────────────────────────────────
+   CSR이라 shadcn을 쓸 수 있지만, 탭 표적 크기는 읽기 화면과 같은 규칙을 따른다. */
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-block: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding-inline: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.admin-nav a:hover {
+  color: var(--foreground);
+}
+
+.admin-nav a[data-status="active"] {
+  color: var(--foreground);
+  border-bottom-color: var(--link);
+  font-weight: 600;
+}
+
+/* ── 모바일 터치 표적 ───────────────────────────────────────────────────
+   shadcn Button 기본 높이는 36px이라 손가락에 작다. 좁은 폭에서만 키운다 (ADR-038).
+   헤더는 제외한다 — 거기서 44px를 고집하면 헤더가 화면을 잡아먹는다. */
+@media (max-width: 29.99rem) {
+  main [data-slot="button"] {
+    min-height: var(--tap);
+  }
+}
+
+/* 화면에서는 감추되 스크린 리더와 검색 로봇에는 남긴다. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

@@ -31,7 +31,7 @@ export const Route = createFileRoute('/projects/$projectId/chapters/$idx')({
     ],
   }),
   notFoundComponent: () => (
-    <main>
+    <main className="reader">
       <p>읽을 수 있는 챕터가 없습니다.</p>
     </main>
   ),
@@ -40,41 +40,58 @@ export const Route = createFileRoute('/projects/$projectId/chapters/$idx')({
 
 function TranslatedChapter() {
   const { projectId, idx } = Route.useParams()
-  const { chapter, paragraphs, totalChapters, coverage, indexable } =
-    Route.useLoaderData()
+  // indexable은 head()의 robots 메타가 쓴다. 화면은 읽지 않는다 (ADR-038).
+  const { chapter, paragraphs, totalChapters, coverage } = Route.useLoaderData()
 
   const current = Number(idx)
   const to = '/projects/$projectId/chapters/$idx'
   const percent = Math.round(coverage.ratio * 100)
 
   return (
-    <main>
-      <p>
-        {current + 1} / {totalChapters} · 번역 {coverage.approved}/{coverage.total} (
-        {percent}%) · {indexable ? '색인 대상' : '색인 제외'}
+    <main className="reader">
+      {/* 색인 대상 여부는 서버의 판단이고 읽는 사람이 쓸 정보가 아니다.
+          화면에서 내린다 — robots 메타에는 그대로 실린다 (ADR-007·023). */}
+      <p className="reader-meta">
+        <span>
+          {current + 1} / {totalChapters}장
+        </span>
+        <span>
+          번역 {coverage.approved}/{coverage.total} ({percent}%)
+        </span>
       </p>
       <h1>{chapter.title || `(제목 없음) ${chapter.idx}`}</h1>
 
-      {paragraphs.map((p) => (
-        // 확정 번역이 없으면 원문을 보여준다. 부분 공개를 허용한다 —
-        // 100%를 기다리면 아무 책도 공개하지 못한다.
-        <p key={p.stableId} lang={p.approvedTranslation ? 'ko' : 'en'}>
-          {p.approvedTranslation ?? p.sourceText}
-          {!p.approvedTranslation && p.proposalCount > 0 && (
-            <small> (제안 {p.proposalCount}건)</small>
-          )}
-        </p>
-      ))}
+      <div className="reader-body">
+        {paragraphs.map((p) => (
+          // 확정 번역이 없으면 원문을 보여준다. 부분 공개를 허용한다 —
+          // 100%를 기다리면 아무 책도 공개하지 못한다.
+          // 아직 번역되지 않은 문단은 CSS가 흐리게 낮춘다 — 읽는 사람이 구분해야 한다.
+          <p key={p.stableId} lang={p.approvedTranslation ? 'ko' : 'en'}>
+            {p.approvedTranslation ?? p.sourceText}
+            {!p.approvedTranslation && p.proposalCount > 0 && (
+              <small> (제안 {p.proposalCount}건)</small>
+            )}
+          </p>
+        ))}
+      </div>
 
-      <nav>
+      <nav className="chapter-nav">
         {current > 0 && (
-          <Link to={to} params={{ projectId, idx: String(current - 1) }}>
-            ← 이전
+          <Link
+            to={to}
+            params={{ projectId, idx: String(current - 1) }}
+            className="btn"
+          >
+            ← 이전 장
           </Link>
-        )}{' '}
+        )}
         {current + 1 < totalChapters && (
-          <Link to={to} params={{ projectId, idx: String(current + 1) }}>
-            다음 →
+          <Link
+            to={to}
+            params={{ projectId, idx: String(current + 1) }}
+            className="btn"
+          >
+            다음 장 →
           </Link>
         )}
       </nav>

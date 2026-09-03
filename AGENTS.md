@@ -34,8 +34,8 @@ API `https://api-reclassic.dinnertimes.app` (둘 다 Cloudflare 프록시 뒤, A
 **슬라이스 8 — 도서 목록 · 관리자 확인 큐 · 역할 부여.**
 명세는 [`docs/slices/active/admin.md`](docs/slices/active/admin.md)입니다. **먼저 읽으세요.**
 
-**구현은 로컬 검증까지 끝났고, 프로덕션 확인이 남았습니다.** 슬라이스를 `completed/`로 옮기지 마세요.
-D1~D5는 닫혔습니다. ADR-037(`{ items }` 목록 계약)은 **`Proposed` 그대로** 두세요.
+**`ca9de41`이 프로덕션에 떠 있고, 로그인이 필요한 실물 확인이 남았습니다.** `completed/`로 옮기지 마세요.
+D1~D5도 ADR-037(`{ items }` 목록 계약, **Accepted**)도 닫혔습니다.
 
 슬라이스 7에서 **web 스택이 실물로 섰습니다** — react-query·Tailwind v4·shadcn·Vitest·ESLint (ADR-035).
 **경로 별칭은 `#/*`입니다.** shadcn 기본값 `@/*`가 아닙니다 — `web/components.json`에서 맞춰져
@@ -53,7 +53,7 @@ D1~D5는 닫혔습니다. ADR-037(`{ items }` 목록 계약)은 **`Proposed` 그
 | 오브젝트 스토리지 | Cloudflare R2 | S3 호환. 원본 HTML 스냅샷 (ADR-008) |
 | 웹 | TanStack Start | 읽기 SSR, 편집·검수 CSR (ADR-006) |
 | 웹 서버 상태 | TanStack Query | orval이 훅 생성. **`QueryClient`는 요청마다 새로** (ADR-035) |
-| 웹 스타일 | Tailwind CSS v4 | CSS-first. `tailwind.config.js` 없음 (ADR-035) |
+| 웹 스타일 | Tailwind CSS v4 | CSS-first. 토큰은 `styles.css`, 모바일 우선 (ADR-035·038) |
 | 웹 컴포넌트 | shadcn/ui | **먼저 찾고, 없을 때만 직접 구현** (ADR-035) |
 | 웹 폼 | 없음 | 제어 컴포넌트로 직접 (ADR-035) |
 | 웹 테스트·린트 | Vitest + ESLint | `DATABASE_URL` 없이 돕니다 (ADR-035) |

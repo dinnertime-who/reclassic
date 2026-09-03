@@ -15,6 +15,8 @@ export const Route = createFileRoute('/books/')({
   component: BookList,
 })
 
+const LANG_LABEL: Record<string, string> = { ko: '한국어' }
+
 function BookList() {
   const { items } = Route.useLoaderData()
 
@@ -26,25 +28,20 @@ function BookList() {
       {items.length === 0 ? (
         <p>아직 공개된 번역이 없습니다.</p>
       ) : (
-        <ul>
+        <ul className="book-list">
           {items.map((book) => (
-            <li key={book.projectId}>
-              <h2>{book.title}</h2>
-              <p>
-                {book.author ? `${book.author} · ` : null}
-                {book.targetLang}
-              </p>
-              <p>
-                <Link
-                  to="/projects/$projectId/chapters/$idx"
-                  params={{
-                    projectId: String(book.projectId),
-                    idx: '0',
-                  }}
-                >
-                  번역 읽기
-                </Link>
-              </p>
+            // 카드 전체가 링크다. 모바일에서 제목만 누르게 하면 표적이 너무 작다 (ADR-038).
+            <li key={book.projectId} className="book-card">
+              <Link
+                to="/projects/$projectId/chapters/$idx"
+                params={{ projectId: String(book.projectId), idx: '0' }}
+              >
+                <h2>{book.title}</h2>
+                <p>
+                  {book.author ? `${book.author} · ` : null}
+                  {LANG_LABEL[book.targetLang] ?? book.targetLang} 번역 읽기 →
+                </p>
+              </Link>
             </li>
           ))}
         </ul>

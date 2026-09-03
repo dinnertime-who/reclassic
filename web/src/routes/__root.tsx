@@ -41,7 +41,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <SessionBar />
+        <SiteHeader />
         {children}
         <Scripts />
       </body>
@@ -49,7 +49,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   )
 }
 
-function SessionBar() {
+function SiteHeader() {
   const user = Route.useLoaderData()
   const router = useRouter()
 
@@ -62,24 +62,33 @@ function SessionBar() {
     await router.invalidate()
   }
 
+  // 모바일에서 한 줄에 들어가야 한다. 이름은 좁은 폭에서 CSS가 숨기고
+  // 로그아웃은 남는다 (ADR-038) — 지금 누구인지보다 나가는 길이 급하다.
   return (
-    <nav className="session">
-      <span className="session-links">
+    <header className="site-header">
+      <Link to="/" className="site-brand">
+        reclassic
+      </Link>
+      <nav className="site-nav">
         <Link to="/books">도서 목록</Link>
         {user?.role === 'admin' && <Link to="/admin">관리</Link>}
-      </span>
-      {user ? (
-        <>
-          <span>
-            {user.displayName} · {user.role}
-          </span>{' '}
-          <button type="button" onClick={onLogout}>
-            로그아웃
-          </button>
-        </>
-      ) : (
-        <a href={loginUrl}>Google로 로그인</a>
-      )}
-    </nav>
+      </nav>
+      <div className="site-session">
+        {user ? (
+          <>
+            <span className="site-user">
+              {user.displayName} · {user.role}
+            </span>
+            <button type="button" className="btn" onClick={onLogout}>
+              로그아웃
+            </button>
+          </>
+        ) : (
+          <a className="btn" href={loginUrl}>
+            Google로 로그인
+          </a>
+        )}
+      </div>
+    </header>
   )
 }
