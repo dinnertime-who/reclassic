@@ -130,7 +130,7 @@ function EditChapterRoute() {
   const valid = Number.isInteger(projectId) && Number.isInteger(idx) && idx >= 0
 
   // __root__ 로더가 이미 getCurrentUser 결과를 들고 있다. 요청을 늘리지 않는다.
-  const user = useLoaderData({ from: '__root__' })
+  const { user } = useLoaderData({ from: '__root__' })
 
   const chapterQuery = useGetProjectChapter(projectId, idx, {
     query: { enabled: valid },

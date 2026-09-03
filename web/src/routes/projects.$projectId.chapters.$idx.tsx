@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 
 import { getProjectChapter } from '#/api/gen/reclassic'
 import { ApiError } from '#/api/http'
+import { ReaderSettings } from '#/components/reader-settings'
 import { chapterProgress, readingMinutes } from '#/lib/reading'
 
 export const Route = createFileRoute('/projects/$projectId/chapters/$idx')({
@@ -112,9 +113,14 @@ function TranslatedChapter() {
           <span style={{ '--reader-progress': progress } as CSSProperties} />
         </div>
 
-        <p className="reader-foot-meta">
-          {current + 1} / {totalChapters}장 · 이 장 {minutes}분
-        </p>
+        {/* 위치 표시 옆에 설정 하나. **장 이동 격자(`.reader-nav`)는 그대로 둔다** —
+            거기는 장 전환 작업이 다시 짜는 자리다. */}
+        <div className="reader-tools">
+          <p className="reader-foot-meta">
+            {current + 1} / {totalChapters}장 · 이 장 {minutes}분
+          </p>
+          <ReaderSettings />
+        </div>
 
         <nav className="reader-nav">
           {current > 0 && (

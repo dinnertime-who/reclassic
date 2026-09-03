@@ -8,6 +8,8 @@ import {
 } from '@tanstack/react-router'
 
 import { getCurrentUser, logout } from '#/api/gen/reclassic'
+import { readReaderPrefs } from '#/lib/reader-cookie'
+import { readerAttrs } from '#/lib/reader-prefs'
 // 둘 다 부수효과로 import한다. `?url`로 받아 links에 직접 넣으면 **SSR 빌드의 해시**가
 // 박히는데 그 파일은 .output/public 에 발행되지 않아 404가 된다 (ADR-042).
 //
@@ -22,11 +24,15 @@ import '../styles.css'
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // 비로그인도 읽기 화면은 볼 수 있어야 한다. 실패를 에러로 올리지 않는다.
   loader: async () => {
+    // 읽기 설정은 **요청 쿠키**에서 온다. 여기서 읽어 `<html>`에 얹으므로 첫 페인트부터
+    // 사용자의 값이다 — localStorage를 기각한 이유가 그것이다 (ADR-040).
+    // 로그인 조회가 실패해도 이 값은 남아야 하므로 try 밖에서 읽는다.
+    const reader = readReaderPrefs()
     try {
       const res = await getCurrentUser()
-      return res.status === 200 ? res.data : null
+      return { user: res.status === 200 ? res.data : null, reader }
     } catch {
-      return null
+      return { user: null, reader }
     }
   },
   head: () => ({
@@ -40,8 +46,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { reader } = Route.useLoaderData()
+
+  // **좁혀진 단계 번호만 나간다.** 실제 치수는 styles.css의 `html[data-reader-*]` 표가
+  // 갖는다 — 쿠키 문자열이 `style`에 이어 붙는 경로를 아예 만들지 않는다 (ADR-040).
   return (
-    <html lang="ko">
+    <html lang="ko" {...readerAttrs(reader)}>
       <head>
         <HeadContent />
       </head>
@@ -55,7 +65,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function SiteHeader() {
-  const user = Route.useLoaderData()
+  const { user } = Route.useLoaderData()
   const router = useRouter()
 
   // 브라우저가 직접 이동해야 하는 주소다. orval 클라이언트로 부를 수 없다 —
