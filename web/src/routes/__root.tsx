@@ -8,7 +8,10 @@ import {
 } from '@tanstack/react-router'
 
 import { getCurrentUser, logout } from '#/api/gen/reclassic'
-import appCss from '../styles.css?url'
+// 부수효과로 import한다. `?url`로 받아 links에 직접 넣으면 **SSR 빌드의 해시**가
+// 박히는데, 그 파일은 .output/public 에 발행되지 않아 404가 된다 (ADR-042).
+// 클라이언트·SSR 두 빌드가 만드는 CSS가 바이트 단위로 같을 때만 우연히 맞는다.
+import '../styles.css'
 
 // 라우터 컨텍스트의 타입을 여기서 연다. getRouter()가 요청마다 만든 QueryClient를
 // 넣어 주고, 편집·검수 라우트가 로더에서 ensureQueryData로 받아 쓴다 (ADR-035).
@@ -29,7 +32,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'reclassic' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
   }),
   shellComponent: RootDocument,
 })
