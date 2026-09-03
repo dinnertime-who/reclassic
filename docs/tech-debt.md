@@ -16,6 +16,7 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | D6 | **`book_glossary`가 테이블뿐이다** | [ADR-010](decisions/ADR-010.md) | 쿼리 0건 | **의도된 미구현.** 여러 사람이 같은 책을 번역해 인명·호칭이 갈리기 시작할 때 |
 | D7 | **문단마다 "내 제안 상태"를 주는 필드가 없다** | [ARCHITECTURE.md](ARCHITECTURE.md) 스케치의 `my_proposal_status` | `TranslatedParagraph`는 `stableId`·`sourceText`·`approvedTranslation`·`proposalCount`뿐이다. 인증이 없어 [translation.md](slices/completed/translation.md)에서 미뤘고 아직 계약에 없다 | **이미 아프다.** 편집 화면이 **펼친 문단의 제안만 부른다**([editor.md](slices/completed/editor.md) §4.5) — 전부 부르면 챕터 하나에 요청이 수백 개다. 내 제안이 어디에 있는지 한눈에 볼 방법이 없다 |
 | D8 | **원문 쪽 목차(`GET /books/{gutenbergId}/chapters`)가 없다** — 그리고 잠정 엔드포인트 `GET /books/{gutenbergId}/chapters/{idx}`를 남길지 없앨지가 아직 미결이다 | [openapi.yaml](../openapi.yaml)의 그 경로 주석 — "번역 슬라이스에서 교체하며, 그때 이 엔드포인트를 남길지 없앨지 함께 정한다" | 목차는 번역 프로젝트(`GET /projects/{projectId}/chapters`)만 연다. 원문 읽기 화면(`/books/…`)은 살아 있지만 `/books` 목록이 번역 프로젝트로만 링크를 걸어 **들어갈 입구가 없다** | **원문 읽기 화면에 입구를 만들려는 순간.** 그때 원문 목차가 필요해지는데, 원문에는 진행도가 없어 `ProjectChapterList`를 그대로 쓸 수 없다 — 스키마를 가르든 엔드포인트를 없애든 그 자리에서 정해야 한다. **목차 PR 안에서 정하지 않은 이유가 이것이다**: 계약을 두 번 고치게 된다 |
+| D9 | **번역 프로젝트를 만드는 화면이 없다** | `POST /admin/projects`(`createProject`)가 계약·서버에 모두 있고 `adminOperations`로 잠겨 있다 | **웹에서 그것을 부르는 곳이 0건이다.** 관리 화면 셋(확인 큐·역할·공개)은 목록 조회와 상태 변경만 부른다. 만들려면 관리자 세션 쿠키로 API를 직접 불러야 한다 | **이미 아프다.** 프로덕션에 공개된 번역이 0건인 채로 있고, 그래서 목차·읽기 화면을 실물 데이터로 검증할 수가 없다 — PR 두 개가 연속으로 같은 벽에 막혔다. 슬라이스 8이 남긴 "프로덕션에서 제안 → 승인" 숙제도 이것 때문에 못 닫힌다. **슬라이스 8이 D4로 `open ↔ published` 전이를 열면서 정작 만드는 경로를 빠뜨린 자리다** |
 
 ## 만들어 놓고 부르지 않는 것
 
