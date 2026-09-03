@@ -62,7 +62,10 @@ function ChapterPage() {
         </span>
       </div>
 
-      <main className="reader">
+      {/* data-vt는 장 전환이 읽는 홀짝이다 (ADR-041). 이웃한 장이 서로 다른
+          `view-transition-name`을 갖게 해서 옛 본문과 새 본문이 한 그룹으로 묶이지
+          않게 한다 — 묶이면 스크롤한 채 장을 넘겼을 때 본문이 화면 밖에서 날아온다. */}
+      <main className="reader" data-vt={current % 2}>
         <p className="reader-eyebrow">제 {chapter.idx + 1} 장</p>
         <h1 className="reader-title">
           {chapter.title || `(제목 없음) ${chapter.idx}`}
@@ -102,12 +105,16 @@ function ChapterPage() {
           <ReaderSettings />
         </div>
 
+        {/* 목차 링크는 여기 없다. 원문 쪽 목차(`GET /books/{id}/chapters`)가 아직
+            없어서 걸 곳이 없다 — 번역 읽기 화면에만 있다 (tech-debt D8·S4).
+            viewTransition의 types가 장 이동의 방향이다 (ADR-041). */}
         <nav className="reader-nav">
           {current > 0 && (
             <Link
               to={to}
               params={{ gutenbergId, idx: String(current - 1) }}
               className="btn btn-prev"
+              viewTransition={{ types: ['chapter-prev'] }}
             >
               <span className="visually-hidden">이전 장</span>
               <span aria-hidden="true">‹</span>
@@ -117,7 +124,8 @@ function ChapterPage() {
             <Link
               to={to}
               params={{ gutenbergId, idx: String(current + 1) }}
-              className="btn btn-primary"
+              className="btn btn-primary btn-next"
+              viewTransition={{ types: ['chapter-next'] }}
             >
               다음 장 ›
             </Link>

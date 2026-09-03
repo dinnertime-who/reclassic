@@ -140,6 +140,38 @@ describe('번역 읽기 화면', () => {
     expect(api.count('GET', '/projects/1/chapters/1')).toBe(1)
   })
 
+  it('목차로 돌아가는 링크가 하단 조작에 있다', async () => {
+    const api = fakeApi()
+    api.on('GET', ME, () => ({ status: 401, data: { message: '로그인이 필요하다' } }))
+    api.on('GET', '/projects/1/chapters/1', () => ok(TRANSLATED))
+
+    renderAt('/projects/1/chapters/1')
+
+    // 이것이 없으면 목차로 가는 길이 브라우저 뒤로가기뿐이다 (tech-debt S4).
+    expect(await screen.findByRole('link', { name: '목차' })).toHaveAttribute(
+      'href',
+      '/projects/1/chapters',
+    )
+  })
+
+  it('본문 상자에 장마다 번갈아 바뀌는 전환 표식을 붙인다', async () => {
+    const api = fakeApi()
+    api.on('GET', ME, () => ({ status: 401, data: { message: '로그인이 필요하다' } }))
+    api.on('GET', '/projects/1/chapters/1', () => ok(TRANSLATED))
+
+    const { container } = renderAt('/projects/1/chapters/1')
+    await screen.findByRole('heading', { name: '이웃이 된 사람' })
+
+    // 값 자체(0/1)가 아니라 **이웃한 장이 서로 달라야 한다**는 것이 요점이다 —
+    // 같으면 옛 본문과 새 본문이 한 전환 그룹으로 묶여, 스크롤한 채 장을 넘겼을 때
+    // 본문이 화면 밖에서 날아 들어온다 (ADR-041). 이름을 짓는 것은 styles.css다.
+    // 브라우저에서만 드러나는 종류라 여기서 표식만이라도 잡아 둔다.
+    expect(container.querySelector('main.reader')).toHaveAttribute(
+      'data-vt',
+      String(1 % 2),
+    )
+  })
+
   it('확정 번역이 없는 문단은 원문을 lang="en"으로 유지하고 꼬리표를 단다', async () => {
     const api = fakeApi()
     api.on('GET', ME, () => ({ status: 401, data: { message: '로그인이 필요하다' } }))
@@ -180,5 +212,18 @@ describe('원문 읽기 화면', () => {
     )
     // 원문 화면의 본문은 전부 영문이다 — 문단마다 lang이 붙어야 한다.
     expect(screen.getByText('Call me Ishmael.')).toHaveAttribute('lang', 'en')
+  })
+
+  it('목차 링크를 만들지 않는다 — 원문 쪽에는 목차가 없다', async () => {
+    const api = fakeApi()
+    api.on('GET', ME, () => ({ status: 401, data: { message: '로그인이 필요하다' } }))
+    api.on('GET', '/books/1342/chapters/0', () => ok(SOURCE_ONLY))
+
+    renderAt('/books/1342/chapters/0')
+
+    await screen.findByRole('heading', { name: 'Chapter 1' })
+    // 원문 목차 엔드포인트가 아직 없다 (tech-debt D8). 갈 곳 없는 링크를 만들면
+    // 404로 떨어진다 — 번역 읽기 화면에만 있어야 한다.
+    expect(screen.queryByRole('link', { name: '목차' })).not.toBeInTheDocument()
   })
 })

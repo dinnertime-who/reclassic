@@ -113,6 +113,20 @@ const baseURL = typeof window === 'undefined'
   플러그인이 바꾼다. `@font-face` 디스크립터는 캐스케이드로 덮이지 않아 거기서 고칠 수밖에 없다.
 - web 의존성은 **`make web-add PKG=…`** 로 더한다. `package.json`과 `pnpm-lock.yaml`을 함께 커밋한다.
 
+### 모션 — ADR-041
+
+- **모션은 `@media (prefers-reduced-motion: no-preference)` 안에서만 켠다.** `reduce`에서
+  끄는 것이 아니라 `no-preference`에서만 켜는 것이다 — 그래야 규칙을 빠뜨렸을 때
+  **모션이 걸리지 않는 쪽으로** 틀린다. **빼먹어도 아무 테스트도 실패하지 않는다.**
+- **방향이 뜻을 가진다.** 앞으로 가는 이동은 오른쪽에서 들어오고, 뒤로 가는 이동은
+  왼쪽에서 들어온다. 방향 없는 페이드는 "바뀌었다"만 말하고 "어디로 갔는지"를 말하지 않는다.
+- 시간·이징·거리는 `styles.css`의 **`--motion-*` 토큰**에서 나간다. 화면 파일에 ms나 px를
+  쓰지 않는다 (ADR-038).
+- **클라이언트 이동은 CSS가 시작하지 않는다** — 라우터가 `document.startViewTransition`을
+  부른다. 그래서 `reduce`에서도 전환 자체는 돈다. `::view-transition-old/new(root)`의
+  `animation: none`만 미디어 쿼리 밖에 두는 이유가 이것이다. 없으면 `reduce`인데도
+  **화면 전체가 흐려졌다 켜진다.**
+
 ## 보안
 
 - **세션 토큰을 평문으로 저장하지 않는다.** DB에는 sha256만 넣는다 (ADR-027).
