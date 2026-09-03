@@ -100,16 +100,14 @@ function AdminLayout() {
         </ScreenAlert>
       ) : (
         <>
-          <nav className="mt-4 flex gap-4 text-sm">
-            <Link to="/admin" className="underline underline-offset-4">
+          {/* 표적 크기와 활성 표시는 styles.css가 맡는다 (ADR-038).
+              `activeOptions`가 없으면 `/admin`이 하위 경로에서도 계속 활성으로 남는다. */}
+          <nav className="admin-nav">
+            <Link to="/admin" activeOptions={{ exact: true }}>
               확인 큐
             </Link>
-            <Link to="/admin/users" className="underline underline-offset-4">
-              역할
-            </Link>
-            <Link to="/admin/projects" className="underline underline-offset-4">
-              공개
-            </Link>
+            <Link to="/admin/users">역할</Link>
+            <Link to="/admin/projects">공개</Link>
           </nav>
           <Outlet />
         </>

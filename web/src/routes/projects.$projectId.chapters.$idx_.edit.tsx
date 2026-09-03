@@ -393,14 +393,21 @@ export function ParagraphCard({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-3">
         <p lang="en" className="my-0 whitespace-pre-wrap text-muted-foreground">
           {paragraph.sourceText}
         </p>
         {paragraph.approvedTranslation ? (
-          <p lang="ko" className="my-0 whitespace-pre-wrap">
-            {paragraph.approvedTranslation}
-          </p>
+          // 원문과 확정본이 한 덩어리로 읽히면 무엇이 확정된 것인지 눈으로 못 가른다.
+          // 좁은 화면일수록 심하다 — 왼쪽 선과 라벨로 가른다 (ADR-038).
+          <div className="border-l-2 border-link pl-3">
+            <span className="mb-0.5 block text-xs font-semibold text-link">
+              확정 번역
+            </span>
+            <p lang="ko" className="my-0 whitespace-pre-wrap">
+              {paragraph.approvedTranslation}
+            </p>
+          </div>
         ) : (
           <p className="my-0 text-sm text-muted-foreground">확정 번역이 없습니다.</p>
         )}

@@ -121,10 +121,15 @@ describe('도서 목록', () => {
     expect(screen.getByText('Frankenstein')).toBeInTheDocument()
     expect(screen.queryByText('Moby Dick — 아직 공개되지 않음')).not.toBeInTheDocument()
 
-    const links = screen.getAllByRole('link', { name: '번역 읽기' })
+    // 카드 전체가 링크다 (ADR-038) — 접근성 이름에 제목·저자·안내가 함께 들어간다.
+    // 이름을 통째로 고정하면 문구를 다듬을 때마다 테스트가 깨지므로 안내 문구만 본다.
+    const links = screen.getAllByRole('link', { name: /번역 읽기/ })
     expect(links).toHaveLength(2)
     expect(links[0]).toHaveAttribute('href', '/projects/1/chapters/0')
     expect(links[1]).toHaveAttribute('href', '/projects/2/chapters/0')
+    // 제목이 링크 안에 있어야 카드를 눌러 그 책으로 간다.
+    expect(links[0]).toHaveTextContent('Pride and Prejudice')
+    expect(links[1]).toHaveTextContent('Frankenstein')
 
     expect(api.count('GET', BOOKS)).toBe(1)
     expect(api.count('GET', ADMIN_PROJECTS)).toBe(0)
