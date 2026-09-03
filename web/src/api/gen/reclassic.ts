@@ -37,6 +37,7 @@ import type {
   NeedsReviewBookList,
   OrphanedSuccessionList,
   Project,
+  ProjectChapterList,
   ProjectChapterView,
   ProjectInput,
   ProjectList,
@@ -1334,6 +1335,135 @@ export function useListProjects<TData = Awaited<ReturnType<typeof listProjects>>
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getListProjectsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type listProjectChaptersResponse200 = {
+  data: ProjectChapterList
+  status: 200
+}
+
+export type listProjectChaptersResponse404 = {
+  data: Error
+  status: 404
+}
+
+export type listProjectChaptersResponseSuccess = (listProjectChaptersResponse200) & {
+  headers: Headers;
+};
+export type listProjectChaptersResponseError = (listProjectChaptersResponse404) & {
+  headers: Headers;
+};
+
+export type listProjectChaptersResponse = (listProjectChaptersResponseSuccess | listProjectChaptersResponseError)
+
+export const getListProjectChaptersUrl = (projectId: number,) => {
+
+
+
+
+  return `/projects/${projectId}/chapters`
+}
+
+/**
+ * 목차 화면이 쓴다. 63장짜리 책을 이전·다음으로만 넘게 두지 않는다.
+ *
+ * 진행도는 장 단위 **번역** 커버리지다 (ADR-023) — 색인 판정이 쓰는 것과 같은 숫자이고,
+ * `needs_review` 게이트가 보는 책 단위 **파싱** 수(ADR-014)와는 다른 값이다.
+ *
+ * 책 제목·저자와 전체 진행도를 같은 응답에 담는다. 목차 머리에 필요한 것인데
+ * 따로 부르면 화면 하나를 그리는 데 요청이 둘이 된다 —
+ * ARCHITECTURE "API 계약"의 "한 요청에 필요한 것을 다 조인해 내려준다"와 같은 이유다.
+ * `items`로 감싸는 것은 ADR-037이다. 페이지네이션 필드는 넣지 않는다.
+ * @summary 번역 프로젝트의 장 목록 — 장마다 번역 진행도
+ */
+export const listProjectChapters = async (projectId: number, options?: Parameters<typeof apiFetch>[1]): Promise<listProjectChaptersResponse> => {
+
+  return apiFetch<listProjectChaptersResponse>(getListProjectChaptersUrl(projectId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListProjectChaptersQueryKey = (projectId: number,) => {
+    return [
+    `/projects/${projectId}/chapters`
+    ] as const;
+    }
+
+
+export const getListProjectChaptersQueryOptions = <TData = Awaited<ReturnType<typeof listProjectChapters>>, TError = Error>(projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjectChapters>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListProjectChaptersQueryKey(projectId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listProjectChapters>>> = ({ signal }) => listProjectChapters(projectId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: projectId !== null && projectId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listProjectChapters>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListProjectChaptersQueryResult = NonNullable<Awaited<ReturnType<typeof listProjectChapters>>>
+export type ListProjectChaptersQueryError = Error
+
+
+export function useListProjectChapters<TData = Awaited<ReturnType<typeof listProjectChapters>>, TError = Error>(
+ projectId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjectChapters>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProjectChapters>>,
+          TError,
+          Awaited<ReturnType<typeof listProjectChapters>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProjectChapters<TData = Awaited<ReturnType<typeof listProjectChapters>>, TError = Error>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjectChapters>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listProjectChapters>>,
+          TError,
+          Awaited<ReturnType<typeof listProjectChapters>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListProjectChapters<TData = Awaited<ReturnType<typeof listProjectChapters>>, TError = Error>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjectChapters>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 번역 프로젝트의 장 목록 — 장마다 번역 진행도
+ */
+
+export function useListProjectChapters<TData = Awaited<ReturnType<typeof listProjectChapters>>, TError = Error>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listProjectChapters>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListProjectChaptersQueryOptions(projectId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

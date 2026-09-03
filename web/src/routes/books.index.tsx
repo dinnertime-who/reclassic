@@ -31,15 +31,17 @@ function BookList() {
         <ul className="book-list">
           {items.map((book) => (
             // 카드 전체가 링크다. 모바일에서 제목만 누르게 하면 표적이 너무 작다 (ADR-038).
+            // 1장이 아니라 목차로 보낸다 — 전자책이 목차를 먼저 주는 이유와 같다.
+            // 여기가 목차로 들어가는 유일한 입구다.
             <li key={book.projectId} className="book-card">
               <Link
-                to="/projects/$projectId/chapters/$idx"
-                params={{ projectId: String(book.projectId), idx: '0' }}
+                to="/projects/$projectId/chapters"
+                params={{ projectId: String(book.projectId) }}
               >
                 <h2>{book.title}</h2>
                 <p>
                   {book.author ? `${book.author} · ` : null}
-                  {LANG_LABEL[book.targetLang] ?? book.targetLang} 번역 읽기 →
+                  {LANG_LABEL[book.targetLang] ?? book.targetLang} 번역 목차 →
                 </p>
               </Link>
             </li>

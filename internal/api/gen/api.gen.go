@@ -287,6 +287,17 @@ type Chapter struct {
 	Title string `json:"title"`
 }
 
+// ChapterListItem defines model for ChapterListItem.
+type ChapterListItem struct {
+	Coverage Coverage `json:"coverage"`
+
+	// Idx 0부터 시작하는 장 순번. 읽기 URL의 마지막 조각이다
+	Idx int `json:"idx"`
+
+	// Title 비어 있을 수 있다. 파서가 제목을 못 찾거나 후처리로 비운 경우다
+	Title string `json:"title"`
+}
+
 // ChapterView defines model for ChapterView.
 type ChapterView struct {
 	Chapter    Chapter     `json:"chapter"`
@@ -390,6 +401,21 @@ type Project struct {
 
 // ProjectStatus defines model for Project.Status.
 type ProjectStatus string
+
+// ProjectBook defines model for ProjectBook.
+type ProjectBook struct {
+	// Author 원서에 저자가 없으면 생략된다
+	Author     *string `json:"author,omitempty"`
+	TargetLang string  `json:"targetLang"`
+	Title      string  `json:"title"`
+}
+
+// ProjectChapterList 배열이 아니라 객체다 (ADR-037). 머리말은 items 옆에 둔다
+type ProjectChapterList struct {
+	Book     ProjectBook       `json:"book"`
+	Items    []ChapterListItem `json:"items"`
+	Progress Coverage          `json:"progress"`
+}
 
 // ProjectChapterView defines model for ProjectChapterView.
 type ProjectChapterView struct {
@@ -580,6 +606,9 @@ type ServerInterface interface {
 	// ListProjects 공개 번역 프로젝트 목록 — published만
 	// (GET /projects)
 	ListProjects(w http.ResponseWriter, r *http.Request)
+	// ListProjectChapters 번역 프로젝트의 장 목록 — 장마다 번역 진행도
+	// (GET /projects/{projectId}/chapters)
+	ListProjectChapters(w http.ResponseWriter, r *http.Request, projectId ProjectId)
 	// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
 	// (GET /projects/{projectId}/chapters/{idx})
 	GetProjectChapter(w http.ResponseWriter, r *http.Request, projectId int64, idx int)
@@ -679,6 +708,12 @@ func (_ Unimplemented) GetHealthz(w http.ResponseWriter, r *http.Request) {
 // ListProjects 공개 번역 프로젝트 목록 — published만
 // (GET /projects)
 func (_ Unimplemented) ListProjects(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// ListProjectChapters 번역 프로젝트의 장 목록 — 장마다 번역 진행도
+// (GET /projects/{projectId}/chapters)
+func (_ Unimplemented) ListProjectChapters(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -947,6 +982,32 @@ func (siw *ServerInterfaceWrapper) ListProjects(w http.ResponseWriter, r *http.R
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProjects(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ListProjectChapters operation middleware
+func (siw *ServerInterfaceWrapper) ListProjectChapters(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "projectId" -------------
+	var projectId ProjectId
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectId", chi.URLParam(r, "projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int64", ValueIsUnescaped: r.URL.RawPath == ""})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "projectId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProjectChapters(w, r, projectId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1232,6 +1293,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects", wrapper.ListProjects)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/projects/{projectId}/chapters", wrapper.ListProjectChapters)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/projects/{projectId}/chapters/{idx}", wrapper.GetProjectChapter)
@@ -1876,6 +1940,42 @@ func (response ListProjects200JSONResponse) VisitListProjectsResponse(w http.Res
 	return err
 }
 
+type ListProjectChaptersRequestObject struct {
+	ProjectId ProjectId `json:"projectId"`
+}
+
+type ListProjectChaptersResponseObject interface {
+	VisitListProjectChaptersResponse(w http.ResponseWriter) error
+}
+
+type ListProjectChapters200JSONResponse ProjectChapterList
+
+func (response ListProjectChapters200JSONResponse) VisitListProjectChaptersResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type ListProjectChapters404JSONResponse Error
+
+func (response ListProjectChapters404JSONResponse) VisitListProjectChaptersResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
 type GetProjectChapterRequestObject struct {
 	ProjectId int64 `json:"projectId"`
 	Idx       int   `json:"idx"`
@@ -2111,6 +2211,9 @@ type StrictServerInterface interface {
 	// ListProjects 공개 번역 프로젝트 목록 — published만
 	// (GET /projects)
 	ListProjects(ctx context.Context, request ListProjectsRequestObject) (ListProjectsResponseObject, error)
+	// ListProjectChapters 번역 프로젝트의 장 목록 — 장마다 번역 진행도
+	// (GET /projects/{projectId}/chapters)
+	ListProjectChapters(ctx context.Context, request ListProjectChaptersRequestObject) (ListProjectChaptersResponseObject, error)
 	// GetProjectChapter 번역 프로젝트의 챕터 하나 — 원문과 확정 번역
 	// (GET /projects/{projectId}/chapters/{idx})
 	GetProjectChapter(ctx context.Context, request GetProjectChapterRequestObject) (GetProjectChapterResponseObject, error)
@@ -2528,6 +2631,32 @@ func (sh *strictHandler) ListProjects(w http.ResponseWriter, r *http.Request) {
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(ListProjectsResponseObject); ok {
 		if err := validResponse.VisitListProjectsResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListProjectChapters operation middleware
+func (sh *strictHandler) ListProjectChapters(w http.ResponseWriter, r *http.Request, projectId ProjectId) {
+	var request ListProjectChaptersRequestObject
+
+	request.ProjectId = projectId
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListProjectChapters(ctx, request.(ListProjectChaptersRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListProjectChapters")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListProjectChaptersResponseObject); ok {
+		if err := validResponse.VisitListProjectChaptersResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

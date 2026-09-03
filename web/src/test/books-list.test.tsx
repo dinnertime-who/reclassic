@@ -123,10 +123,11 @@ describe('도서 목록', () => {
 
     // 카드 전체가 링크다 (ADR-038) — 접근성 이름에 제목·저자·안내가 함께 들어간다.
     // 이름을 통째로 고정하면 문구를 다듬을 때마다 테스트가 깨지므로 안내 문구만 본다.
-    const links = screen.getAllByRole('link', { name: /번역 읽기/ })
+    const links = screen.getAllByRole('link', { name: /번역 목차/ })
     expect(links).toHaveLength(2)
-    expect(links[0]).toHaveAttribute('href', '/projects/1/chapters/0')
-    expect(links[1]).toHaveAttribute('href', '/projects/2/chapters/0')
+    // 1장이 아니라 목차로 간다 — 63장짜리 책을 이전·다음으로만 넘게 두지 않는다.
+    expect(links[0]).toHaveAttribute('href', '/projects/1/chapters')
+    expect(links[1]).toHaveAttribute('href', '/projects/2/chapters')
     // 제목이 링크 안에 있어야 카드를 눌러 그 책으로 간다.
     expect(links[0]).toHaveTextContent('Pride and Prejudice')
     expect(links[1]).toHaveTextContent('Frankenstein')
@@ -143,7 +144,7 @@ describe('도서 목록', () => {
     renderBooks()
 
     expect(await screen.findByText('아직 공개된 번역이 없습니다.')).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: '번역 읽기' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /번역 목차/ })).not.toBeInTheDocument()
     expect(api.count('GET', BOOKS)).toBe(1)
   })
 })

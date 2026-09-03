@@ -366,12 +366,24 @@ func TestGoogleStartRedirects(t *testing.T) {
 // fakeTranslator는 검수·목록·상태 전이를 DB 없이 보기 위한 대역이다.
 type fakeTranslator struct {
 	Translator
-	projects []translate.ProjectItem
-	stored   *gendb.TranslationProject
+	projects    []translate.ProjectItem
+	stored      *gendb.TranslationProject
+	contents    *translate.ContentsView
+	contentsErr error
 }
 
 func (*fakeTranslator) Approve(context.Context, int64, int64, string) (*gendb.ParagraphTranslation, error) {
 	return &gendb.ParagraphTranslation{}, nil
+}
+
+func (f *fakeTranslator) Contents(context.Context, int64) (*translate.ContentsView, error) {
+	if f.contentsErr != nil {
+		return nil, f.contentsErr
+	}
+	if f.contents == nil {
+		return &translate.ContentsView{Title: "Pride and Prejudice", TargetLang: "ko"}, nil
+	}
+	return f.contents, nil
 }
 
 func (*fakeTranslator) CreateProject(_ context.Context, _ int, targetLang string) (*gendb.TranslationProject, error) {
@@ -518,6 +530,78 @@ func TestReadListEndpointsNeedNoLogin(t *testing.T) {
 		if rec := getPath(srv, path); rec.Code != http.StatusOK {
 			t.Errorf("%s status = %d, want 200", path, rec.Code)
 		}
+	}
+}
+
+// 목차는 읽기 경로다. 어떤 역할로도 200이고 비로그인도 200이다 —
+// auth.go의 authedOperations에 ListProjectChapters가 실수로 들어가면 여기가 잡는다.
+// 관리자 표(TestAdminOperationsAuthz)의 반대편 그물이다.
+func TestListProjectChaptersAuthz(t *testing.T) {
+	roles := []struct {
+		name string
+		user *gendb.User
+	}{
+		{"비로그인", nil},
+		{"member", userWithRole(auth.RoleMember)},
+		{"reviewer", userWithRole(auth.RoleReviewer)},
+		{"admin", userWithRole(auth.RoleAdmin)},
+	}
+	for _, role := range roles {
+		t.Run(role.name, func(t *testing.T) {
+			srv := newTestServer(Deps{Sessions: &fakeSessions{user: role.user}})
+			if rec := getPath(srv, "/projects/1/chapters"); rec.Code != http.StatusOK {
+				t.Errorf("status = %d, want 200 (body: %s)", rec.Code, rec.Body.String())
+			}
+		})
+	}
+}
+
+// 목차는 장마다 진행도를 담고, 진행도 0%인 장도 뺴지 않는다 —
+// 원문은 있으므로 읽을 수 있고, 빠지면 그 장으로 갈 길이 없어진다.
+func TestListProjectChaptersCarriesProgress(t *testing.T) {
+	srv := newTestServer(Deps{Translate: &fakeTranslator{contents: &translate.ContentsView{
+		Title:      "Pride and Prejudice",
+		Author:     "Jane Austen",
+		TargetLang: "ko",
+		Progress:   translate.Coverage{Total: 30, Approved: 12},
+		Chapters: []translate.ChapterProgress{
+			{Idx: 0, Title: "CHAPTER I.", Coverage: translate.Coverage{Total: 20, Approved: 12}},
+			{Idx: 1, Title: "", Coverage: translate.Coverage{Total: 10, Approved: 0}},
+		},
+	}}})
+
+	rec := getPath(srv, "/projects/7/chapters")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (body: %s)", rec.Code, rec.Body.String())
+	}
+
+	var got gen.ProjectChapterList
+	if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil {
+		t.Fatalf("디코드: %v", err)
+	}
+	if got.Book.Title != "Pride and Prejudice" || got.Book.Author == nil || *got.Book.Author != "Jane Austen" {
+		t.Errorf("book = %+v", got.Book)
+	}
+	if got.Progress.Approved != 12 || got.Progress.Total != 30 || got.Progress.Ratio != 0.4 {
+		t.Errorf("progress = %+v, want 12/30 (0.4)", got.Progress)
+	}
+	if len(got.Items) != 2 {
+		t.Fatalf("items = %+v, want 2개 (0%%인 장도 남는다)", got.Items)
+	}
+	if got.Items[0].Idx != 0 || got.Items[0].Title != "CHAPTER I." || got.Items[0].Coverage.Ratio != 0.6 {
+		t.Errorf("items[0] = %+v", got.Items[0])
+	}
+	if got.Items[1].Coverage.Approved != 0 || got.Items[1].Coverage.Ratio != 0 {
+		t.Errorf("items[1] = %+v, want 진행도 0", got.Items[1])
+	}
+}
+
+// 활성 revision이 없는 책은 빈 목차가 아니라 404다.
+// 빈 목록으로 내리면 화면이 "장이 없는 책"이라고 거짓말을 한다.
+func TestListProjectChaptersNotFound(t *testing.T) {
+	srv := newTestServer(Deps{Translate: &fakeTranslator{contentsErr: translate.ErrNotFound}})
+	if rec := getPath(srv, "/projects/999/chapters"); rec.Code != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", rec.Code)
 	}
 }
 

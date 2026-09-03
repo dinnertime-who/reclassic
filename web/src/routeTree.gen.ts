@@ -16,6 +16,7 @@ import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as BooksIndexRouteImport } from './routes/books.index'
 import { Route as BooksGutenbergIdChaptersIdxRouteImport } from './routes/books.$gutenbergId.chapters.$idx'
+import { Route as ProjectsProjectIdChaptersIndexRouteImport } from './routes/projects.$projectId.chapters.index'
 import { Route as ProjectsProjectIdChaptersIdxRouteImport } from './routes/projects.$projectId.chapters.$idx'
 import { Route as ProjectsProjectIdChaptersIdxEditRouteImport } from './routes/projects.$projectId.chapters.$idx_.edit'
 
@@ -55,6 +56,12 @@ const BooksGutenbergIdChaptersIdxRoute =
     path: '/books/$gutenbergId/chapters/$idx',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ProjectsProjectIdChaptersIndexRoute =
+  ProjectsProjectIdChaptersIndexRouteImport.update({
+    id: '/projects/$projectId/chapters/',
+    path: '/projects/$projectId/chapters/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProjectsProjectIdChaptersIdxRoute =
   ProjectsProjectIdChaptersIdxRouteImport.update({
     id: '/projects/$projectId/chapters/$idx',
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/books/': typeof BooksIndexRoute
   '/books/$gutenbergId/chapters/$idx': typeof BooksGutenbergIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx': typeof ProjectsProjectIdChaptersIdxRoute
+  '/projects/$projectId/chapters/': typeof ProjectsProjectIdChaptersIndexRoute
   '/projects/$projectId/chapters/$idx/edit': typeof ProjectsProjectIdChaptersIdxEditRoute
 }
 export interface FileRoutesByTo {
@@ -87,6 +95,7 @@ export interface FileRoutesByTo {
   '/books': typeof BooksIndexRoute
   '/books/$gutenbergId/chapters/$idx': typeof BooksGutenbergIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx': typeof ProjectsProjectIdChaptersIdxRoute
+  '/projects/$projectId/chapters': typeof ProjectsProjectIdChaptersIndexRoute
   '/projects/$projectId/chapters/$idx/edit': typeof ProjectsProjectIdChaptersIdxEditRoute
 }
 export interface FileRoutesById {
@@ -99,6 +108,7 @@ export interface FileRoutesById {
   '/books/': typeof BooksIndexRoute
   '/books/$gutenbergId/chapters/$idx': typeof BooksGutenbergIdChaptersIdxRoute
   '/projects/$projectId/chapters/$idx': typeof ProjectsProjectIdChaptersIdxRoute
+  '/projects/$projectId/chapters/': typeof ProjectsProjectIdChaptersIndexRoute
   '/projects/$projectId/chapters/$idx_/edit': typeof ProjectsProjectIdChaptersIdxEditRoute
 }
 export interface FileRouteTypes {
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
     | '/books/'
     | '/books/$gutenbergId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx'
+    | '/projects/$projectId/chapters/'
     | '/projects/$projectId/chapters/$idx/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/books'
     | '/books/$gutenbergId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx'
+    | '/projects/$projectId/chapters'
     | '/projects/$projectId/chapters/$idx/edit'
   id:
     | '__root__'
@@ -133,6 +145,7 @@ export interface FileRouteTypes {
     | '/books/'
     | '/books/$gutenbergId/chapters/$idx'
     | '/projects/$projectId/chapters/$idx'
+    | '/projects/$projectId/chapters/'
     | '/projects/$projectId/chapters/$idx_/edit'
   fileRoutesById: FileRoutesById
 }
@@ -142,6 +155,7 @@ export interface RootRouteChildren {
   BooksIndexRoute: typeof BooksIndexRoute
   BooksGutenbergIdChaptersIdxRoute: typeof BooksGutenbergIdChaptersIdxRoute
   ProjectsProjectIdChaptersIdxRoute: typeof ProjectsProjectIdChaptersIdxRoute
+  ProjectsProjectIdChaptersIndexRoute: typeof ProjectsProjectIdChaptersIndexRoute
   ProjectsProjectIdChaptersIdxEditRoute: typeof ProjectsProjectIdChaptersIdxEditRoute
 }
 
@@ -196,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksGutenbergIdChaptersIdxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$projectId/chapters/': {
+      id: '/projects/$projectId/chapters/'
+      path: '/projects/$projectId/chapters'
+      fullPath: '/projects/$projectId/chapters/'
+      preLoaderRoute: typeof ProjectsProjectIdChaptersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$projectId/chapters/$idx': {
       id: '/projects/$projectId/chapters/$idx'
       path: '/projects/$projectId/chapters/$idx'
@@ -233,6 +254,7 @@ const rootRouteChildren: RootRouteChildren = {
   BooksIndexRoute: BooksIndexRoute,
   BooksGutenbergIdChaptersIdxRoute: BooksGutenbergIdChaptersIdxRoute,
   ProjectsProjectIdChaptersIdxRoute: ProjectsProjectIdChaptersIdxRoute,
+  ProjectsProjectIdChaptersIndexRoute: ProjectsProjectIdChaptersIndexRoute,
   ProjectsProjectIdChaptersIdxEditRoute: ProjectsProjectIdChaptersIdxEditRoute,
 }
 export const routeTree = rootRouteImport

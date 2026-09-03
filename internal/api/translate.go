@@ -13,6 +13,7 @@ import (
 // Translator는 번역 핸들러가 도메인에 대해 알아야 하는 전부다.
 type Translator interface {
 	Chapter(ctx context.Context, projectID int64, idx int) (*translate.ChapterView, error)
+	Contents(ctx context.Context, projectID int64) (*translate.ContentsView, error)
 	Proposals(ctx context.Context, projectID int64, stableID string) ([]translate.ProposalView, error)
 	Propose(ctx context.Context, projectID int64, stableID, text string, authorID int64) (*gendb.TranslationProposal, error)
 	Approve(ctx context.Context, proposalID, reviewerID int64, note string) (*gendb.ParagraphTranslation, error)
@@ -50,12 +51,8 @@ func (s *Server) GetProjectChapter(ctx context.Context, req gen.GetProjectChapte
 		Chapter:       gen.Chapter{Idx: view.Idx, Title: view.Title},
 		Paragraphs:    paragraphs,
 		TotalChapters: view.TotalChapters,
-		Coverage: gen.Coverage{
-			Total:    view.Coverage.Total,
-			Approved: view.Coverage.Approved,
-			Ratio:    view.Coverage.Ratio(),
-		},
-		Indexable: view.Coverage.Indexable(s.indexThreshold),
+		Coverage:      toCoverage(view.Coverage),
+		Indexable:     view.Coverage.Indexable(s.indexThreshold),
 	}, nil
 }
 
