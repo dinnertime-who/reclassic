@@ -164,9 +164,12 @@ INSERT INTO revision_successions
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
--- 사이트맵과 진행률용.
+-- 사이트맵과 진행률용. 목차 화면도 같은 숫자를 쓴다 —
+-- 장 단위 번역 커버리지(ADR-023)는 색인 판정과 목차 진행도가 공유하는 값이다.
+-- title은 목차만 쓰지만 컬럼 하나를 위해 같은 조인을 한 번 더 하지 않는다.
 -- name: ListProjectChapterCoverage :many
 SELECT c.idx,
+       c.title,
        count(p.id)                    AS total,
        count(pt.paragraph_stable_id)  AS approved
 FROM chapters c
@@ -175,7 +178,7 @@ JOIN translation_projects tp ON tp.id = $1 AND tp.book_id = r.book_id
 LEFT JOIN paragraphs p ON p.chapter_id = c.id
 LEFT JOIN paragraph_translations pt
        ON pt.project_id = tp.id AND pt.paragraph_stable_id = p.stable_id
-GROUP BY c.idx
+GROUP BY c.idx, c.title
 ORDER BY c.idx;
 
 -- 인증 (슬라이스 5).

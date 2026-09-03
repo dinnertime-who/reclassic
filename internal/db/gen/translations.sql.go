@@ -474,6 +474,7 @@ func (q *Queries) ListChapterParagraphsWithTranslation(ctx context.Context, arg 
 
 const listProjectChapterCoverage = `-- name: ListProjectChapterCoverage :many
 SELECT c.idx,
+       c.title,
        count(p.id)                    AS total,
        count(pt.paragraph_stable_id)  AS approved
 FROM chapters c
@@ -482,17 +483,20 @@ JOIN translation_projects tp ON tp.id = $1 AND tp.book_id = r.book_id
 LEFT JOIN paragraphs p ON p.chapter_id = c.id
 LEFT JOIN paragraph_translations pt
        ON pt.project_id = tp.id AND pt.paragraph_stable_id = p.stable_id
-GROUP BY c.idx
+GROUP BY c.idx, c.title
 ORDER BY c.idx
 `
 
 type ListProjectChapterCoverageRow struct {
 	Idx      int32
+	Title    string
 	Total    int64
 	Approved int64
 }
 
-// 사이트맵과 진행률용.
+// 사이트맵과 진행률용. 목차 화면도 같은 숫자를 쓴다 —
+// 장 단위 번역 커버리지(ADR-023)는 색인 판정과 목차 진행도가 공유하는 값이다.
+// title은 목차만 쓰지만 컬럼 하나를 위해 같은 조인을 한 번 더 하지 않는다.
 func (q *Queries) ListProjectChapterCoverage(ctx context.Context, id int64) ([]ListProjectChapterCoverageRow, error) {
 	rows, err := q.db.Query(ctx, listProjectChapterCoverage, id)
 	if err != nil {
@@ -502,7 +506,12 @@ func (q *Queries) ListProjectChapterCoverage(ctx context.Context, id int64) ([]L
 	var items []ListProjectChapterCoverageRow
 	for rows.Next() {
 		var i ListProjectChapterCoverageRow
-		if err := rows.Scan(&i.Idx, &i.Total, &i.Approved); err != nil {
+		if err := rows.Scan(
+			&i.Idx,
+			&i.Title,
+			&i.Total,
+			&i.Approved,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

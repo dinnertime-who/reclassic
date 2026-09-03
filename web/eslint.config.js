@@ -29,6 +29,7 @@ export default tseslint.config(
       'src/routes/books.index.tsx',
       'src/routes/books.*.tsx',
       'src/routes/projects.$projectId.chapters.$idx.tsx',
+      'src/routes/projects.$projectId.chapters.index.tsx',
     ],
     ignores: ['src/routes/*.edit.tsx'],
     rules: {

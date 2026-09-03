@@ -15,13 +15,14 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 |---|---|---|---|---|
 | D6 | **`book_glossary`가 테이블뿐이다** | [ADR-010](decisions/ADR-010.md) | 쿼리 0건 | **의도된 미구현.** 여러 사람이 같은 책을 번역해 인명·호칭이 갈리기 시작할 때 |
 | D7 | **문단마다 "내 제안 상태"를 주는 필드가 없다** | [ARCHITECTURE.md](ARCHITECTURE.md) 스케치의 `my_proposal_status` | `TranslatedParagraph`는 `stableId`·`sourceText`·`approvedTranslation`·`proposalCount`뿐이다. 인증이 없어 [translation.md](slices/completed/translation.md)에서 미뤘고 아직 계약에 없다 | **이미 아프다.** 편집 화면이 **펼친 문단의 제안만 부른다**([editor.md](slices/completed/editor.md) §4.5) — 전부 부르면 챕터 하나에 요청이 수백 개다. 내 제안이 어디에 있는지 한눈에 볼 방법이 없다 |
+| D8 | **원문 쪽 목차(`GET /books/{gutenbergId}/chapters`)가 없다** — 그리고 잠정 엔드포인트 `GET /books/{gutenbergId}/chapters/{idx}`를 남길지 없앨지가 아직 미결이다 | [openapi.yaml](../openapi.yaml)의 그 경로 주석 — "번역 슬라이스에서 교체하며, 그때 이 엔드포인트를 남길지 없앨지 함께 정한다" | 목차는 번역 프로젝트(`GET /projects/{projectId}/chapters`)만 연다. 원문 읽기 화면(`/books/…`)은 살아 있지만 `/books` 목록이 번역 프로젝트로만 링크를 걸어 **들어갈 입구가 없다** | **원문 읽기 화면에 입구를 만들려는 순간.** 그때 원문 목차가 필요해지는데, 원문에는 진행도가 없어 `ProjectChapterList`를 그대로 쓸 수 없다 — 스키마를 가르든 엔드포인트를 없애든 그 자리에서 정해야 한다. **목차 PR 안에서 정하지 않은 이유가 이것이다**: 계약을 두 번 고치게 된다 |
 
 ## 만들어 놓고 부르지 않는 것
 
 | | 무엇 | 언제 아픈가 |
 |---|---|---|
 | U1 | **`DeleteExpiredSessions`를 아무도 부르지 않는다** | 세션 수명 30일·갱신 없음([ADR-027](decisions/ADR-027.md))인데 만료 행이 영구히 쌓인다. 당장은 무해하고 사용자가 늘면 아프다 |
-| U2 | `CountBooks`·`ChapterCoverage` 미사용 | 슬라이스 8에서 다시 봤다. **못 쓴다.** `CountBooks`는 전체 `books` 행 수인데, 공개 목록은 published 프로젝트와의 조인이고 페이지네이션도 없다(ADR-037) — `len(items)`가 곧 총량이다. `ChapterCoverage`는 챕터 단위 **번역** 커버리지(ADR-023)인데, `needs_review` 큐가 필요한 숫자는 책 단위 **파싱** 챕터·문단 수(ADR-014)다. 다른 숫자라 갖다 붙이면 게이트 판단이 틀린다 |
+| U2 | `CountBooks`·`ChapterCoverage` 미사용 | 슬라이스 8에서 다시 봤다. **못 쓴다.** `CountBooks`는 전체 `books` 행 수인데, 공개 목록은 published 프로젝트와의 조인이고 페이지네이션도 없다(ADR-037) — `len(items)`가 곧 총량이다. `ChapterCoverage`는 챕터 단위 **번역** 커버리지(ADR-023)인데, `needs_review` 큐가 필요한 숫자는 책 단위 **파싱** 챕터·문단 수(ADR-014)다. 다른 숫자라 갖다 붙이면 게이트 판단이 틀린다. **목차 화면이 쓰는 것은 `ListProjectChapterCoverage`(`:many`)다** — 이름이 비슷하지만 프로젝트의 장 전체를 한 번에 읽는 다른 쿼리이고, `ChapterCoverage`(`:one`)는 여전히 부르는 곳이 없다 |
 
 ## 검증하지 못한 것
 
@@ -59,6 +60,7 @@ ADR이나 스키마가 이미 정한 것 중 구현이 비어 있는 자리다.
 | S1 | **한글 웹폰트가 없다** — 시스템 스택이라 기기마다 본문이 다르게 보인다 | **결정은 끝났다** ([ADR-039](decisions/ADR-039.md): Literata + Noto Serif KR, Fontsource 자체 호스팅). **막고 있는 것은 T5다** — web 의존성을 더할 make 경로가 없다. 그 타깃부터 만든 뒤 얹는다 |
 | S2 | **다크 모드가 없다** — `.dark` 토큰은 shadcn 때문에 있지만 전환 수단이 없다 | 밤에 읽는 사람이 생길 때. **읽기 화면에는 자바스크립트가 없어서**(ADR-007·023) 토글을 달 수 없다. `prefers-color-scheme`만으로 열면 토큰 두 벌을 처음부터 같이 관리해야 한다 |
 | S3 | **읽기 HTML이 읽는 사람마다 갈린다** — 읽기 설정 쿠키를 SSR이 읽어 렌더한다 ([ADR-040](decisions/ADR-040.md)) | 지금은 HTML을 캐시하지 않아 무해하다(ADR-034). **HTML 캐시를 켜는 순간 `reclassic_reader` 쿠키가 `Vary` 대상이 된다** — 빠뜨리면 남의 글자 크기가 캐시에서 나온다. 캐시를 켤 때 이 줄을 먼저 볼 것 |
+| S4 | **읽기 화면에서 목차로 돌아가는 링크가 없다** — 목차로 가는 입구는 `/books` 카드 하나뿐이다. 디자인 시안의 "읽던 자리" 표시도 함께 미뤘다 | 장을 읽다가 목차로 가려면 브라우저 뒤로가기나 `/books`를 거쳐야 한다. **63장을 이전·다음으로만 넘던 문제를 절반만 푼 상태다.** 링크를 넣으려면 `.chapter-nav`의 2열 격자(이전/다음)를 3칸으로 다시 짜야 하는데, 그 리듬을 같은 시기에 [ADR-041](decisions/ADR-041.md)이 건드리고 있어 이번에는 손대지 않았다. **읽기 화면의 전환 작업이 머지된 직후가 넣을 자리다.** "읽던 자리"는 그와 별개로 쿠키(ADR-040)가 먼저 있어야 한다 |
 
 ## 프록시 뒤라서 생긴 것
 
