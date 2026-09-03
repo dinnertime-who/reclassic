@@ -8,9 +8,12 @@ import {
 } from '@tanstack/react-router'
 
 import { getCurrentUser, logout } from '#/api/gen/reclassic'
-// 부수효과로 import한다. `?url`로 받아 links에 직접 넣으면 **SSR 빌드의 해시**가
-// 박히는데, 그 파일은 .output/public 에 발행되지 않아 404가 된다 (ADR-042).
-// 클라이언트·SSR 두 빌드가 만드는 CSS가 바이트 단위로 같을 때만 우연히 맞는다.
+// 둘 다 부수효과로 import한다. `?url`로 받아 links에 직접 넣으면 **SSR 빌드의 해시**가
+// 박히는데 그 파일은 .output/public 에 발행되지 않아 404가 된다 (ADR-042).
+//
+// 서체를 별도 파일로 둔 것은 유지한다 — 본문 서체는 읽기 화면의 것이고(ADR-039)
+// 토큰·레이아웃과 수명이 다르다. `font-display: optional`은 vite.config.ts가 건다.
+import '../fonts.css'
 import '../styles.css'
 
 // 라우터 컨텍스트의 타입을 여기서 연다. getRouter()가 요청마다 만든 QueryClient를

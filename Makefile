@@ -179,6 +179,19 @@ $(WEB_STAMP): $(WEB)/pnpm-lock.yaml $(WEB)/package.json
 	cd $(WEB) && $(PNPM) install --frozen-lockfile
 	@touch $@
 
+.PHONY: web-add
+web-add: ## web/ 의존성 추가 (예: make web-add PKG=@fontsource/noto-serif-kr, DEV=1 이면 devDependencies)
+	$(call need,$(PNPM),corepack enable)
+	@test -n "$(PKG)" || { echo "✗ 패키지 이름이 필요합니다. 예: make web-add PKG=@fontsource/noto-serif-kr"; exit 1; }
+	@# 여기만 lockfile을 고친다. `web-install`은 --frozen-lockfile 전용으로 남는다 (ADR-019) —
+	@# lockfile이 유일한 진실이라는 성질은 "아무나 못 고친다"가 아니라 "고치는 자리가 하나다"로 지킨다.
+	cd $(WEB) && $(PNPM) add $(if $(DEV),--save-dev,) $(PKG)
+	@# 방금 깔았으므로 스탬프를 앞세운다. 안 하면 다음 web-install이 통째로 다시 깐다.
+	@touch $(WEB_STAMP)
+	@echo
+	@echo "⚠ $(WEB)/package.json 과 $(WEB)/pnpm-lock.yaml 이 바뀌었습니다. **둘 다 커밋하세요.**"
+	@echo "  의존성을 늘리는 판단은 ADR 감입니다 (AGENTS.md 작업 규칙 2)."
+
 .PHONY: ui-add
 ui-add: web-install ## shadcn 컴포넌트 추가 (예: make ui-add C=button). 먼저 shadcn에 있는지 찾을 것 (ADR-035)
 	@test -n "$(C)" || { echo "✗ 컴포넌트 이름이 필요합니다. 예: make ui-add C=button"; exit 1; }

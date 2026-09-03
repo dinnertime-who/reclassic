@@ -73,7 +73,7 @@ D1~D5도 ADR-037(`{ items }` 목록 계약, **Accepted**)도 닫혔습니다.
 | API · 워커 · 웹 실행 | `make run-api` · `make run-worker` · `make run-web` (:3100) |
 | 웹 개발 서버를 LAN에 노출 | `make run-web-lan` (`LAN_IP=192.168.x.x`) |
 | shadcn 컴포넌트 추가 | `make ui-add C=button` |
-| `web/` 의존성 설치 | `make web-install` |
+| `web/` 의존성 설치 · 추가 | `make web-install` · `make web-add PKG=@fontsource/literata` |
 | 파서 결과 적재 (멱등) | `make ingest` (한 권만: `ONLY=1342`) |
 | `stable_id` 승계율 측정 | `make succession` |
 | 검증용 도서 내려받기 · 파서 리포트 | `make fetch-corpus` · `make parsecheck` |
