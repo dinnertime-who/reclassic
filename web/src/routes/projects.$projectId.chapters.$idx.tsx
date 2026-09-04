@@ -68,7 +68,11 @@ function TranslatedChapter() {
         </span>
       </div>
 
-      <main className="reader">
+      {/* data-vt는 장 전환이 읽는 홀짝이다 (ADR-041). 이웃한 장이 서로 다른
+          `view-transition-name`을 갖게 해서 옛 본문과 새 본문이 한 그룹으로 묶이지
+          않게 한다 — 묶이면 스크롤한 채 장을 넘겼을 때 본문이 화면 밖에서 날아온다.
+          값을 읽어 이름으로 바꾸는 것은 styles.css다 (ADR-038). */}
+      <main className="reader" data-vt={current % 2}>
         <p className="reader-eyebrow">제 {chapter.idx + 1} 장</p>
         <h1 className="reader-title">
           {chapter.title || `(제목 없음) ${chapter.idx}`}
@@ -122,12 +126,31 @@ function TranslatedChapter() {
           <ReaderSettings />
         </div>
 
+        {/* 목차 · 이전 · 다음. 목차로 가는 입구가 여기 하나 생기면서 63장을
+            이전·다음으로만 넘던 문제가 닫힌다 (tech-debt S4).
+            **원문 읽기 화면에는 이 링크가 없다** — 원문 쪽 목차 엔드포인트가 아직
+            없어서 갈 곳이 없다 (tech-debt D8).
+
+            viewTransition의 types가 장 이동의 방향이다 (ADR-041). 목차로 나가는 것은
+            장 이동이 아니라 화면을 뜨는 것이라 붙이지 않는다. */}
         <nav className="reader-nav">
+          {/* activeOptions.exact이 없으면 목차 경로가 이 화면 경로의 앞부분이라
+              TanStack이 "지금 이 페이지"로 보고 `aria-current="page"`를 붙인다 —
+              스크린 리더에게 거짓말이 된다. */}
+          <Link
+            to="/projects/$projectId/chapters"
+            params={{ projectId }}
+            className="btn"
+            activeOptions={{ exact: true }}
+          >
+            목차
+          </Link>
           {current > 0 && (
             <Link
               to={to}
               params={{ projectId, idx: String(current - 1) }}
               className="btn btn-prev"
+              viewTransition={{ types: ['chapter-prev'] }}
             >
               <span className="visually-hidden">이전 장</span>
               <span aria-hidden="true">‹</span>
@@ -137,7 +160,8 @@ function TranslatedChapter() {
             <Link
               to={to}
               params={{ projectId, idx: String(current + 1) }}
-              className="btn btn-primary"
+              className="btn btn-primary btn-next"
+              viewTransition={{ types: ['chapter-next'] }}
             >
               다음 장 ›
             </Link>

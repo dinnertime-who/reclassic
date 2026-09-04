@@ -109,6 +109,15 @@
 
   --text-2xs: 0.625rem; /* 꼬리표 전용 10px. 본문에 쓰지 말 것 */
 
+  /* 모션 (ADR-041). **이 프로젝트에 모션이 처음 들어오는 자리다** — 뒤에 오는 모션도
+     이 세 값에서 나간다. 320ms는 밀려 나가는 것이 눈에 보이면서 장을 연달아 넘길 때
+     걸리적거리지 않는 선이고, 26px는 방향만 말하고 화면을 흔들지 않는 거리다.
+     이징은 처음이 빠르고 끝이 눕는 곡선이라 종이가 미끄러지듯 멈춘다.
+     **쓰는 곳은 `prefers-reduced-motion: no-preference` 안뿐이다.** */
+  --motion-duration: 320ms;
+  --motion-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-shift: 26px;
+
   --font-sans: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic",
     "Noto Sans KR", sans-serif;
 
@@ -513,10 +522,14 @@ body:has(main.reader, main.contents-page) .site-header {
   font-variant-numeric: tabular-nums;
 }
 
-/* 이전은 아이콘 하나, 다음은 남은 폭 전부. 다음 장으로 가는 것이 기본 동작이다. */
+/* 목차 · 이전 · 다음. 이전은 아이콘 하나, 다음은 남은 폭 전부 —
+   다음 장으로 가는 것이 기본 동작이다.
+
+   격자가 아니라 flex인 이유: 칸 수가 화면마다 다르다. 원문 읽기 화면에는 목차가 없고
+   (원문 목차 엔드포인트가 없다 — tech-debt D8), 첫 장에는 이전이, 마지막 장에는 다음이
+   없다. 칸을 고정하면 그때마다 빈 칸이 남아 조작이 한쪽으로 쏠린다. */
 .reader-nav {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
   gap: 0.5rem;
 }
 
@@ -531,9 +544,123 @@ body:has(main.reader, main.contents-page) .site-header {
   line-height: 1;
 }
 
-/* 이전이 없으면 다음이 폭을 다 쓴다 — 좁은 칸에 남으면 방향이 거짓말이 된다. */
-.reader-nav .btn:only-child {
-  grid-column: 1 / -1;
+/* 다음이 남은 폭을 다 쓴다. 마지막 장이라 다음이 없으면 이전이 그 자리를 받는다 —
+   좁은 칸에 남으면 방향이 거짓말이 된다. */
+.reader-nav .btn-next,
+.reader-nav .btn-prev:last-child {
+  flex: 1;
+}
+
+/* ── 장 전환 (ADR-041) ──────────────────────────────────────────────────
+   장 이동에 **방향**을 준다. 다음 장은 오른쪽에서 들어오고, 이전 장은 왼쪽에서
+   들어온다. 방향 없는 페이드는 "바뀌었다"만 말하고 "어디로 갔는지"를 말하지 않는다.
+
+   경로가 둘이라 둘 다 건다 — 실제 문서 이동(`@view-transition`, 스크립트가 없어도
+   걸린다)과 하이드레이션 뒤 라우터의 클라이언트 이동(`Link`의 `viewTransition`)이다.
+   미지원 브라우저(교차 문서에서는 Firefox)는 지금과 똑같이 즉시 전환된다.
+   폴백을 따로 만들지 않는다 — 그것이 이 결정의 비용을 0으로 만드는 성질이다. */
+
+/* **크롬은 제자리에.** 본문만 밀리고 상·하단은 서 있어야 한다 — 같이 밀리면
+   화면 전체가 흔들린다.
+
+   **이 규칙 하나만 미디어 쿼리 밖이다.** 클라이언트 이동은 CSS가 아니라 라우터가
+   시작하므로 `reduce`에서도 전환 자체는 돈다. 그때 본문에는 이름이 붙지 않아
+   root만 남는데, 이 규칙이 없으면 UA 기본 크로스페이드로 **화면 전체가 흐려졌다 켜진다.** */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* **전환은 이 미디어 쿼리 안에서만 켠다** (ADR-041). 밖에서는 `@view-transition`도
+   `view-transition-name`도 없어 본문이 전환에 참여조차 하지 않는다.
+   움직임에 멀미를 느끼는 사람에게 긴 글을 읽는 화면에서 매번 밀어 보내는 것은 해롭다.
+   **빼먹어도 아무 테스트도 실패하지 않는 자리다.** */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* 이름은 본문에만 준다. 나머지는 root에 남아 위 규칙대로 제자리에 선다.
+
+     **이름이 장마다 번갈아 붙는 이유**가 이 블록에서 가장 조용한 함정이다. 두 문서가
+     같은 이름을 쓰면 브라우저가 옛 본문과 새 본문을 한 그룹으로 묶어 위치·크기를 이어
+     붙이는데, 교차 문서 이동에서 옛 본문의 좌표는 **그 문서가 스크롤돼 있던 자리**다 —
+     장 끝까지 읽고 넘기면 새 본문이 화면 밖 위쪽에서 날아 내려온다. 이름이 다르면
+     그룹이 둘로 갈려 각자 제자리에서 밀려날 뿐이다. 이웃한 장은 홀짝이 반드시 다르므로
+     두 벌이면 충분하다. 홀짝은 라우트가 `data-vt`로 넘긴다. */
+  .reader[data-vt="0"] {
+    view-transition-name: reader-a;
+  }
+
+  .reader[data-vt="1"] {
+    view-transition-name: reader-b;
+  }
+
+  ::view-transition-old(reader-a),
+  ::view-transition-new(reader-a),
+  ::view-transition-old(reader-b),
+  ::view-transition-new(reader-b) {
+    animation-duration: var(--motion-duration);
+    animation-timing-function: var(--motion-ease);
+    animation-fill-mode: both;
+  }
+
+  /* 기본은 "다음 장"이다. 교차 문서 이동에서는 **어디서 왔는지가 새 문서에 없다** —
+     전환을 그리는 것은 도착한 문서인데 그 문서의 CSS는 떠나온 장 번호를 모른다.
+     알아내는 유일한 길이 스크립트(`pagereveal`)라 JS 없는 경로는 기본값으로 간다.
+     63장을 앞으로 읽는 것이 이 화면의 기본 동작이라 그쪽을 기본으로 둔다.
+     **언제 아픈지와 닫는 자리는 tech-debt S8에 적어 두었다.** */
+  ::view-transition-old(reader-a),
+  ::view-transition-old(reader-b) {
+    animation-name: reader-out-left;
+  }
+
+  ::view-transition-new(reader-a),
+  ::view-transition-new(reader-b) {
+    animation-name: reader-in-right;
+  }
+
+  /* 하이드레이션 뒤에는 라우터가 방향을 알려준다 — `Link`의 `viewTransition.types`가
+     `document.startViewTransition({ update, types })`로 들어간다. */
+  html:active-view-transition-type(chapter-prev)::view-transition-old(reader-a),
+  html:active-view-transition-type(chapter-prev)::view-transition-old(reader-b) {
+    animation-name: reader-out-right;
+  }
+
+  html:active-view-transition-type(chapter-prev)::view-transition-new(reader-a),
+  html:active-view-transition-type(chapter-prev)::view-transition-new(reader-b) {
+    animation-name: reader-in-left;
+  }
+
+  /* 나가는 쪽과 들어오는 쪽이 같은 방향으로 흐른다. 26px면 방향을 말하기에 충분하고,
+     그보다 크면 글이 화면 밖으로 던져진 것처럼 보인다. */
+  @keyframes reader-out-left {
+    to {
+      transform: translateX(calc(var(--motion-shift) * -1));
+      opacity: 0;
+    }
+  }
+
+  @keyframes reader-in-right {
+    from {
+      transform: translateX(var(--motion-shift));
+      opacity: 0;
+    }
+  }
+
+  @keyframes reader-out-right {
+    to {
+      transform: translateX(var(--motion-shift));
+      opacity: 0;
+    }
+  }
+
+  @keyframes reader-in-left {
+    from {
+      transform: translateX(calc(var(--motion-shift) * -1));
+      opacity: 0;
+    }
+  }
 }
 
 /* ── 읽기 설정 (ADR-040) ────────────────────────────────────────────────

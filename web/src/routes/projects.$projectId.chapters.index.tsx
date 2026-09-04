@@ -79,11 +79,16 @@ function Contents() {
             return (
               <li key={chapter.idx}>
                 {/* 진행도 0%인 장도 링크다. 원문은 있으므로 읽을 수 있고,
-                    막아 두면 번역이 시작되지 않은 장으로 갈 길이 사라진다. */}
+                    막아 두면 번역이 시작되지 않은 장으로 갈 길이 사라진다.
+
+                    목차에서 장으로 들어가는 것도 앞으로 가는 이동이다 — 문서 이동이
+                    CSS만으로 그러듯 본문이 오른쪽에서 들어온다 (ADR-041). 붙이지 않으면
+                    하이드레이션 전후로 같은 클릭이 다르게 보인다. */}
                 <Link
                   to="/projects/$projectId/chapters/$idx"
                   params={{ projectId, idx: String(chapter.idx) }}
                   data-untranslated={ratio === 0 ? '' : undefined}
+                  viewTransition={{ types: ['chapter-next'] }}
                 >
                   <span className="contents-idx">
                     {String(chapter.idx + 1).padStart(2, '0')}
